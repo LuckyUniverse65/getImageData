@@ -67,6 +67,16 @@
         add('colorModernSyntax',()=>{const g=fresh();g.fillStyle='rgb(255 0 0 / 50%)';g.fillRect(0,0,4,4);return {style:g.fillStyle,pixel:pixel(g)};});
         add('colorHsl',()=>{const g=fresh();g.fillStyle='hsl(120,100%,50%)';g.fillRect(0,0,4,4);return pixel(g);});
         add('lineWidthInvalidPreserves',()=>{const g=fresh();g.lineWidth=3;g.lineWidth=NaN;g.lineWidth=-1;g.lineWidth=0;return g.lineWidth;});
+        add('unicodeColorsIgnored',()=>{const g=fresh();g.fillStyle='red';g.strokeStyle='blue';g.shadowColor='red';g.fillStyle='#红';g.strokeStyle='#😀';g.shadowColor='#éa';g.fillRect(0,0,2,2);return {fill:g.fillStyle,stroke:g.strokeStyle,pixel:pixel(g)};});
+        add('cssColorSavedState',()=>{const g=fresh();g.fillStyle='rgb(255 0 0 / 50%)';g.save();g.fillStyle='blue';g.restore();g.fillRect(0,0,2,2);return {style:g.fillStyle,pixel:pixel(g)};});
+        add('roundRectRadiusGetter',()=>{const g=fresh();let x=0,y=0;g.roundRect(0,0,8,8,{get x(){x++;return 2;},get y(){y++;return 3;}});return {x,y,inside:g.isPointInPath(4,4)};});
+        add('roundRectStringRadius',()=>{const g=fresh();g.roundRect(0,0,8,8,'2');return [g.isPointInPath(0.1,0.1),g.isPointInPath(4,4)];});
+        add('fontStateRestore',()=>{const g=fresh();g.font='12pt Arial';g.save();g.font='italic 14px Arial';g.restore();return g.font;});
+        add('fontQuotedFamily',()=>{const g=fresh();g.font='bold 12px "Courier New"';return g.font;});
+        add('modernColorInvalid',()=>{const g=fresh();g.fillStyle='red';g.fillStyle='rgb(0 255 0 0.5)';return g.fillStyle;});
+        add('textMetricsControl',()=>{const g=fresh();g.font='12px Arial';return ['AV','fi','g',''].map(s=>{const m=g.measureText(s);return {width:m.width,left:m.actualBoundingBoxLeft,right:m.actualBoundingBoxRight,ascent:m.actualBoundingBoxAscent,descent:m.actualBoundingBoxDescent};});});
+        add('imageShadowAlpha',()=>{const g=fresh();g.globalAlpha=0.5;g.shadowColor='blue';g.shadowOffsetX=8;g.drawImage(source(),0,0);return [pixel(g,1,1),pixel(g,9,1)];});
+        add('imageShadowRestore',()=>{const g=fresh();g.shadowColor='blue';g.shadowOffsetX=8;g.save();g.shadowOffsetX=16;g.restore();g.drawImage(source(),0,0);return [pixel(g,9,1),pixel(g,17,1)];});
         return results;
     }
     if (typeof module !== 'undefined' && module.exports) module.exports = runThirdRoundCases;

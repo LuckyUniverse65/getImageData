@@ -1061,15 +1061,47 @@ void skia_canvas_draw_text(void* value, const char* text, uint32_t length,
                          }
                      }, &shadow_source);
 }
+static float canvas_shaped_metrics(const char* text, uint32_t length, const SkFont& font,
+                                  std::vector<SkGlyphID>& glyphs, std::vector<SkPoint>& positions) {
+    float advance=0;
+    shape_text_blob(text,length,font,font,true,&advance,&glyphs,&positions);
+    std::vector<SkScalar> widths(glyphs.size());
+    font.getWidths(SkSpan<const SkGlyphID>(glyphs.data(),glyphs.size()),SkSpan<SkScalar>(widths.data(),widths.size()));
+    // SkShaper rounds advances to HB 16.16; Blink truncates the font metrics.
+    // Adjust each glyph advance before accumulating, retaining shaping/kerning.
+    float correction=0;
+    for(size_t i=0;i<widths.size();i++){
+        positions[i].fX+=correction;
+        const float fixed=widths[i]*65536.0f;
+        correction+=(std::trunc(fixed)-std::floor(fixed+0.5f))/65536.0f;
+    }
+    return advance+correction;
+}
 float skia_canvas_measure_text(void* value, const char* text, uint32_t length,
                                const char* family, float size, int weight, int slant) {
     if (!value || !text) return 0;
     SkFont font = resolve_font(family, size, weight, slant);
     if (runtime_float("CANVAS_HARFBUZZ_SHAPING", 1.0f) != 0.0f) {
-        float advance = 0;
-        if (make_shaped_text_blob(text, length, font, font, &advance)) return advance;
+        std::vector<SkGlyphID> glyphs;std::vector<SkPoint> positions;
+        const float advance=canvas_shaped_metrics(text,length,font,glyphs,positions);
+        if (!glyphs.empty()) return advance;
     }
     return font.measureText(text, length, SkTextEncoding::kUTF8);
+}
+void skia_canvas_text_bounds(void* value, const char* text, uint32_t length,
+                               const char* family, float size, int weight, int slant, float* output) {
+    if (!value || !text || !output) return;
+    SkFont font=resolve_font(family,size,weight,slant);
+    std::vector<SkGlyphID> glyphs;
+    std::vector<SkPoint> positions;
+    canvas_shaped_metrics(text,length,font,glyphs,positions);
+    std::vector<SkRect> bounds(glyphs.size());
+    // Blink obtains glyph ink bounds using its LCD text edging configuration.
+    font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+    font.getBounds(SkSpan<const SkGlyphID>(glyphs.data(),glyphs.size()),SkSpan<SkRect>(bounds.data(),bounds.size()),nullptr);
+    SkRect combined=SkRect::MakeEmpty();
+    for(size_t i=0;i<bounds.size();i++) {bounds[i].offset(positions[i]);combined.join(bounds[i]);}
+    output[0]=combined.left();output[1]=combined.top();output[2]=combined.right();output[3]=combined.bottom();
 }
 void skia_canvas_font_metrics(void* value, const char* family, float size,
                               int weight, int slant, float* ascent, float* descent) {
@@ -1124,13 +1156,14 @@ void skia_canvas_draw_rgba_image(void* value, const uint8_t* input, uint32_t ima
     // Blink quantizes the image paint alpha to a byte before GPU composition.
     paint.setAlpha(static_cast<U8CPU>(std::round(c->global_alpha * 255.0f)));
     paint.setBlendMode(SkBlendMode::kSrcOver);
-    if (c->blend_mode == SkBlendMode::kSrc) {
-        c->surface->getCanvas()->drawColor(c->opaque ? SK_ColorBLACK : SK_ColorTRANSPARENT, SkBlendMode::kSrc);
-    }
-    c->surface->getCanvas()->drawImageRect(image.get(), SkRect::MakeXYWH(sx, sy, sw, sh),
+    Style image_style;
+    image_style.color={1,1,1,1};
+    draw_with_shadow(c,image_style,paint,[&](SkCanvas* target,const SkPaint& image_paint){
+    target->drawImageRect(image.get(), SkRect::MakeXYWH(sx, sy, sw, sh),
                                            SkRect::MakeXYWH(dx, dy, dw, dh),
-                                           SkSamplingOptions(c->image_smoothing ? SkFilterMode::kLinear : SkFilterMode::kNearest), &paint,
+                                           SkSamplingOptions(c->image_smoothing ? SkFilterMode::kLinear : SkFilterMode::kNearest), &image_paint,
                                            SkCanvas::kFast_SrcRectConstraint);
+    });
 }
 void skia_canvas_read(void* value, int32_t x, int32_t y, uint32_t width, uint32_t height, uint8_t* output) {
     auto* c = static_cast<Canvas*>(value); if (!output) return;

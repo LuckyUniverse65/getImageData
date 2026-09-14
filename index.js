@@ -5,6 +5,13 @@ const { encodePng } = require('./src/png');
 // Canvas 2D is provided by the compiled Node-API module.  The reference
 // JavaScript rasterizer is intentionally not used as the production backend.
 const OffscreenCanvasRenderingContext2D = native.OffscreenCanvasRenderingContext2D;
+const imageDataObjects = new WeakSet();
+const imageSources = new WeakSet();
+const domString = value => { if (typeof value === 'symbol') throw new TypeError('Cannot convert Symbol to string'); return String(value); };
+function checkImageSource(source) {
+    if (!imageSources.has(source)) throw new TypeError('Expected a Canvas image source');
+    if (!source.width || !source.height) throw new DOMException('Image source has no pixels', 'InvalidStateError');
+}
 
 function dimension(value, fallback) {
     if (value === undefined) return fallback;
@@ -41,19 +48,23 @@ function adaptContextArguments(context) {
             if(values.every(Number.isFinite)) return nativeTransform.apply(this, values);
             return;
         }
-        if (args.length > 1) throw new TypeError('setTransform requires a dictionary or six numbers');
         const dict = args[0];
         if (dict != null && typeof dict !== 'object' && typeof dict !== 'function') {
             throw new TypeError('Expected a matrix dictionary');
         }
+        const fields={};
+        for(const key of ['a','b','c','d','e','f','m11','m12','m21','m22','m41','m42','is2D','m13','m14','m23','m24','m31','m32','m33','m34','m43','m44']) {
+            const value=dict?.[key];
+            fields[key]=value===undefined?undefined:key==='is2D'?!!value:+value;
+        }
         const values = [['a','m11',1],['b','m12',0],['c','m21',0],['d','m22',1],['e','m41',0],['f','m42',0]].map(([key,alias,fallback])=>{
-            const first=dict?.[key],second=dict?.[alias];
-            const a=first===undefined?undefined:+first,b=second===undefined?undefined:+second;
+            const a=fields[key],b=fields[alias];
             if(a!==undefined && b!==undefined && a!==b && !(Number.isNaN(a)&&Number.isNaN(b))) {
                 throw new TypeError('Conflicting matrix dictionary aliases');
             }
             return a===undefined?(b===undefined?fallback:b):a;
         });
+        if(fields.is2D===true && ['m13','m14','m23','m24','m31','m32','m33','m34','m43','m44'].some(k=>fields[k]!==undefined&&fields[k]!==(['m33','m44'].includes(k)?1:0)))throw new TypeError('Matrix is not 2D');
         if(values.every(Number.isFinite)) return nativeTransform.apply(this, values);
     };
     const arities={fillRect:4,clearRect:4,strokeRect:4,rect:4,moveTo:2,lineTo:2,
@@ -67,10 +78,79 @@ function adaptContextArguments(context) {
             return method.apply(this,args);
         };
     }
+    for(const name of ['fillText','strokeText','measureText']) {
+        const method=context[name],count=name==='measureText'?1:3;
+        context[name]=function(...args){
+            if(args.length<count)throw new TypeError(`${name} requires ${count} arguments`);
+            args[0]=domString(args[0]).replace(/[\t\n\f\r]/g,' ');
+            if(count===3){args[1]=+args[1];args[2]=+args[2];if(args[3]!==undefined)args[3]=+args[3];}
+            return method.apply(this,args);
+        };
+    }
+    const drawImage=context.drawImage;
+    context.drawImage=function(...args){
+        if(args.length<3 || args.length===4 || (args.length>5&&args.length<9))throw new TypeError('Invalid drawImage overload');
+        if(!imageSources.has(args[0]))throw new TypeError('Expected a Canvas image source');
+        const count=args.length>=9?9:args.length>=5?5:3;
+        for(let i=1;i<count;i++)args[i]=+args[i];
+        checkImageSource(args[0]);
+        if(!args.slice(1,count).every(Number.isFinite))return;
+        return drawImage.apply(this,args.slice(0,count));
+    };
+    const createPattern=context.createPattern;
+    context.createPattern=function(source,repetition){
+        if(arguments.length<2)throw new TypeError('createPattern requires two arguments');
+        if(!imageSources.has(source))throw new TypeError('Expected a Canvas image source');
+        repetition=repetition===null?'':domString(repetition);
+        if(!['','repeat','repeat-x','repeat-y','no-repeat'].includes(repetition))throw new DOMException('Invalid repetition','SyntaxError');
+        checkImageSource(source);
+        return createPattern.call(this,source,repetition||'repeat');
+    };
+    for(const name of ['getImageData','createImageData']) {
+        const method=context[name];
+        context[name]=function(...args){
+            if(name==='createImageData' && (args.length===0 || (args.length===1&&!imageDataObjects.has(args[0]))))throw new TypeError('Expected ImageData or two dimensions');
+            const data=method.apply(this,args);if(data)imageDataObjects.add(data);return data;
+        };
+    }
+    const putImageData=context.putImageData;
+    context.putImageData=function(...args){
+        if(args.length<3 || (args.length>3&&args.length<7))throw new TypeError('Invalid putImageData overload');
+        if(!imageDataObjects.has(args[0]))throw new TypeError('Expected ImageData');
+        return putImageData.apply(this,args);
+    };
+    for(const name of ['fill','clip','isPointInPath','isPointInStroke']) {
+        const method=context[name],hit=name.startsWith('isPoint'),ruleIndex=hit?2:0;
+        context[name]=function(...args){
+            if(hit){if(args.length<2)throw new TypeError('Expected point coordinates');args[0]=+args[0];args[1]=+args[1];}
+            if(name!=='isPointInStroke'){
+                const rule=args[ruleIndex]===undefined?'nonzero':domString(args[ruleIndex]);
+                if(!['nonzero','evenodd'].includes(rule))throw new TypeError('Invalid fill rule');
+                args[ruleIndex]=rule;
+            }
+            return method.apply(this,args);
+        };
+    }
+    const roundRect=context.roundRect;
+    context.roundRect=function(x,y,w,h,radii=0){
+        if(arguments.length<4)throw new TypeError('roundRect requires four coordinates');
+        const coords=[+x,+y,+w,+h];
+        const iterable=radii!=null&&(typeof radii==='object'||typeof radii==='function')&&typeof radii[Symbol.iterator]==='function';
+        const values=iterable?Array.from(radii):[radii];
+        const points=values.map(v=>{
+            if(v!==null&&(typeof v==='object'||typeof v==='function')){const x=v.x,y=v.y;return {x:x===undefined?0:+x,y:y===undefined?0:+y};}
+            const n=+v;return {x:n,y:n};
+        });
+        if(points.length<1||points.length>4)throw new RangeError('Expected one to four radii');
+        if(points.some(p=>p.x<0||p.y<0))throw new RangeError('Negative radius');
+        if(!coords.every(Number.isFinite)||points.some(p=>!Number.isFinite(p.x)||!Number.isFinite(p.y)))return;
+        return roundRect.call(this,...coords,points);
+    };
 }
 
 class ImageBitmap {
     constructor(width, height, pixels) {
+        imageSources.add(this);
         this._width = width;
         this._height = height;
         this._pixels = new Uint8ClampedArray(pixels);
@@ -88,6 +168,7 @@ class OffscreenCanvas {
         this._height = offscreenDimension(height);
         this._contexts = new Map();
         this._native = new native.OffscreenCanvas(this._width, this._height);
+        imageSources.add(this);
     }
 
     get width() { return this._width; }
@@ -156,6 +237,7 @@ class OffscreenCanvas {
 
 class HTMLCanvasElement {
     constructor(width = 300, height = 150) {
+        imageSources.add(this);
         this.width = dimension(width, 300);
         this.height = dimension(height, 150);
         this._offscreen = null;

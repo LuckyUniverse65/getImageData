@@ -3,6 +3,8 @@ use std::ptr;
 use std::sync::OnceLock;
 use std::rc::Rc;
 use std::cell::RefCell;
+#[path = "canvas_css.rs"]
+mod canvas_css;
 
 type NapiEnv = *mut c_void;
 type NapiValue = *mut c_void;
@@ -66,6 +68,7 @@ extern "C" {
     fn skia_canvas_set_image_smoothing(canvas: *mut c_void, enabled: i32);
     fn skia_canvas_draw_text(canvas: *mut c_void, text: *const u8, length: u32, family: *const c_char, x: f32, y: f32, size: f32, stroke: i32, weight: i32, slant: i32);
     fn skia_canvas_measure_text(canvas: *mut c_void, text: *const u8, length: u32, family: *const c_char, size: f32, weight: i32, slant: i32) -> f32;
+    fn skia_canvas_text_bounds(canvas: *mut c_void, text: *const u8, length: u32, family: *const c_char, size: f32, weight: i32, slant: i32, bounds: *mut f32);
     fn skia_canvas_font_metrics(canvas: *mut c_void, family: *const c_char, size: f32, weight: i32, slant: i32, ascent: *mut f32, descent: *mut f32);
     fn skia_canvas_reset(canvas: *mut c_void);
     fn skia_canvas_clear_bitmap(canvas: *mut c_void);
@@ -256,6 +259,7 @@ struct CanvasState {
 
 #[derive(Clone)]
 enum Style {
+    CssColor([u8; 4], f64),
     Color([u8; 4]),
     Gradient(Rc<GradientStyle>),
     Pattern(Pattern),
@@ -325,8 +329,7 @@ unsafe fn uint32(env: NapiEnv, value: u32) -> NapiValue {
 
 unsafe fn string(env: NapiEnv, value: &str) -> NapiValue {
     let mut result = ptr::null_mut();
-    let value = CString::new(value).unwrap();
-    (api().create_string_utf8)(env, value.as_ptr(), value.as_bytes().len(), &mut result);
+    (api().create_string_utf8)(env, value.as_ptr() as *const c_char, value.len(), &mut result);
     result
 }
 
@@ -555,6 +558,9 @@ unsafe fn image_data(env: NapiEnv, width: usize, height: usize, pixels: &[u8]) -
 
 fn parse_color(value: &str) -> Option<[u8; 4]> {
     let value = value.trim().to_ascii_lowercase();
+    if value.starts_with("hsl") || ((value.starts_with("rgb(")||value.starts_with("rgba("))&&!value.contains(',')) {
+        return canvas_css::function_color(&value);
+    }
     let named = match value.as_str() {
         "black" => Some([0, 0, 0, 255]), "white" => Some([255, 255, 255, 255]),
         "red" => Some([255, 0, 0, 255]), "green" => Some([0, 128, 0, 255]),
@@ -577,6 +583,8 @@ fn parse_color(value: &str) -> Option<[u8; 4]> {
         }
     }
     let hex = value.strip_prefix('#')?;
+    // Validate bytes before slicing UTF-8: malformed CSS must never panic.
+    if !hex.bytes().all(|byte| byte.is_ascii_hexdigit()) { return None; }
     let byte = |index: usize| u8::from_str_radix(&hex[index..index + 2], 16).ok();
     match hex.len() {
         3 => Some([
@@ -753,7 +761,7 @@ fn rectangle(x: f64, y: f64, width: f64, height: f64) -> (isize, isize, isize, i
     (x1.min(x2), y1.min(y2), x1.max(x2), y1.max(y2))
 }
 
-fn style_color(style: &Style) -> [u8; 4] { match style { Style::Color(c) => *c, Style::Gradient(g) => g.data.borrow().stops.first().map(|s| s.1).unwrap_or([0,0,0,255]), Style::Pattern(_) => [0,0,0,255] } }
+fn style_color(style: &Style) -> [u8; 4] { match style { Style::Color(c) | Style::CssColor(c,_) => *c, Style::Gradient(g) => g.data.borrow().stops.first().map(|s| s.1).unwrap_or([0,0,0,255]), Style::Pattern(_) => [0,0,0,255] } }
 
 unsafe fn style_value(env: NapiEnv, style: &Style) -> NapiValue {
     if let Style::Gradient(g) = style {
@@ -762,6 +770,7 @@ unsafe fn style_value(env: NapiEnv, style: &Style) -> NapiValue {
         return value;
     }
     let color = style_color(style);
+    if let Style::CssColor(_,alpha)=style {if *alpha<1.0{return string(env,&format!("rgba({}, {}, {}, {})",color[0],color[1],color[2],alpha));}}
     if color[3] == 255 { string(env, &format!("#{:02x}{:02x}{:02x}", color[0], color[1], color[2])) }
     else { string(env, &format!("rgba({}, {}, {}, {})", color[0], color[1], color[2], color[3] as f64 / 255.0)) }
 }
@@ -771,7 +780,7 @@ unsafe fn style_value(env: NapiEnv, style: &Style) -> NapiValue {
 unsafe fn sync_native_style(canvas: &Canvas2D, style: &Style, stroke: bool) {
     if canvas.native.is_null() { return; }
     match style {
-        Style::Color(color) => skia_canvas_set_color(canvas.native, stroke as i32, color[0], color[1], color[2], color[3]),
+        Style::Color(color) | Style::CssColor(color,_) => skia_canvas_set_color(canvas.native, stroke as i32, color[0], color[1], color[2], color[3]),
         Style::Gradient(gradient) => {
             let gradient = gradient.data.borrow();
             let args = gradient.args.map(|value| value as f32);
@@ -802,20 +811,6 @@ unsafe fn sync_native_paint(canvas: &Canvas2D) {
 }
 
 struct FontSpec { family: CString, size: f64, weight: i32, slant: i32 }
-
-// Validate the px font syntax supported by this renderer before replacing a
-// valid state. Unsupported or malformed CSS shorthands leave the old font intact.
-fn valid_font(value: &str) -> bool {
-    let lowercase=value.to_ascii_lowercase();
-    for (index,_) in lowercase.match_indices("px") {
-        let mut tokens=lowercase[..index].split_whitespace().collect::<Vec<_>>();
-        let Some(size)=tokens.pop().and_then(|v|v.parse::<f64>().ok()) else{continue;};
-        if !size.is_finite() || size<0.0 || value[index+2..].trim().is_empty(){continue;}
-        if tokens.iter().all(|token| ["normal","italic","oblique","small-caps","bold","bolder","lighter"].contains(token)
-            || token.parse::<u32>().map(|weight|(1..=1000).contains(&weight)).unwrap_or(false)) {return true;}
-    }
-    false
-}
 
 fn font_spec(value: &str) -> FontSpec {
     let lowercase = value.to_ascii_lowercase();
@@ -873,7 +868,10 @@ unsafe extern "C" fn set_canvas_property(env: NapiEnv, info: NapiCallbackInfo) -
     match data {
         0 | 1 => {
             if let Some(s) = value_string(env, *value) {
-                if let Some(col) = parse_color(&s) { if data == 0 { c.fill = Style::Color(col); } else { c.stroke = Style::Color(col); } }
+                if let Some(col) = parse_color(&s) {
+                    let style=if let Some(alpha)=canvas_css::alpha(&s){Style::CssColor(col,alpha)}else{Style::Color(col)};
+                    if data == 0 { c.fill = style; } else { c.stroke = style; }
+                }
             } else {
                 let mut raw=ptr::null_mut();
                 let mut is_gradient = false;
@@ -902,7 +900,7 @@ unsafe extern "C" fn set_canvas_property(env: NapiEnv, info: NapiCallbackInfo) -
             let n = number(env, converted);
             if n.is_finite() && (0.0..=1.0).contains(&n) { c.global_alpha = n; }
         },
-        6 => if let Some(s) = value_string(env, *value) { if valid_font(&s) { c.font = s; } },
+        6 => if let Some(s) = value_string(env, *value) { if let Some(font) = canvas_css::font(&s) { c.font = font; } },
         7 => if let Some(s) = value_string(env, *value) { if ["left", "right", "center", "start", "end"].contains(&s.as_str()) { c.text_align = s; } }, 8 => if let Some(s) = value_string(env, *value) { if ["top", "hanging", "middle", "alphabetic", "ideographic", "bottom"].contains(&s.as_str()) { c.text_baseline = s; } },
         9 => if let Some(s) = value_string(env, *value) { if s == "source-over" || s == "copy" { c.composite_copy = s == "copy"; } },
         12 => if let Some(s) = value_string(env, *value) { if ["butt", "round", "square"].contains(&s.as_str()) { c.line_cap = s; } },
@@ -936,7 +934,7 @@ unsafe fn fill_rectangle(canvas: &mut Canvas2D, x: f64, y: f64, width: f64, heig
 fn tx(t: [f64; 6], x: f64, y: f64) -> (f64, f64) { (t[0]*x+t[2]*y+t[4], t[1]*x+t[3]*y+t[5]) }
 fn style_at(style: &Style, x: f64, y: f64) -> [u8; 4] {
     match style {
-        Style::Color(c) => *c,
+        Style::Color(c) | Style::CssColor(c,_) => *c,
         Style::Gradient(g) => {
             let g = g.data.borrow();
             if g.stops.is_empty() { return [0,0,0,0]; }
@@ -1216,7 +1214,12 @@ unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> N
             set(env,o,"width",number_value(env,width));
             let (mut ascent,mut descent)=(font.size*0.8,font.size*0.2);
             if !canvas.native.is_null() { let mut a=0.0f32; let mut d=0.0f32; skia_canvas_font_metrics(canvas.native,font.family.as_ptr(),font.size as f32,font.weight,font.slant,&mut a,&mut d); ascent=(-a) as f64; descent=d as f64; }
+            let mut bounds=[0.0f32;4];
+            if !canvas.native.is_null() && !text.is_empty(){skia_canvas_text_bounds(canvas.native,text.as_ptr(),text.len() as u32,font.family.as_ptr(),font.size as f32,font.weight,font.slant,bounds.as_mut_ptr());}
             for (name,value) in [("actualBoundingBoxAscent",if text.is_empty(){0.0}else{ascent}),("actualBoundingBoxDescent",if text.is_empty(){0.0}else{descent}),("fontBoundingBoxAscent",ascent),("fontBoundingBoxDescent",descent),("emHeightAscent",ascent),("emHeightDescent",descent),("hangingBaseline",0.0),("alphabeticBaseline",0.0),("ideographicBaseline",descent),("actualBoundingBoxLeft",0.0),("actualBoundingBoxRight",width)] { set(env,o,name,number_value(env,value)); }
+            let align=match canvas.text_align.as_str(){"center"=>width/2.0,"right"|"end"=>width,_=>0.0};
+            let baseline=text_baseline_offset(canvas,&font);
+            for (name,value) in [("actualBoundingBoxLeft",align-bounds[0] as f64),("actualBoundingBoxRight",bounds[2] as f64-align),("actualBoundingBoxAscent",-(bounds[1] as f64)-baseline),("actualBoundingBoxDescent",bounds[3] as f64+baseline)]{set(env,o,name,number_value(env,if value==0.0{0.0}else{value}));}
             o
         }
         "getImageData" => {

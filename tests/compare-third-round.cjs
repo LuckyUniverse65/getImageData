@@ -16,7 +16,7 @@ for(const name of Object.keys(local)){
 }
 const {value,...capture}=browser;
 const report={tested:Object.keys(local).length,matched:matches.length,differing:differences.length,capture,
-    sha256:Object.fromEntries(['index.js','src/webgl_native.rs','src/skia_backend.cpp','webgl.node',browser.script].map(p=>[p,hash(p)])),matches,differences};
+    sha256:Object.fromEntries(['index.js','src/webgl_native.rs','src/canvas_css.rs','src/skia_backend.cpp','webgl.node',browser.script].map(p=>[p,hash(p)])),matches,differences};
 fs.writeFileSync(path.join(root,'out/cdp-third-round-local.json'),JSON.stringify(local,null,2)+'\n');
 fs.writeFileSync(path.join(root,'out/cdp-third-round-diff.json'),JSON.stringify(report,null,2)+'\n');
 console.log(JSON.stringify({tested:report.tested,matched:matches.length,differing:differences.length,runId:browser.runId,cases:differences.map(d=>d.name)}));
