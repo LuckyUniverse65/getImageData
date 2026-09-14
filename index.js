@@ -15,6 +15,60 @@ function dimension(value, fallback) {
     return Math.floor(n);
 }
 
+function offscreenDimension(value) {
+    const n = +value;
+    if (!Number.isFinite(n) || Math.trunc(n) < 0) {
+        throw new TypeError('Canvas dimension is outside the unsigned integer range');
+    }
+    if (Math.trunc(n) > 0xffffffff) throw new RangeError('Canvas dimension exceeds the native backend limit');
+    return Math.trunc(n) || 0;
+}
+
+// Convert iterable and dictionary Web IDL arguments in JavaScript, then pass
+// normalized numeric data to the native drawing/state implementation.
+function adaptContextArguments(context) {
+    const nativeDash = context.setLineDash;
+    context.setLineDash = function (segments) {
+        if (segments == null || typeof segments[Symbol.iterator] !== 'function') {
+            throw new TypeError('Line dash must be an iterable');
+        }
+        return nativeDash.call(this, Array.from(segments, value => +value));
+    };
+    const nativeTransform = context.setTransform;
+    context.setTransform = function (...args) {
+        if (args.length >= 6) {
+            const values=args.slice(0,6).map(value=>+value);
+            if(values.every(Number.isFinite)) return nativeTransform.apply(this, values);
+            return;
+        }
+        if (args.length > 1) throw new TypeError('setTransform requires a dictionary or six numbers');
+        const dict = args[0];
+        if (dict != null && typeof dict !== 'object' && typeof dict !== 'function') {
+            throw new TypeError('Expected a matrix dictionary');
+        }
+        const values = [['a','m11',1],['b','m12',0],['c','m21',0],['d','m22',1],['e','m41',0],['f','m42',0]].map(([key,alias,fallback])=>{
+            const first=dict?.[key],second=dict?.[alias];
+            const a=first===undefined?undefined:+first,b=second===undefined?undefined:+second;
+            if(a!==undefined && b!==undefined && a!==b && !(Number.isNaN(a)&&Number.isNaN(b))) {
+                throw new TypeError('Conflicting matrix dictionary aliases');
+            }
+            return a===undefined?(b===undefined?fallback:b):a;
+        });
+        if(values.every(Number.isFinite)) return nativeTransform.apply(this, values);
+    };
+    const arities={fillRect:4,clearRect:4,strokeRect:4,rect:4,moveTo:2,lineTo:2,
+        quadraticCurveTo:4,bezierCurveTo:6,arcTo:5,arc:5,ellipse:7,scale:2,translate:2,rotate:1,transform:6};
+    for(const [name,count] of Object.entries(arities)) {
+        const method=context[name];
+        context[name]=function (...args) {
+            if(args.length<count)throw new TypeError(`${name} requires ${count} arguments`);
+            for(let i=0;i<count;i++)args[i]=+args[i];
+            if(!args.slice(0,count).every(Number.isFinite))return;
+            return method.apply(this,args);
+        };
+    }
+}
+
 class ImageBitmap {
     constructor(width, height, pixels) {
         this._width = width;
@@ -28,21 +82,22 @@ class ImageBitmap {
 }
 
 class OffscreenCanvas {
-    constructor(width = 300, height = 150) {
-        this._width = dimension(width, 300);
-        this._height = dimension(height, 150);
+    constructor(width, height) {
+        if (arguments.length < 2) throw new TypeError('OffscreenCanvas requires width and height');
+        this._width = offscreenDimension(width);
+        this._height = offscreenDimension(height);
         this._contexts = new Map();
         this._native = new native.OffscreenCanvas(this._width, this._height);
     }
 
     get width() { return this._width; }
     set width(value) {
-        this._resize(dimension(value, 300), this._height);
+        this._resize(offscreenDimension(value), this._height);
     }
 
     get height() { return this._height; }
     set height(value) {
-        this._resize(this._width, dimension(value, 150));
+        this._resize(this._width, offscreenDimension(value));
     }
 
     get data() {
@@ -75,6 +130,7 @@ class OffscreenCanvas {
             if (kind === "2d" && context && Object.getPrototypeOf(context) !== OffscreenCanvasRenderingContext2D.prototype) {
                 Object.setPrototypeOf(context, OffscreenCanvasRenderingContext2D.prototype);
             }
+            if (kind === '2d' && context) adaptContextArguments(context);
             if (context) Object.defineProperty(context, 'canvas', { value: this, enumerable: true });
             if (context) this._contexts.set(kind, context);
             return context;

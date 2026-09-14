@@ -2,7 +2,7 @@
 
 Windows 上的 Node.js `OffscreenCanvas` 兼容层。JavaScript 提供 Canvas 外壳，Rust 通过 Node-API 分派接口，C++ 调用 Skia Graphite / Dawn D3D11 绘制和读取像素。
 
-2026-09-14 通过 CDP 复核：47 项兼容性结果与用户手动打开的 Chrome 153.0.8010.37 一致，`demo.js` 的 9216 个 RGBA 值零差异。额外 30 项边界检查中仍有 25 项差异，详见[第二轮报告](docs/additional-review.md)和 [CDP 验证记录](docs/cdp-verification.md)。
+2026-09-14 完成第二轮修复：原有 47 项与扩充后的 45 项边界测试，共 92 项结果均与用户手动打开的 Chrome 153.0.8010.37 一致；`demo.js` 的 9216 个 RGBA 值零差异，强制 GC 检查通过。详见[第二轮修复与验证](docs/2026-09-14_offscreen-fixes-report.md)。此前的 25 项差异保留在[历史检测报告](docs/additional-review.md)中。
 
 ## 运行
 
@@ -52,12 +52,15 @@ node capture-cdp.cjs tests/additional-cases.js cdp-additional-review
 node tests/compare-additional.cjs
 ```
 
-`out/cdp-verification-result.json` 保存主回归结果；`out/cdp-compatibility-browser.json` 和 `out/cdp-demo-browser.json` 保存实际浏览器返回值、运行编号、时间、Chrome 版本、测试标签页 ID 和源码 SHA-256。第二轮结果为 `out/cdp-additional-review-diff.json`；存在差异时比较器退出码为 1。CDP 输出与历史 F12 输出分别保存，`out/` 不提交到 Git。
+`node test.js` 同时执行两组共 92 项测试、demo 和 GC 检查。`out/cdp-verification-result.json` 保存主回归结果；`out/cdp-compatibility-browser.json`、`out/cdp-additional-review-browser.json` 和 `out/cdp-demo-browser.json` 保存实际浏览器返回值、运行编号、时间、Chrome 版本、测试标签页 ID 和源码 SHA-256。单独运行 `node tests/compare-additional.cjs` 可生成逐项结果 `out/cdp-additional-review-diff.json`；存在差异时比较器退出码为 1。CDP 输出与历史 F12 输出分别保存，`out/` 不提交到 Git。
 
 `demo.js` 的渐变没有添加色标，填充按语义透明；有色渐变由独立用例检查。字体回退、Chrome 后端、显卡及驱动变化可能改变像素结果。部分越界读取使用同一 Chrome 的 `willReadFrequently: true` 路径作为规范参照，原因见[此前的修复记录](docs/canvas-fixes.md#chrome-越界读取差异)。
 
 ## 当前修复与支持范围
 
+- 空路径裁剪、`copy` 清理范围及空绘制处理、`alpha:false` 生命周期、图像平滑状态均已修复。
+- `drawImage` 完整接收九个参数，支持负尺寸规范化、越界源处理和平滑采样；裁剪边缘保留 Chrome 的邻近像素采样行为。
+- 补齐矩阵字典、可迭代虚线、常用绘制参数转换、像素脏矩形和尺寸规则；文字支持 `maxWidth`，非法字体赋值保留原状态。
 - 圆锥渐变支持角度环绕；渐变参数执行数值转换、缺参、有限值和负半径检查。
 - `globalAlpha` 忽略越界及非有限值；图像绘制同步当前透明度和已支持的合成模式。
 - 描边命中测试使用当前线宽、端点、连接和虚线设置，包含 save/restore 后的状态。
@@ -68,6 +71,8 @@ node tests/compare-additional.cjs
 
 Blob 导出支持 PNG；其他 MIME 请求回退为 PNG。位图是本地兼容对象，不是浏览器跨线程 transferable。项目尚未完整覆盖 `CanvasPattern.setTransform`、所有图像源、图像阴影和完整 WebGL pipeline；上下文互斥测试不代表完整 WebGL 绘制能力。
 
+字体校验目前覆盖后端支持的 px 简写，并未实现完整 CSS 字体语法；非空文本的实际边界仍有近似值。Canvas 尺寸仍受原生 u32 上限及可用内存限制。92 项通过表示本轮已覆盖行为与当前 Chrome 一致，不代表完整 Canvas 标准实现。
+
 ## 代码与记录
 
 | 路径 | 用途 |
@@ -77,7 +82,8 @@ Blob 导出支持 PNG；其他 MIME 请求回退为 PNG。位图是本地兼容�
 | [src/skia_backend.cpp](src/skia_backend.cpp) | Skia 后端、路径、渐变、字体、图像和像素读回。 |
 | [src/png.js](src/png.js) | 使用 Node zlib 生成 PNG。 |
 | [tests/browser-cases.js](tests/browser-cases.js) | Node 与现有 Chrome 共用的 47 项兼容性用例。 |
-| [tests/additional-cases.js](tests/additional-cases.js)、[tests/compare-additional.cjs](tests/compare-additional.cjs) | 第二轮 30 项边界用例及差异比较。 |
+| [tests/additional-cases.js](tests/additional-cases.js)、[tests/compare-additional.cjs](tests/compare-additional.cjs) | 第二轮 45 项边界用例及差异比较，已纳入主回归。 |
+| [docs/2026-09-14_offscreen-fixes-report.md](docs/2026-09-14_offscreen-fixes-report.md) | 第二轮修复、92 项验证及产物哈希。 |
 | [tests/gradient-gc.cjs](tests/gradient-gc.cjs) | 渐变共享引用与强制 GC 检查。 |
 | [tests/png-reader.js](tests/png-reader.js) | 本地独立 PNG 解码；浏览器侧使用 createImageBitmap。 |
 | [test.js](test.js)、[capture-cdp.cjs](capture-cdp.cjs) | 本地断言、现有 Chrome CDP 采集与比较。 |

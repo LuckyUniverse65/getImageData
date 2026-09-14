@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
 const { spawnSync } = require('node:child_process');
 const runCases = require('./tests/browser-cases');
+const runAdditionalCases = require('./tests/additional-cases');
 const decodePng = require('./tests/png-reader');
 const { OffscreenCanvas } = require('./');
 const { capture: captureCDP } = require('./capture-cdp.cjs');
@@ -26,6 +27,32 @@ async function main() {
     fs.mkdirSync(path.join(__dirname,'out'),{recursive:true});
     const local=await runCases(OffscreenCanvas,decodePng);
     const red=[255,0,0,255],clear=[0,0,0,0];
+    const additional=runAdditionalCases(OffscreenCanvas);
+    const expectedErrors={zeroCreateImageData:'IndexSizeError',negativeArcTo:'IndexSizeError',missingScaleArgument:'TypeError',missingCanvasDimensions:'TypeError',undefinedCanvasDimension:'TypeError'};
+    for(const [name,result] of Object.entries(additional)) {
+        if(expectedErrors[name])assert.equal(result.error,expectedErrors[name],name);
+        else assert.ok(Object.hasOwn(result,'value'),name+': '+result.error);
+    }
+    assert.deepEqual(additional.emptyClip.value,clear);
+    assert.deepEqual(additional.setTransformObject.value,[2,0,0,3,4,5]);
+    assert.deepEqual(additional.setTransformNoArgs.value,[1,0,0,1,0,0]);
+    assert.deepEqual(additional.invalidLineDash.value,[3,4]);
+    assert.deepEqual(additional.copyFillOutside.value,[[0,0,255,255],clear]);
+    assert.deepEqual(additional.copyEmptyOperations.value,[clear,red,red]);
+    assert.deepEqual(additional.copyOutsideSource.value,Array(2).fill([0,0,255,255]));
+    assert.deepEqual(additional.nineArgumentImageCrop.value,[[64,0,191,255],[0,0,255,255],clear,clear]);
+    assert.deepEqual(additional.negativeImageCropOrder.value,[red,[0,0,255,255],clear]);
+    assert.deepEqual(additional.partialImageSource.value,[clear,red,clear]);
+    assert.deepEqual(additional.negativeCreateImageData.value,{width:2,height:3,length:24});
+    assert.deepEqual(additional.putNegativeDirtySize.value,red);
+    assert.deepEqual(additional.putFractionalOrigin.value,red);
+    assert.deepEqual(additional.imageSmoothingState.value,{before:true,after:true});
+    assert.deepEqual(additional.opaqueContext.value.before,[0,0,0,255]);
+    assert.deepEqual(additional.opaqueContext.value.after,[0,0,0,255]);
+    assert.equal(additional.opaqueContext.value.attributes.alpha,false);
+    assert.equal(additional.fillTextMaxWidth.value.pixelsPastMaxWidth,0);
+    assert.deepEqual(additional.invalidTextWidth.value,[false,false,false,false,true]);
+    assert.deepEqual(additional.fractionalCanvasDimension.value,{before:[2,3],after:[0,3]});
     for(const [name,value] of Object.entries(local))assert.ok(!value?.unexpectedError,name+': '+value?.message);
     assert.deepEqual(local.gradientLive,{same:true,pixel:red});
     assert.ok(local.gradientSavedReference.fill && local.gradientSavedReference.stroke);
@@ -67,18 +94,27 @@ async function main() {
     const demo=localOutput.trim().split(/\r?\n/).at(-1).split(',').map(Number);
     assert.equal(demo.length,9216);assert.ok(demo.every(v=>Number.isInteger(v)&&v>=0&&v<=255));
     fs.writeFileSync(path.join(__dirname,'out/local-cases.json'),JSON.stringify(local));
-    const report={localCases:Object.keys(local).length,gradientGC:true,demoValues:demo.length,browserVerified:false};
+    fs.writeFileSync(path.join(__dirname,'out/cdp-additional-review-local.json'),JSON.stringify(additional,null,2)+'\n');
+    const report={localCases:Object.keys(local).length,additionalCases:Object.keys(additional).length,totalCases:Object.keys(local).length+Object.keys(additional).length,gradientGC:true,demoValues:demo.length,browserVerified:false};
     if(!process.argv.includes('--local')) {
         const browser=await capture('tests/browser-cases.js','compatibility');
         const failures=[];
         for(const name of Object.keys(local)) {
             try{assert.deepEqual(local[name],browser.value[name]);}catch{failures.push(name);}
         }
+        assert.deepEqual(Object.keys(browser.value).sort(),Object.keys(local).sort());
+        const browserAdditional=await capture('tests/additional-cases.js','additional-review');
+        assert.deepEqual(Object.keys(browserAdditional.value).sort(),Object.keys(additional).sort());
+        const additionalFailures=[];
+        for(const name of Object.keys(additional)) {
+            try{assert.deepEqual(additional[name],browserAdditional.value[name]);}catch{additionalFailures.push(name);}
+        }
         const browserDemo=await capture('demo.js','demo');
         const mismatches=demo.filter((value,index)=>value!==browserDemo.value[index]).length;
-        Object.assign(report,{browserMode:browser.browserMode,chromeVersion:browser.chromeVersion,caseRunId:browser.runId,demoRunId:browserDemo.runId,caseFailures:failures,demoMismatches:mismatches,browserVerified:failures.length===0&&mismatches===0&&browserDemo.value.length===demo.length});
+        Object.assign(report,{browserMode:browser.browserMode,chromeVersion:browser.chromeVersion,caseRunId:browser.runId,additionalRunId:browserAdditional.runId,demoRunId:browserDemo.runId,caseFailures:failures,additionalFailures,demoMismatches:mismatches,browserVerified:failures.length===0&&additionalFailures.length===0&&mismatches===0&&browserDemo.value.length===demo.length});
         fs.writeFileSync(path.join(__dirname,'out/cdp-verification-result.json'),JSON.stringify(report,null,2)+'\n');
         assert.deepEqual(failures,[],'Browser compatibility differences');
+        assert.deepEqual(additionalFailures,[],'Additional browser compatibility differences');
         assert.equal(browserDemo.value.length,demo.length);assert.equal(mismatches,0,'Demo pixels differ from the existing Chrome over CDP');
     }
     console.log(JSON.stringify(report));

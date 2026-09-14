@@ -38,6 +38,22 @@
         add('missingScaleArgument',()=>{const g=fresh();g.scale(2);return matrix(g);});
         add('missingCanvasDimensions',()=>{const c=new Canvas();return [c.width,c.height];});
         add('undefinedCanvasDimension',()=>{const c=new Canvas(2,2);c.width=undefined;return [c.width,c.height];});
+        add('opaqueLifecycle',()=>{const g=fresh({alpha:false}),c=g.canvas;g.fillStyle='rgba(255,0,0,0.5)';g.fillRect(0,0,2,2);const blended=pixel(g);g.reset();const reset=pixel(g);c.width=16;const resized=pixel(g);g.fillStyle='red';g.fillRect(0,0,2,2);const image=c.transferToImageBitmap();image.close();return {blended,reset,resized,transferred:pixel(g),alpha:g.getContextAttributes().alpha};});
+        add('opaquePutImageData',()=>{const g=fresh({alpha:false});const d=g.createImageData(1,1);d.data.set([255,0,0,128]);g.putImageData(d,0,0);return pixel(g);});
+        add('smoothingOffAndReset',()=>{const c=new Canvas(2,1),s=c.getContext('2d');s.fillStyle='red';s.fillRect(0,0,1,1);s.fillStyle='blue';s.fillRect(1,0,1,1);const g=fresh();g.imageSmoothingEnabled=false;g.drawImage(c,0,0,8,4);const drawn=[pixel(g,3,1),pixel(g,4,1)];g.reset();return {drawn,reset:g.imageSmoothingEnabled};});
+        add('copyEmptyOperations',()=>['zeroFill','emptyFill','emptyStroke'].map(kind=>{const g=fresh();g.fillStyle='red';g.fillRect(0,0,16,16);g.globalCompositeOperation='copy';if(kind==='zeroFill')g.fillRect(0,0,0,3);else if(kind==='emptyFill')g.fill();else g.stroke();return pixel(g,8,8);}));
+        add('copyShadow',()=>{const g=fresh();g.fillStyle='red';g.fillRect(0,0,16,16);g.globalCompositeOperation='copy';g.shadowColor='red';g.shadowOffsetX=6;g.fillStyle='blue';g.fillRect(0,0,2,2);return [pixel(g),pixel(g,6,0),pixel(g,12,0)];});
+        add('copyOutsideSource',()=>{const g=fresh();g.fillStyle='blue';g.fillRect(0,0,16,16);g.globalCompositeOperation='copy';g.drawImage(redSource(),30,30,2,2,0,0,2,2);return [pixel(g),pixel(g,8,8)];});
+        add('matrixAliases',()=>{const g=fresh();g.setTransform({m11:2,m22:3,m41:4,m42:5});const aliases=matrix(g);const conflict=attempt(()=>g.setTransform({a:1,m11:2}));g.setTransform({e:Infinity});return {aliases,conflict,afterInvalid:matrix(g)};});
+        add('lineDashSetAndNaN',()=>{const g=fresh();g.setLineDash(new Set([2,3]));const set=g.getLineDash();g.setLineDash([NaN,1]);return {set,afterInvalid:g.getLineDash()};});
+        add('textWidthPreservesState',()=>{const g=fresh();g.translate(2,0);g.font='12px Arial';g.fillText('MMMM',0,12,4);const transform=matrix(g);g.fillStyle='red';g.fillRect(8,0,2,2);return {transform,pixel:pixel(g,10,0),font:g.font};});
+        add('invalidTextWidth',()=>[0,-1,NaN,Infinity,undefined].map(width=>{const g=fresh();g.fillText('M',0,12,width);return Array.from(g.getImageData(0,0,16,16).data).some(value=>value!==0);}));
+        add('numericConversionFailure',()=>{const g=fresh();g.fillStyle='red';const failure=attempt(()=>g.fillRect(Symbol(),0,4,4));g.fillRect(0,0,4,4);return {failure,pixel:pixel(g)};});
+        add('fractionalCanvasDimension',()=>{const c=new Canvas(2.9,3.9);const before=[c.width,c.height];c.width=-0.5;return {before,after:[c.width,c.height]};});
+        const splitSource=()=>{const g=new Canvas(4,2).getContext('2d');g.fillStyle='red';g.fillRect(0,0,2,2);g.fillStyle='blue';g.fillRect(2,0,2,2);return g.canvas;};
+        add('nineArgumentImageCrop',()=>{const g=fresh();g.drawImage(splitSource(),2,0,2,2,6,4,4,2);return [pixel(g,6,4),pixel(g,9,5),pixel(g,6,6),pixel(g,2,0)];});
+        add('negativeImageCropOrder',()=>{const g=fresh();g.imageSmoothingEnabled=false;g.drawImage(splitSource(),4,2,-4,-2,8,4,-8,-4);return [pixel(g,1,1),pixel(g,6,1),pixel(g,9,1)];});
+        add('partialImageSource',()=>{const g=fresh();g.drawImage(splitSource(),-2,0,4,2,0,0,8,4);return [pixel(g,1,1),pixel(g,5,1),pixel(g,9,1)];});
         return results;
     }
     if(typeof module!=='undefined'&&module.exports)module.exports=runAdditionalCases;

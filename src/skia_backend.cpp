@@ -338,6 +338,8 @@ struct Canvas {
     std::unique_ptr<skgpu::graphite::Recorder> recorder;
     sk_sp<SkSurface> surface;
     bool graphite = false;
+    bool opaque = false;
+    bool image_smoothing = true;
     SkPathBuilder path;
     SkMatrix path_matrix = SkMatrix::I();
     bool simple_arc = false;
@@ -417,7 +419,7 @@ static float radians_to_degrees(float radians) {
 static SkPaint make_paint(const Canvas* canvas, const Style& style, bool stroke) {
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setBlendMode(canvas->blend_mode);
+    paint.setBlendMode(SkBlendMode::kSrcOver);
     paint.setStyle(stroke ? SkPaint::kStroke_Style : SkPaint::kFill_Style);
     paint.setStrokeWidth(canvas->line_width);
     paint.setStrokeCap(canvas->line_cap);
@@ -492,6 +494,11 @@ static void draw_with_shadow(Canvas* canvas, const Style& style,
                              const SkPaint& source, DrawProc draw,
                              const SkPaint* shadow_source = nullptr) {
     SkCanvas* target = canvas->surface->getCanvas();
+    if (canvas->blend_mode == SkBlendMode::kSrc) {
+        target->drawColor(canvas->opaque ? SK_ColorBLACK : SK_ColorTRANSPARENT, SkBlendMode::kSrc);
+        draw(target, source);
+        return;
+    }
     if (has_visible_shadow(canvas) && style_has_visible_alpha(style, canvas->global_alpha)) {
         SkAutoCanvasRestore restore(target, true);
         target->setMatrix(target->getLocalToDevice().postTranslate(
@@ -520,6 +527,8 @@ static bool has_visible_shadow(const Canvas* canvas) {
 static void draw_path(Canvas* canvas, bool stroke, bool evenodd = false) {
     if (!prepare_path(canvas)) return;
     SkPath path = canvas->path.snapshot();
+    // An empty current path is a no-op even under copy composition.
+    if (path.isEmpty()) return;
     if (!stroke && evenodd) path.setFillType(SkPathFillType::kEvenOdd);
     const Style& source_style = stroke ? canvas->stroke : canvas->fill;
     const SkPaint source = make_paint(canvas, source_style, stroke);
@@ -728,9 +737,10 @@ static sk_sp<SkTextBlob> make_shaped_text_blob(const char* text, size_t length,
 }
 
 extern "C" {
-void* skia_canvas_create(uint32_t width, uint32_t height) {
+void* skia_canvas_create(uint32_t width, uint32_t height, int alpha) {
     if (width == 0 || height == 0) return nullptr;
     auto canvas = std::make_unique<Canvas>();
+    canvas->opaque = alpha == 0;
     // Canvas backing stores are 8-bit premultiplied-alpha images.  getImageData
     // converts that backing store to unpremultiplied RGBA for JavaScript.
     const uint32_t surface_flags = runtime_float("CANVAS_DEVICE_INDEPENDENT_FONTS", 0.0f) != 0.0f
@@ -746,7 +756,7 @@ void* skia_canvas_create(uint32_t width, uint32_t height) {
     const GrSurfaceOrigin surface_origin = runtime_float("CANVAS_GPU_BOTTOM_LEFT", 0.0f) != 0.0f
         ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
     const SkImageInfo image_info = SkImageInfo::Make(
-        width, height, color_type, kPremul_SkAlphaType, SkColorSpace::MakeSRGB());
+        width, height, color_type, canvas->opaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType, SkColorSpace::MakeSRGB());
     if (runtime_float("CANVAS_RASTER_SURFACE", 0.0f) != 0.0f) {
         canvas->surface = SkSurfaces::Raster(image_info, &surface_props);
     } else if (runtime_float("CANVAS_USE_GANESH", 0.0f) == 0.0f) {
@@ -766,7 +776,7 @@ void* skia_canvas_create(uint32_t width, uint32_t height) {
     }
     if (!canvas->surface) return nullptr;
     // A protected root frame lets reset remove even clips made before save().
-    canvas->surface->getCanvas()->clear(SK_ColorTRANSPARENT);
+    canvas->surface->getCanvas()->clear(canvas->opaque ? SK_ColorBLACK : SK_ColorTRANSPARENT);
     canvas->surface->getCanvas()->save();
     return canvas.release();
 }
@@ -884,7 +894,9 @@ void skia_canvas_fill_rect(void* value, float x, float y, float width, float hei
 }
 void skia_canvas_clear_rect(void* value, float x, float y, float width, float height) {
     auto* c = static_cast<Canvas*>(value); if (!c) return;
-    SkPaint clear; clear.setBlendMode(SkBlendMode::kClear);
+    SkPaint clear;
+    clear.setBlendMode(c->opaque ? SkBlendMode::kSrc : SkBlendMode::kClear);
+    clear.setColor(SK_ColorBLACK);
     c->surface->getCanvas()->drawRect(SkRect::MakeXYWH(x, y, width, height), clear);
 }
 void skia_canvas_stroke_rect(void* value, float x, float y, float width, float height) {
@@ -964,6 +976,7 @@ void skia_canvas_set_line_dash(void* value, const float* values, uint32_t count,
 }
 void skia_canvas_set_global_alpha(void* value, float alpha) { if (auto* c = static_cast<Canvas*>(value)) c->global_alpha = std::clamp(alpha, 0.f, 1.f); }
 void skia_canvas_set_composite(void* value, int copy) { if (auto* c = static_cast<Canvas*>(value)) c->blend_mode = copy ? SkBlendMode::kSrc : SkBlendMode::kSrcOver; }
+void skia_canvas_set_image_smoothing(void* value, int enabled) { if (auto* c = static_cast<Canvas*>(value)) c->image_smoothing = enabled != 0; }
 void skia_canvas_draw_text(void* value, const char* text, uint32_t length,
                            const char* family, float x, float y, float size, int stroke,
                            int weight, int slant) {
@@ -1071,7 +1084,7 @@ void skia_canvas_reset(void* value) {
     SkCanvas* target = c->surface->getCanvas();
     target->restoreToCount(1);
     target->resetMatrix();
-    target->clear(SK_ColorTRANSPARENT);
+    target->clear(c->opaque ? SK_ColorBLACK : SK_ColorTRANSPARENT);
     target->save();
     c->path.reset();
     c->path_matrix = SkMatrix::I();
@@ -1082,12 +1095,21 @@ void skia_canvas_clear_bitmap(void* value) {
     // writePixels ignores the current clip and CTM and preserves the state stack.
     const int width=c->surface->width(), height=c->surface->height();
     std::vector<uint8_t> zeros(static_cast<size_t>(width)*height*4, 0);
+    if (c->opaque) for (size_t i=3;i<zeros.size();i+=4) zeros[i]=255;
     c->surface->writePixels(SkPixmap(SkImageInfo::MakeN32Premul(width,height),zeros.data(),static_cast<size_t>(width)*4),0,0);
 }
 void skia_canvas_draw_rgba_image(void* value, const uint8_t* input, uint32_t image_width, uint32_t image_height,
                                  float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh) {
     auto* c = static_cast<Canvas*>(value);
-    if (!c || !c->surface || !input || image_width == 0 || image_height == 0 || sw <= 0 || sh <= 0 || dw == 0 || dh == 0) return;
+    if (!c || !c->surface || !input || image_width == 0 || image_height == 0 || sw == 0 || sh == 0 || dw == 0 || dh == 0) return;
+    if (sw < 0) { sx += sw; sw = -sw; }
+    if (sh < 0) { sy += sh; sh = -sh; }
+    if (dw < 0) { dx += dw; dw = -dw; }
+    if (dh < 0) { dy += dh; dh = -dh; }
+    // An entirely out-of-bounds source is rejected before copy clears the clip.
+    if (!std::isfinite(sx) || !std::isfinite(sy) || !std::isfinite(sw) || !std::isfinite(sh) ||
+        !std::isfinite(dx) || !std::isfinite(dy) || !std::isfinite(dw) || !std::isfinite(dh) ||
+        sx >= image_width || sy >= image_height || sx + sw <= 0 || sy + sh <= 0) return;
     const size_t bytes = static_cast<size_t>(image_width) * image_height * 4;
     auto pixels = SkData::MakeWithCopy(input, bytes);
     auto image = SkImages::RasterFromData(SkImageInfo::Make(image_width, image_height, kRGBA_8888_SkColorType,
@@ -1101,9 +1123,13 @@ void skia_canvas_draw_rgba_image(void* value, const uint8_t* input, uint32_t ima
     paint.setAntiAlias(true);
     // Blink quantizes the image paint alpha to a byte before GPU composition.
     paint.setAlpha(static_cast<U8CPU>(std::round(c->global_alpha * 255.0f)));
-    paint.setBlendMode(c->blend_mode);
+    paint.setBlendMode(SkBlendMode::kSrcOver);
+    if (c->blend_mode == SkBlendMode::kSrc) {
+        c->surface->getCanvas()->drawColor(c->opaque ? SK_ColorBLACK : SK_ColorTRANSPARENT, SkBlendMode::kSrc);
+    }
     c->surface->getCanvas()->drawImageRect(image.get(), SkRect::MakeXYWH(sx, sy, sw, sh),
-                                           SkRect::MakeXYWH(dx, dy, dw, dh), SkSamplingOptions(), &paint,
+                                           SkRect::MakeXYWH(dx, dy, dw, dh),
+                                           SkSamplingOptions(c->image_smoothing ? SkFilterMode::kLinear : SkFilterMode::kNearest), &paint,
                                            SkCanvas::kFast_SrcRectConstraint);
 }
 void skia_canvas_read(void* value, int32_t x, int32_t y, uint32_t width, uint32_t height, uint8_t* output) {

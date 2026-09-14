@@ -27,7 +27,7 @@ extern "system" {
 
 #[link(name = "skia_backend", kind = "static")]
 extern "C" {
-    fn skia_canvas_create(width: u32, height: u32) -> *mut c_void;
+    fn skia_canvas_create(width: u32, height: u32, alpha: i32) -> *mut c_void;
     fn skia_canvas_destroy(canvas: *mut c_void);
     fn skia_canvas_scale(canvas: *mut c_void, x: f32, y: f32);
     fn skia_canvas_translate(canvas: *mut c_void, x: f32, y: f32);
@@ -63,6 +63,7 @@ extern "C" {
     fn skia_canvas_set_line_dash(canvas: *mut c_void, values: *const f32, count: u32, offset: f32);
     fn skia_canvas_set_global_alpha(canvas: *mut c_void, alpha: f32);
     fn skia_canvas_set_composite(canvas: *mut c_void, copy: i32);
+    fn skia_canvas_set_image_smoothing(canvas: *mut c_void, enabled: i32);
     fn skia_canvas_draw_text(canvas: *mut c_void, text: *const u8, length: u32, family: *const c_char, x: f32, y: f32, size: f32, stroke: i32, weight: i32, slant: i32);
     fn skia_canvas_measure_text(canvas: *mut c_void, text: *const u8, length: u32, family: *const c_char, size: f32, weight: i32, slant: i32) -> f32;
     fn skia_canvas_font_metrics(canvas: *mut c_void, family: *const c_char, size: f32, weight: i32, slant: i32, ascent: *mut f32, descent: *mut f32);
@@ -196,6 +197,9 @@ struct Context {
 
 struct Canvas2D {
     native: *mut c_void,
+    alpha: bool,
+    desynchronized: bool,
+    will_read_frequently: bool,
     width: usize,
     height: usize,
     // Retained only for zero-sized native allocation fallback; normal rendering
@@ -217,6 +221,7 @@ struct Canvas2D {
     line_dash_offset: f64,
     global_alpha: f64,
     composite_copy: bool,
+    image_smoothing: bool,
     font: String,
     text_align: String,
     text_baseline: String,
@@ -241,6 +246,7 @@ struct CanvasState {
     line_dash_offset: f64,
     global_alpha: f64,
     composite_copy: bool,
+    image_smoothing: bool,
     font: String,
     text_align: String,
     text_baseline: String,
@@ -325,8 +331,10 @@ unsafe fn string(env: NapiEnv, value: &str) -> NapiValue {
 }
 
 unsafe fn number(env: NapiEnv, value: NapiValue) -> f64 {
-    let mut result = 0.0;
-    (api().get_value_double)(env, value, &mut result);
+    let mut converted = ptr::null_mut();
+    if (api().coerce_to_number)(env, value, &mut converted) != 0 { return f64::NAN; }
+    let mut result = f64::NAN;
+    (api().get_value_double)(env, converted, &mut result);
     result
 }
 
@@ -377,6 +385,16 @@ unsafe fn truthy(env: NapiEnv, value: Option<&NapiValue>) -> bool {
     let mut converted = ptr::null_mut(); let mut result = false;
     if (api().coerce_to_bool)(env, *value, &mut converted) == 0 { (api().get_value_bool)(env, converted, &mut result); }
     result
+}
+
+unsafe fn context_option(env: NapiEnv, options: Option<NapiValue>, name: &str, fallback: bool) -> bool {
+    let Some(options) = options else { return fallback; };
+    let mut kind=0;(api().type_of)(env,options,&mut kind);
+    if kind != 6 && kind != 7 { return fallback; }
+    let mut value=ptr::null_mut();let name=CString::new(name).unwrap();
+    if (api().get_named_property)(env,options,name.as_ptr(),&mut value)!=0 { return fallback; }
+    (api().type_of)(env,value,&mut kind);
+    if kind==0 { fallback } else { truthy(env,Some(&value)) }
 }
 
 unsafe fn radius_pair(env: NapiEnv, value: NapiValue) -> Option<[f64; 2]> {
@@ -487,10 +505,11 @@ unsafe fn set(env: NapiEnv, object: NapiValue, name: &str, value: NapiValue) {
 }
 
 unsafe fn callback_info(env: NapiEnv, info: NapiCallbackInfo) -> (Vec<NapiValue>, NapiValue, usize) {
-    let mut argc = 8usize;
-    let mut args = vec![ptr::null_mut(); argc];
+    let mut argc = 0usize;
     let mut this_arg = ptr::null_mut();
     let mut data = ptr::null_mut();
+    (api().get_cb_info)(env, info, &mut argc, ptr::null_mut(), &mut this_arg, &mut data);
+    let mut args = vec![ptr::null_mut(); argc];
     (api().get_cb_info)(env, info, &mut argc, args.as_mut_ptr(), &mut this_arg, &mut data);
     args.truncate(argc);
     (args, this_arg, data as usize)
@@ -690,16 +709,17 @@ const CANVAS_2D_METHODS: &[&str] = &[
     "transform", "translate",
 ];
 
-unsafe fn canvas_2d(width: usize, height: usize, env: NapiEnv) -> NapiValue {
+unsafe fn canvas_2d(width: usize, height: usize, env: NapiEnv, alpha: bool, desynchronized: bool, will_read_frequently: bool) -> NapiValue {
     let mut object = ptr::null_mut();
     (api().create_object)(env, &mut object);
     let length = width.saturating_mul(height).saturating_mul(4);
     let data = Box::new(Canvas2D {
-        native: skia_canvas_create(width.min(u32::MAX as usize) as u32, height.min(u32::MAX as usize) as u32),
+        native: skia_canvas_create(width.min(u32::MAX as usize) as u32, height.min(u32::MAX as usize) as u32, alpha as i32),
+        alpha, desynchronized, will_read_frequently,
         width, height, pixels: vec![0; length], fill: Style::Color([0, 0, 0, 255]),
         stroke: Style::Color([0, 0, 0, 255]), shadow: [0, 0, 0, 0], shadow_blur: 0.0, shadow_offset_x: 0.0, shadow_offset_y: 0.0,
         transform: [1.0, 0.0, 0.0, 1.0, 0.0, 0.0], path: Vec::new(), current_path: None,
-        line_width: 1.0, line_cap: "butt".to_string(), line_join: "miter".to_string(), miter_limit: 10.0, line_dash_offset: 0.0, global_alpha: 1.0, composite_copy: false,
+        line_width: 1.0, line_cap: "butt".to_string(), line_join: "miter".to_string(), miter_limit: 10.0, line_dash_offset: 0.0, global_alpha: 1.0, composite_copy: false, image_smoothing: true,
         font: "10px sans-serif".to_string(), text_align: "start".to_string(),
         text_baseline: "alphabetic".to_string(), line_dash: Vec::new(),
         state_stack: Vec::new(), clip: Vec::new(),
@@ -714,7 +734,7 @@ unsafe fn canvas_2d(width: usize, height: usize, env: NapiEnv) -> NapiValue {
     let props = [
         ("fillStyle", 0usize), ("strokeStyle", 1), ("shadowColor", 2), ("shadowBlur", 3), ("shadowOffsetX", 10), ("shadowOffsetY", 11),
         ("lineWidth", 4), ("globalAlpha", 5), ("font", 6), ("textAlign", 7),
-        ("textBaseline", 8), ("globalCompositeOperation", 9), ("lineCap", 12), ("lineJoin", 13), ("miterLimit", 14), ("lineDashOffset", 15),
+        ("textBaseline", 8), ("globalCompositeOperation", 9), ("imageSmoothingEnabled", 16), ("lineCap", 12), ("lineJoin", 13), ("miterLimit", 14), ("lineDashOffset", 15),
     ];
     let descriptors: Vec<NapiPropertyDescriptor> = props.iter().map(|(name, index)| NapiPropertyDescriptor {
         utf8name: CString::new(*name).unwrap().into_raw(), name: ptr::null_mut(), method: None,
@@ -778,9 +798,24 @@ unsafe fn sync_native_paint(canvas: &Canvas2D) {
     skia_canvas_set_line_dash(canvas.native, dash.as_ptr(), dash.len() as u32, canvas.line_dash_offset as f32);
     skia_canvas_set_global_alpha(canvas.native, canvas.global_alpha as f32);
     skia_canvas_set_composite(canvas.native, canvas.composite_copy as i32);
+    skia_canvas_set_image_smoothing(canvas.native, canvas.image_smoothing as i32);
 }
 
 struct FontSpec { family: CString, size: f64, weight: i32, slant: i32 }
+
+// Validate the px font syntax supported by this renderer before replacing a
+// valid state. Unsupported or malformed CSS shorthands leave the old font intact.
+fn valid_font(value: &str) -> bool {
+    let lowercase=value.to_ascii_lowercase();
+    for (index,_) in lowercase.match_indices("px") {
+        let mut tokens=lowercase[..index].split_whitespace().collect::<Vec<_>>();
+        let Some(size)=tokens.pop().and_then(|v|v.parse::<f64>().ok()) else{continue;};
+        if !size.is_finite() || size<0.0 || value[index+2..].trim().is_empty(){continue;}
+        if tokens.iter().all(|token| ["normal","italic","oblique","small-caps","bold","bolder","lighter"].contains(token)
+            || token.parse::<u32>().map(|weight|(1..=1000).contains(&weight)).unwrap_or(false)) {return true;}
+    }
+    false
+}
 
 fn font_spec(value: &str) -> FontSpec {
     let lowercase = value.to_ascii_lowercase();
@@ -827,7 +862,7 @@ unsafe extern "C" fn get_canvas_property(env: NapiEnv, info: NapiCallbackInfo) -
         3 => number_value(env, c.shadow_blur), 4 => number_value(env, c.line_width), 10 => number_value(env, c.shadow_offset_x), 11 => number_value(env, c.shadow_offset_y),
         5 => number_value(env, c.global_alpha), 6 => string(env, &c.font),
         7 => string(env, &c.text_align), 8 => string(env, &c.text_baseline),
-        9 => string(env, if c.composite_copy { "copy" } else { "source-over" }), 12 => string(env, &c.line_cap), 13 => string(env, &c.line_join), 14 => number_value(env, c.miter_limit), 15 => number_value(env, c.line_dash_offset), _ => undefined(env)
+        9 => string(env, if c.composite_copy { "copy" } else { "source-over" }), 12 => string(env, &c.line_cap), 13 => string(env, &c.line_join), 14 => number_value(env, c.miter_limit), 15 => number_value(env, c.line_dash_offset), 16 => boolean(env, c.image_smoothing), _ => undefined(env)
     }
 }
 
@@ -867,13 +902,14 @@ unsafe extern "C" fn set_canvas_property(env: NapiEnv, info: NapiCallbackInfo) -
             let n = number(env, converted);
             if n.is_finite() && (0.0..=1.0).contains(&n) { c.global_alpha = n; }
         },
-        6 => if let Some(s) = value_string(env, *value) { c.font = s; },
+        6 => if let Some(s) = value_string(env, *value) { if valid_font(&s) { c.font = s; } },
         7 => if let Some(s) = value_string(env, *value) { if ["left", "right", "center", "start", "end"].contains(&s.as_str()) { c.text_align = s; } }, 8 => if let Some(s) = value_string(env, *value) { if ["top", "hanging", "middle", "alphabetic", "ideographic", "bottom"].contains(&s.as_str()) { c.text_baseline = s; } },
         9 => if let Some(s) = value_string(env, *value) { if s == "source-over" || s == "copy" { c.composite_copy = s == "copy"; } },
         12 => if let Some(s) = value_string(env, *value) { if ["butt", "round", "square"].contains(&s.as_str()) { c.line_cap = s; } },
         13 => if let Some(s) = value_string(env, *value) { if ["miter", "round", "bevel"].contains(&s.as_str()) { c.line_join = s; } },
         14 => { let n = number(env, *value); if n.is_finite() && n > 0.0 { c.miter_limit = n; } },
-        15 => { let n = number(env, *value); if n.is_finite() { c.line_dash_offset = n; } }, _ => {}
+        15 => { let n = number(env, *value); if n.is_finite() { c.line_dash_offset = n; } },
+        16 => c.image_smoothing = truthy(env, Some(value)), _ => {}
     }
     undefined(env)
 }
@@ -965,7 +1001,7 @@ fn shadow_paths(c: &mut Canvas2D, paths: &[Path], stroke: bool) {
 
 impl Canvas2D {
     fn clone_for_raster(&self) -> Canvas2D {
-        Canvas2D { native:ptr::null_mut(),width:self.width,height:self.height,pixels:self.pixels.clone(),fill:self.fill.clone(),stroke:self.stroke.clone(),shadow:self.shadow,shadow_blur:self.shadow_blur,shadow_offset_x:self.shadow_offset_x,shadow_offset_y:self.shadow_offset_y,transform:self.transform,path:self.path.clone(),current_path:self.current_path,line_width:self.line_width,line_cap:self.line_cap.clone(),line_join:self.line_join.clone(),miter_limit:self.miter_limit,line_dash_offset:self.line_dash_offset,global_alpha:self.global_alpha,composite_copy:self.composite_copy,font:self.font.clone(),text_align:self.text_align.clone(),text_baseline:self.text_baseline.clone(),line_dash:self.line_dash.clone(),state_stack:Vec::new(),clip:self.clip.clone() }
+        Canvas2D { native:ptr::null_mut(),alpha:self.alpha,desynchronized:self.desynchronized,will_read_frequently:self.will_read_frequently,width:self.width,height:self.height,pixels:self.pixels.clone(),fill:self.fill.clone(),stroke:self.stroke.clone(),shadow:self.shadow,shadow_blur:self.shadow_blur,shadow_offset_x:self.shadow_offset_x,shadow_offset_y:self.shadow_offset_y,transform:self.transform,path:self.path.clone(),current_path:self.current_path,line_width:self.line_width,line_cap:self.line_cap.clone(),line_join:self.line_join.clone(),miter_limit:self.miter_limit,line_dash_offset:self.line_dash_offset,global_alpha:self.global_alpha,composite_copy:self.composite_copy,image_smoothing:self.image_smoothing,font:self.font.clone(),text_align:self.text_align.clone(),text_baseline:self.text_baseline.clone(),line_dash:self.line_dash.clone(),state_stack:Vec::new(),clip:self.clip.clone() }
     }
 }
 
@@ -987,7 +1023,7 @@ unsafe fn create_gradient(env:NapiEnv, g:Gradient)->NapiValue { let mut o=ptr::n
 unsafe fn create_pattern(env:NapiEnv, pattern:Pattern)->NapiValue { let mut o=ptr::null_mut(); (api().create_object)(env,&mut o); (api().type_tag_object)(env,o,&PATTERN_TYPE_TAG); (api().wrap)(env,o,Box::into_raw(Box::new(PatternObject(pattern))) as *mut c_void,Some(finalize_pattern),ptr::null_mut(),ptr::null_mut()); o }
 
 unsafe fn reset_canvas_state(canvas: &mut Canvas2D) {
- canvas.fill=Style::Color([0,0,0,255]); canvas.stroke=Style::Color([0,0,0,255]); canvas.shadow=[0,0,0,0]; canvas.shadow_blur=0.0; canvas.shadow_offset_x=0.0; canvas.shadow_offset_y=0.0; canvas.transform=[1.0,0.0,0.0,1.0,0.0,0.0]; canvas.path.clear(); canvas.current_path=None; canvas.line_width=1.0; canvas.line_cap="butt".to_string(); canvas.line_join="miter".to_string(); canvas.miter_limit=10.0; canvas.line_dash.clear(); canvas.line_dash_offset=0.0; canvas.global_alpha=1.0; canvas.composite_copy=false; canvas.font="10px sans-serif".to_string(); canvas.text_align="start".to_string(); canvas.text_baseline="alphabetic".to_string(); canvas.state_stack.clear(); canvas.clip.clear(); if !canvas.native.is_null(){skia_canvas_reset(canvas.native);}  canvas.pixels.fill(0);
+ canvas.fill=Style::Color([0,0,0,255]); canvas.stroke=Style::Color([0,0,0,255]); canvas.shadow=[0,0,0,0]; canvas.shadow_blur=0.0; canvas.shadow_offset_x=0.0; canvas.shadow_offset_y=0.0; canvas.transform=[1.0,0.0,0.0,1.0,0.0,0.0]; canvas.path.clear(); canvas.current_path=None; canvas.line_width=1.0; canvas.line_cap="butt".to_string(); canvas.line_join="miter".to_string(); canvas.miter_limit=10.0; canvas.line_dash.clear(); canvas.line_dash_offset=0.0; canvas.global_alpha=1.0; canvas.composite_copy=false; canvas.image_smoothing=true; canvas.font="10px sans-serif".to_string(); canvas.text_align="start".to_string(); canvas.text_baseline="alphabetic".to_string(); canvas.state_stack.clear(); canvas.clip.clear(); if !canvas.native.is_null(){skia_canvas_reset(canvas.native);}  canvas.pixels.fill(0);
 }
 
 unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> NapiValue {
@@ -1088,7 +1124,8 @@ unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> N
         }
         "arcTo" => {
             if args.len()>=5 {
-                let x1=number(env,args[0]); let y1=number(env,args[1]); let x2=number(env,args[2]); let y2=number(env,args[3]); let radius=number(env,args[4]).max(0.0);
+                let x1=number(env,args[0]); let y1=number(env,args[1]); let x2=number(env,args[2]); let y2=number(env,args[3]); let radius=number(env,args[4]);
+                if radius < 0.0 { return dom_error(env,"IndexSizeError","Negative arcTo radius"); }
                 if !canvas.native.is_null(){skia_canvas_arc_to(canvas.native,x1 as f32,y1 as f32,x2 as f32,y2 as f32,radius as f32);}
                 if let Some(i)=canvas.current_path {
                     if let Some(&(px,py))=canvas.path[i].points.last() {
@@ -1117,26 +1154,59 @@ unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> N
         "ellipse" => { if args.len()>=7 { let (x,y,rx,ry,rot,sa,ea)=(number(env,args[0]),number(env,args[1]),number(env,args[2]),number(env,args[3]),number(env,args[4]),number(env,args[5]),number(env,args[6])); if rx<0.0 || ry<0.0{return dom_error(env,"IndexSizeError","Negative ellipse radius");}if ![x,y,rx,ry,rot,sa,ea].iter().all(|v|v.is_finite()){return undefined(env);}if !canvas.native.is_null(){skia_canvas_ellipse(canvas.native,x as f32,y as f32,rx as f32,ry as f32,rot as f32,sa as f32,ea as f32,truthy(env,args.get(7)) as i32);} let i=canvas.path.len(); let mut p=Path{points:Vec::new(),closed:true}; let n:usize=96; for k in 0..=n { let t: f64=sa+(ea-sa)*k as f64/n as f64; let (sx,sy)=(rx*t.cos(),ry*t.sin()); p.points.push(tx(canvas.transform,x+sx*rot.cos()-sy*rot.sin(),y+sx*rot.sin()+sy*rot.cos())); } canvas.path.push(p); canvas.current_path=Some(i); } undefined(env) }
         "fill" | "stroke" => { sync_native_paint(canvas); if !canvas.native.is_null(){if name=="fill"{let evenodd=args.first().and_then(|value|value_string(env,*value)).as_deref()==Some("evenodd");skia_canvas_fill(canvas.native,evenodd as i32)}else{skia_canvas_stroke(canvas.native)}} undefined(env) }
         "strokeRect" => { if args.len()>=4 { let x=number(env,args[0]);let y=number(env,args[1]);let w=number(env,args[2]);let h=number(env,args[3]); sync_native_paint(canvas); if !canvas.native.is_null(){skia_canvas_stroke_rect(canvas.native,x as f32,y as f32,w as f32,h as f32);} } undefined(env) }
-        "scale" => { if args.len()>=1 { let sx=number(env,args[0]); let sy=if args.len()>1{number(env,args[1])}else{sx}; canvas.transform[0]*=sx; canvas.transform[1]*=sx; canvas.transform[2]*=sy; canvas.transform[3]*=sy; if !canvas.native.is_null(){skia_canvas_scale(canvas.native,sx as f32,sy as f32);} } undefined(env) }
+        "scale" => { if args.len()>=1 { let sx=number(env,args[0]); let sy=if args.len()>1{number(env,args[1])}else{return type_error(env,"scale requires two arguments");}; canvas.transform[0]*=sx; canvas.transform[1]*=sx; canvas.transform[2]*=sy; canvas.transform[3]*=sy; if !canvas.native.is_null(){skia_canvas_scale(canvas.native,sx as f32,sy as f32);} } undefined(env) }
         "translate" => { if args.len()>=2 { let x=number(env,args[0]);let y=number(env,args[1]); canvas.transform[4]+=canvas.transform[0]*x+canvas.transform[2]*y; canvas.transform[5]+=canvas.transform[1]*x+canvas.transform[3]*y; if !canvas.native.is_null(){skia_canvas_translate(canvas.native,x as f32,y as f32);} } undefined(env) }
         "rotate" => { if let Some(a)=args.first(){let a=number(env,*a);let (s,co)=a.sin_cos();let t=canvas.transform; canvas.transform=[t[0]*co+t[2]*s,t[1]*co+t[3]*s,t[2]*co-t[0]*s,t[3]*co-t[1]*s,t[4],t[5]];if !canvas.native.is_null(){skia_canvas_rotate(canvas.native,a as f32);}} undefined(env) }
         "transform" => { if args.len()>=6 { let (a,b,c,d,e,f)=(number(env,args[0]),number(env,args[1]),number(env,args[2]),number(env,args[3]),number(env,args[4]),number(env,args[5])); let t=canvas.transform; canvas.transform=[t[0]*a+t[2]*b,t[1]*a+t[3]*b,t[0]*c+t[2]*d,t[1]*c+t[3]*d,t[0]*e+t[2]*f+t[4],t[1]*e+t[3]*f+t[5]];if !canvas.native.is_null(){skia_canvas_transform(canvas.native,a as f32,b as f32,c as f32,d as f32,e as f32,f as f32);}} undefined(env) }
         "resetTransform" => { canvas.transform=[1.0,0.0,0.0,1.0,0.0,0.0];if !canvas.native.is_null(){skia_canvas_set_transform(canvas.native,1.0,0.0,0.0,1.0,0.0,0.0);} undefined(env) }
         "setTransform" => { if args.len()>=6 { let (a,b,c,d,e,f)=(number(env,args[0]),number(env,args[1]),number(env,args[2]),number(env,args[3]),number(env,args[4]),number(env,args[5]));canvas.transform=[a,b,c,d,e,f];if !canvas.native.is_null(){skia_canvas_set_transform(canvas.native,a as f32,b as f32,c as f32,d as f32,e as f32,f as f32);}} undefined(env) }
         "setLineDash" => {
-            canvas.line_dash.clear();
-            if let Some(array) = args.first() {
-                let mut length = 0u32;
-                if (api().get_array_length)(env, *array, &mut length) == 0 {
-                    for index in 0..length { let mut item = ptr::null_mut(); if (api().get_element)(env, *array, index, &mut item) == 0 { let value = number(env, item); if value.is_finite() && value >= 0.0 { canvas.line_dash.push(value); } } }
-                }
+            let Some(array)=args.first() else{return type_error(env,"setLineDash requires a sequence");};
+            let mut length=0u32;
+            if (api().get_array_length)(env,*array,&mut length)!=0{return type_error(env,"Expected a normalized dash array");}
+            let mut dash=Vec::with_capacity(length as usize);
+            for index in 0..length {
+                let mut item=ptr::null_mut();
+                if (api().get_element)(env,*array,index,&mut item)!=0{return undefined(env);}
+                let value=number(env,item);
+                if !value.is_finite() || value<0.0{return undefined(env);}
+                dash.push(value);
             }
-            if canvas.line_dash.len() % 2 == 1 { let copy = canvas.line_dash.clone(); canvas.line_dash.extend(copy); }
+            if dash.len()%2==1{let copy=dash.clone();dash.extend(copy);}
+            canvas.line_dash=dash;
             undefined(env)
         }
-        "save" => { canvas.state_stack.push(CanvasState{fill:canvas.fill.clone(),stroke:canvas.stroke.clone(),shadow:canvas.shadow,shadow_blur:canvas.shadow_blur,shadow_offset_x:canvas.shadow_offset_x,shadow_offset_y:canvas.shadow_offset_y,transform:canvas.transform,line_width:canvas.line_width,line_cap:canvas.line_cap.clone(),line_join:canvas.line_join.clone(),miter_limit:canvas.miter_limit,line_dash_offset:canvas.line_dash_offset,global_alpha:canvas.global_alpha,composite_copy:canvas.composite_copy,font:canvas.font.clone(),text_align:canvas.text_align.clone(),text_baseline:canvas.text_baseline.clone(),line_dash:canvas.line_dash.clone(),clip:canvas.clip.clone()}); if !canvas.native.is_null(){skia_canvas_save(canvas.native);} undefined(env) }
-        "restore" => { if let Some(s)=canvas.state_stack.pop(){canvas.fill=s.fill;canvas.stroke=s.stroke;canvas.shadow=s.shadow;canvas.shadow_blur=s.shadow_blur;canvas.shadow_offset_x=s.shadow_offset_x;canvas.shadow_offset_y=s.shadow_offset_y;canvas.transform=s.transform;canvas.line_width=s.line_width;canvas.line_cap=s.line_cap;canvas.line_join=s.line_join;canvas.miter_limit=s.miter_limit;canvas.line_dash_offset=s.line_dash_offset;canvas.global_alpha=s.global_alpha;canvas.composite_copy=s.composite_copy;canvas.font=s.font;canvas.text_align=s.text_align;canvas.text_baseline=s.text_baseline;canvas.line_dash=s.line_dash;canvas.clip=s.clip;} if !canvas.native.is_null(){skia_canvas_restore(canvas.native);} undefined(env) }
-        "fillText" | "strokeText" => { if args.len()>=3 { let text=value_string(env,args[0]).unwrap_or_default(); let font=font_spec(&canvas.font); let mut x=number(env,args[1]); let y=number(env,args[2]) + text_baseline_offset(canvas, &font); let width=if canvas.native.is_null(){text.chars().count() as f64*font.size*0.6}else{skia_canvas_measure_text(canvas.native,text.as_ptr(),text.len() as u32,font.family.as_ptr(),font.size as f32,font.weight,font.slant) as f64}; if canvas.text_align=="center" {x-=width/2.0;} else if canvas.text_align=="right" || canvas.text_align=="end" {x-=width;} sync_native_paint(canvas); if !canvas.native.is_null(){skia_canvas_draw_text(canvas.native,text.as_ptr(),text.len() as u32,font.family.as_ptr(),x as f32,y as f32,font.size as f32,(name=="strokeText") as i32,font.weight,font.slant);} } undefined(env) }
+        "save" => { canvas.state_stack.push(CanvasState{fill:canvas.fill.clone(),stroke:canvas.stroke.clone(),shadow:canvas.shadow,shadow_blur:canvas.shadow_blur,shadow_offset_x:canvas.shadow_offset_x,shadow_offset_y:canvas.shadow_offset_y,transform:canvas.transform,line_width:canvas.line_width,line_cap:canvas.line_cap.clone(),line_join:canvas.line_join.clone(),miter_limit:canvas.miter_limit,line_dash_offset:canvas.line_dash_offset,global_alpha:canvas.global_alpha,composite_copy:canvas.composite_copy,image_smoothing:canvas.image_smoothing,font:canvas.font.clone(),text_align:canvas.text_align.clone(),text_baseline:canvas.text_baseline.clone(),line_dash:canvas.line_dash.clone(),clip:canvas.clip.clone()}); if !canvas.native.is_null(){skia_canvas_save(canvas.native);} undefined(env) }
+        "restore" => { if let Some(s)=canvas.state_stack.pop(){canvas.fill=s.fill;canvas.stroke=s.stroke;canvas.shadow=s.shadow;canvas.shadow_blur=s.shadow_blur;canvas.shadow_offset_x=s.shadow_offset_x;canvas.shadow_offset_y=s.shadow_offset_y;canvas.transform=s.transform;canvas.line_width=s.line_width;canvas.line_cap=s.line_cap;canvas.line_join=s.line_join;canvas.miter_limit=s.miter_limit;canvas.line_dash_offset=s.line_dash_offset;canvas.global_alpha=s.global_alpha;canvas.composite_copy=s.composite_copy;canvas.image_smoothing=s.image_smoothing;canvas.font=s.font;canvas.text_align=s.text_align;canvas.text_baseline=s.text_baseline;canvas.line_dash=s.line_dash;canvas.clip=s.clip;} if !canvas.native.is_null(){skia_canvas_restore(canvas.native);} undefined(env) }
+        "fillText" | "strokeText" => {
+            if args.len()<3{return type_error(env,"Text drawing requires text, x and y");}
+            let text=value_string(env,args[0]).unwrap_or_default();
+            let font=font_spec(&canvas.font);
+            let mut x=number(env,args[1]);let y=number(env,args[2])+text_baseline_offset(canvas,&font);
+            if !x.is_finite()||!y.is_finite()||text.is_empty(){return undefined(env);}
+            let width=if canvas.native.is_null(){text.chars().count() as f64*font.size*0.6}
+                else{skia_canvas_measure_text(canvas.native,text.as_ptr(),text.len() as u32,font.family.as_ptr(),font.size as f32,font.weight,font.slant) as f64};
+            let mut draw_width=width;
+            if let Some(max)=args.get(3){
+                let mut value_type=0;
+                (api().type_of)(env,*max,&mut value_type);
+                // Optional Web IDL arguments treat undefined as omitted.
+                if value_type!=0{
+                    let max=number(env,*max);
+                    if !max.is_finite()||max<=0.0{return undefined(env);}
+                    draw_width=width.min(max);
+                }
+            }
+            if canvas.text_align=="center"{x-=draw_width/2.0;}else if canvas.text_align=="right"||canvas.text_align=="end"{x-=draw_width;}
+            sync_native_paint(canvas);
+            if !canvas.native.is_null(){
+                let compressed=draw_width<width;
+                if compressed{skia_canvas_save(canvas.native);skia_canvas_translate(canvas.native,x as f32,0.0);skia_canvas_scale(canvas.native,(draw_width/width) as f32,1.0);}
+                skia_canvas_draw_text(canvas.native,text.as_ptr(),text.len() as u32,font.family.as_ptr(),if compressed{0.0}else{x as f32},y as f32,font.size as f32,(name=="strokeText") as i32,font.weight,font.slant);
+                if compressed{skia_canvas_restore(canvas.native);}
+            }
+            undefined(env)
+        }
         "getTransform" => { let mut o=ptr::null_mut(); (api().create_object)(env,&mut o); for (n,v) in [("a",canvas.transform[0]),("b",canvas.transform[1]),("c",canvas.transform[2]),("d",canvas.transform[3]),("e",canvas.transform[4]),("f",canvas.transform[5])] { set(env,o,n,number_value(env,v)); } o }
         "measureText" => {
             let mut o=ptr::null_mut(); (api().create_object)(env,&mut o);
@@ -1146,7 +1216,7 @@ unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> N
             set(env,o,"width",number_value(env,width));
             let (mut ascent,mut descent)=(font.size*0.8,font.size*0.2);
             if !canvas.native.is_null() { let mut a=0.0f32; let mut d=0.0f32; skia_canvas_font_metrics(canvas.native,font.family.as_ptr(),font.size as f32,font.weight,font.slant,&mut a,&mut d); ascent=(-a) as f64; descent=d as f64; }
-            for (name,value) in [("actualBoundingBoxAscent",ascent),("actualBoundingBoxDescent",descent),("fontBoundingBoxAscent",ascent),("fontBoundingBoxDescent",descent),("emHeightAscent",ascent),("emHeightDescent",descent),("hangingBaseline",0.0),("alphabeticBaseline",0.0),("ideographicBaseline",descent),("actualBoundingBoxLeft",0.0),("actualBoundingBoxRight",width)] { set(env,o,name,number_value(env,value)); }
+            for (name,value) in [("actualBoundingBoxAscent",if text.is_empty(){0.0}else{ascent}),("actualBoundingBoxDescent",if text.is_empty(){0.0}else{descent}),("fontBoundingBoxAscent",ascent),("fontBoundingBoxDescent",descent),("emHeightAscent",ascent),("emHeightDescent",descent),("hangingBaseline",0.0),("alphabeticBaseline",0.0),("ideographicBaseline",descent),("actualBoundingBoxLeft",0.0),("actualBoundingBoxRight",width)] { set(env,o,name,number_value(env,value)); }
             o
         }
         "getImageData" => {
@@ -1183,7 +1253,9 @@ unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> N
         }
         "createImageData" => {
             let (width,height) = if args.len() >= 2 {
-                (floor(number(env, args[0])).max(0) as usize, floor(number(env, args[1])).max(0) as usize)
+                let Some(w)=webidl_long(env,args[0]) else{return undefined(env);};
+                let Some(h)=webidl_long(env,args[1]) else{return undefined(env);};
+                (w.unsigned_abs() as usize,h.unsigned_abs() as usize)
             } else if let Some(source) = args.first() {
                 let mut width_value=ptr::null_mut(); let mut height_value=ptr::null_mut();
                 let wn=CString::new("width").unwrap(); let hn=CString::new("height").unwrap();
@@ -1191,7 +1263,11 @@ unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> N
                     (floor(number(env,width_value)).max(0) as usize, floor(number(env,height_value)).max(0) as usize)
                 } else { return image_data(env,0,0,&[]); }
             } else { return image_data(env, 0, 0, &[]); };
-            let pixels = vec![0; width.saturating_mul(height).saturating_mul(4)];
+            if width==0 || height==0{return dom_error(env,"IndexSizeError","Image dimensions must be nonzero");}
+            let Some(length)=width.checked_mul(height).and_then(|n|n.checked_mul(4)) else{return dom_error(env,"RangeError","Image allocation is too large");};
+            let mut pixels=Vec::new();
+            if pixels.try_reserve_exact(length).is_err(){return dom_error(env,"RangeError","Image allocation failed");}
+            pixels.resize(length,0);
             image_data(env, width, height, &pixels)
         }
         "putImageData" => {
@@ -1208,15 +1284,22 @@ unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> N
             (api().get_value_uint32)(env, source_width, &mut width); (api().get_value_uint32)(env, source_height, &mut height);
             let mut kind = 0i32; let mut length = 0usize; let mut source = ptr::null_mut(); let mut buffer = ptr::null_mut(); let mut offset = 0usize;
             if (api().get_typedarray_info)(env, data, &mut kind, &mut length, &mut source, &mut buffer, &mut offset) != 0 || source.is_null() { return undefined(env); }
-            let mut dest_x = floor(number(env, args[1])); let mut dest_y = floor(number(env, args[2]));
+            let Some(x)=webidl_long(env,args[1]) else{return undefined(env);};
+            let Some(y)=webidl_long(env,args[2]) else{return undefined(env);};
+            let mut dest_x=x as isize;let mut dest_y=y as isize;
             let source = std::slice::from_raw_parts(source as *const u8, length);
             if length < width as usize * height as usize * 4 { return undefined(env); }
             let mut write_x = 0usize; let mut write_y = 0usize;
             let mut write_width = width as usize; let mut write_height = height as usize;
             if args.len() >= 7 {
-                let dirty_x = floor(number(env, args[3])); let dirty_y = floor(number(env, args[4]));
-                let dirty_width = floor(number(env, args[5])); let dirty_height = floor(number(env, args[6]));
-                if dirty_width <= 0 || dirty_height <= 0 { return undefined(env); }
+                let Some(x)=webidl_long(env,args[3]) else{return undefined(env);};
+                let Some(y)=webidl_long(env,args[4]) else{return undefined(env);};
+                let Some(w)=webidl_long(env,args[5]) else{return undefined(env);};
+                let Some(h)=webidl_long(env,args[6]) else{return undefined(env);};
+                let (mut dirty_x,mut dirty_y,mut dirty_width,mut dirty_height)=(x as isize,y as isize,w as isize,h as isize);
+                if dirty_width<0{dirty_x+=dirty_width;dirty_width=-dirty_width;}
+                if dirty_height<0{dirty_y+=dirty_height;dirty_height=-dirty_height;}
+                if dirty_width==0 || dirty_height==0{return undefined(env);}
                 let left = dirty_x.max(0).min(width as isize);
                 let top = dirty_y.max(0).min(height as isize);
                 let right = dirty_x.saturating_add(dirty_width).max(0).min(width as isize);
@@ -1260,7 +1343,7 @@ unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> N
         "_resize" => {
             if args.len()<2{return type_error(env,"resize requires dimensions");}
             let width=number(env,args[0]) as usize;let height=number(env,args[1]) as usize;
-            let next=skia_canvas_create(width as u32,height as u32);
+            let next=skia_canvas_create(width as u32,height as u32,canvas.alpha as i32);
             if width>0 && height>0 && next.is_null(){return dom_error(env,"InvalidStateError","Canvas allocation failed");}
             if !canvas.native.is_null(){skia_canvas_destroy(canvas.native);}
             canvas.native=next;canvas.width=width;canvas.height=height;
@@ -1268,6 +1351,12 @@ unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> N
             reset_canvas_state(canvas);undefined(env)
         }
         "_clearBitmap" => {canvas.pixels.fill(0);if !canvas.native.is_null(){skia_canvas_clear_bitmap(canvas.native);}undefined(env)}
+        "getContextAttributes" => {
+            let mut o=ptr::null_mut();(api().create_object)(env,&mut o);
+            for (name,value) in [("alpha",canvas.alpha),("desynchronized",canvas.desynchronized),("willReadFrequently",canvas.will_read_frequently)] {set(env,o,name,boolean(env,value));}
+            set(env,o,"colorSpace",string(env,"srgb"));set(env,o,"colorType",string(env,"unorm8"));
+            let mut tone=ptr::null_mut();(api().create_object)(env,&mut tone);set(env,tone,"mode",string(env,"standard"));set(env,o,"toneMapping",tone);o
+        }
         "isContextLost" => boolean(env, false),
         "isPointInPath" | "isPointInStroke" => {
             if args.len() < 2 || canvas.native.is_null() { return boolean(env, false); }
@@ -1277,7 +1366,7 @@ unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> N
                 number(env,args[1]) as f32, (name == "isPointInStroke") as i32, evenodd as i32) != 0)
         },
         "getLineDash" => { let mut result = ptr::null_mut(); (api().create_array_with_length)(env, canvas.line_dash.len(), &mut result); for (index, value) in canvas.line_dash.iter().enumerate() { (api().set_element)(env, result, index as u32, number_value(env, *value)); } result }
-        "clip" => { let evenodd=args.first().and_then(|value|value_string(env,*value)).as_deref()==Some("evenodd"); let paths=canvas.path.clone(); if !paths.is_empty() { canvas.clip.push(paths); if !canvas.native.is_null(){skia_canvas_clip(canvas.native,evenodd as i32);} } undefined(env) }
+        "clip" => { let evenodd=args.first().and_then(|value|value_string(env,*value)).as_deref()==Some("evenodd"); let paths=canvas.path.clone(); canvas.clip.push(paths); if !canvas.native.is_null(){skia_canvas_clip(canvas.native,evenodd as i32);} undefined(env) }
         _ => undefined(env),
     }
 }
@@ -1409,7 +1498,11 @@ unsafe extern "C" fn canvas_method(env: NapiEnv, info: NapiCallbackInfo) -> Napi
     (api().get_value_uint32)(env, width_value, &mut width);
     (api().get_value_uint32)(env, height_value, &mut height);
     match args.first().and_then(|value| value_string(env, *value)).as_deref() {
-        Some("2d") => canvas_2d(width as usize, height as usize, env),
+        Some("2d") => {
+            let options = args.get(1).copied();
+            canvas_2d(width as usize, height as usize, env, context_option(env, options, "alpha", true),
+                context_option(env, options, "desynchronized", false), context_option(env, options, "willReadFrequently", false))
+        },
         Some("webgl") | Some("experimental-webgl") => create_context(env, 1),
         Some("webgl2") => create_context(env, 2),
         _ => ptr::null_mut(),
@@ -1424,7 +1517,7 @@ unsafe extern "C" fn offscreen_canvas_constructor(env: NapiEnv, info: NapiCallba
 }
 
 unsafe extern "C" fn canvas_2d_constructor(env: NapiEnv, _: NapiCallbackInfo) -> NapiValue {
-    canvas_2d(300, 150, env)
+    canvas_2d(300, 150, env, true, false, false)
 }
 
 unsafe extern "C" fn object_constructor(env: NapiEnv, _: NapiCallbackInfo) -> NapiValue {
