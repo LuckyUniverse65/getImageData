@@ -548,15 +548,32 @@ static SkFont resolve_font(const char* family, float size, int weight, int slant
                                        : slant == 1 ? SkFontStyle::kItalic_Slant
                                                     : SkFontStyle::kUpright_Slant;
     const SkFontStyle style(clamped_weight, SkFontStyle::kNormal_Width, font_slant);
-    // DirectWrite returns a non-null default face for unknown family names.
-    // Blink instead resolves an unknown CSS family through the generic
-    // fallback list, so avoid accepting that implicit default.
-    const bool force_fallback = family && std::strcmp(family, "aanotafontaa") == 0;
     const char* font_file = runtime_string("CANVAS_FONT_FILE", "");
     sk_sp<SkTypeface> typeface = font_manager && font_file[0]
-        ? font_manager->makeFromFile(font_file)
-        : font_manager && family && family[0] && !force_fallback
-            ? font_manager->matchFamilyStyle(family, style) : nullptr;
+        ? font_manager->makeFromFile(font_file) : nullptr;
+    if(!typeface && font_manager && family){
+        // Match each CSS family in order. A nonexistent family must not
+        // prevent a later installed family from being selected.
+        std::string name;char quote=0;
+        auto match_family=[&](){
+            const auto first=name.find_first_not_of(" \t\r\n");
+            const auto last=name.find_last_not_of(" \t\r\n");
+            if(first!=std::string::npos){
+                const std::string candidate=name.substr(first,last-first+1);
+                auto styles=font_manager->matchFamily(candidate.c_str());
+                if(styles && styles->count()>0)typeface=styles->matchStyle(style);
+            }
+            name.clear();
+        };
+        for(const char* p=family;;++p){
+            const char ch=*p;
+            if(!ch){match_family();break;}
+            if(quote){if(ch==quote)quote=0;else name+=ch;}
+            else if(ch=='\''||ch=='"')quote=ch;
+            else if(ch==','){match_family();if(typeface)break;}
+            else name+=ch;
+        }
+    }
     // Blink's Windows generic sans-serif selection resolves to the platform
     // sans-serif fallback. Noto Sans SC is installed with this runtime and
     // matches that DirectWrite fallback for both Latin and CJK text.
@@ -1110,6 +1127,28 @@ void skia_canvas_font_metrics(void* value, const char* family, float size,
     resolve_font(family, size, weight, slant).getMetrics(&metrics);
     *ascent = metrics.fAscent;
     *descent = metrics.fDescent;
+}
+void skia_canvas_typo_metrics(void* value, const char* family, float size,
+                              int weight, int slant, float* ascent, float* descent) {
+    if (!value || !ascent || !descent) return;
+    SkFont font = resolve_font(family, size, weight, slant);
+    SkFontMetrics metrics;
+    font.getMetrics(&metrics);
+    float a = -metrics.fAscent, d = metrics.fDescent;
+    uint8_t table[4];
+    if (font.getTypeface()->getTableData(SkSetFourByteTag('O','S','/','2'),
+                                        68, sizeof(table), table) == sizeof(table)) {
+        const float ta = static_cast<int16_t>((table[0] << 8) | table[1]);
+        const float td = -static_cast<int16_t>((table[2] << 8) | table[3]);
+        if (ta > 0 && td >= 0) { a = ta; d = td; }
+    }
+    // Blink SimpleFontData normalizes OS/2 typo metrics to one em, then
+    // rounds to LayoutUnit (1/64 px). Descent is the remaining em height.
+    *ascent = *descent = 0;
+    if (a + d > 0 && a >= 0 && d >= 0) {
+        *ascent = std::round((a * size / (a + d)) * 64.0f) / 64.0f;
+        *descent = std::round(size * 64.0f) / 64.0f - *ascent;
+    }
 }
 void skia_canvas_reset(void* value) {
     auto* c = static_cast<Canvas*>(value); if (!c || !c->surface) return;

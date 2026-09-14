@@ -52,6 +52,17 @@
         add('strokeInvalidArgument',()=>fresh().stroke(3));
         add('fillMissingReceiver',()=>{const g=fresh();return g.fillRect.call({},0,0,2,2);});
         add('isPointNonfinite',()=>{const g=fresh();g.rect(0,0,8,8);return [g.isPointInPath(NaN,1),g.isPointInStroke(Infinity,1)];});
+        add('imageDataReadonlyHeight',()=>{const d=fresh().createImageData(1,2);return {accepted:Reflect.set(d,'height',5),height:d.height};});
+        add('imageDataPixelsMutable',()=>{const g=fresh(),d=onePixel(g);d.data.set([0,0,255,255]);g.putImageData(d,0,0);return pixel(g);});
+        add('imageDataDetachedDuringConversion',()=>{const g=fresh(),d=onePixel(g);return g.putImageData(d,{valueOf(){structuredClone(d.data.buffer,{transfer:[d.data.buffer]});return 0;}},0);});
+        add('alphaPercentSweep',()=>[0,10,25,50,75,90,100].map(a=>{const g=fresh();g.fillStyle=`rgb(255 0 0 / ${a}%)`;g.fillRect(0,0,2,2);return {style:g.fillStyle,pixel:pixel(g)};}));
+        add('alphaLegacySweep',()=>[0,0.1,0.25,0.5,0.75,0.9,1].map(a=>{const g=fresh();g.fillStyle=`rgba(255,0,0,${a})`;g.fillRect(0,0,2,2);return {style:g.fillStyle,pixel:pixel(g)};}));
+        add('fontMultipleFallbacks',()=>{const g=fresh();g.font='12px "Missing, Font", NoSuchCanvasFont, "Arial"';const candidate=g.measureText('MMMM').width;g.font='12px Arial';return {candidate,reference:g.measureText('MMMM').width};});
+        for(const [name,font] of [['Arial','12px Arial'],['FractionalArial','17.3px Arial'],['Times','20px "Times New Roman"'],['Courier','15px "Courier New"']]){
+            add('textEmBaselines'+name,()=>{const g=fresh();g.font=font;return ['top','middle','bottom'].map(b=>{g.textBaseline=b;return ['', 'Mg'].map(text=>{const t=g.measureText(text);return [t.actualBoundingBoxAscent,t.actualBoundingBoxDescent];});});});
+        }
+        add('invalidReceiverBeforeConversion',()=>{const g=fresh();let calls=0;const failure=attempt(()=>g.fillRect.call({}, {valueOf(){calls++;return 0;}},0,2,2));return {failure,calls};});
+        add('sequenceNextLookup',()=>{const g=fresh();let reads=0,i=0;g.setLineDash({[Symbol.iterator](){return {get next(){reads++;return ()=>i++<2?{value:2,done:false}:{done:true};}};}});return {reads,dash:g.getLineDash()};});
         return results;
     }
     if(typeof module!=='undefined'&&module.exports)module.exports=runFourthRoundCases;

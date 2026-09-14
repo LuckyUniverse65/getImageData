@@ -1,4 +1,9 @@
 // Parsing for the CSS forms consumed by the native Canvas backend.
+pub fn serialized_alpha(byte:u8)->f64{
+    let alpha=byte as f64/255.0;
+    let hundredths=(alpha*100.0).round()/100.0;
+    if (hundredths*255.0).round() as u8==byte{hundredths}else{(alpha*1000.0).round()/1000.0}
+}
 pub fn alpha(value:&str)->Option<f64>{
     let (_,tail)=value.split_once('/')?;
     let tail=tail.trim().strip_suffix(')')?.trim();
@@ -12,7 +17,7 @@ pub fn font(value: &str) -> Option<String> {
     for ch in value.chars(){
         if let Some(q)=quote{token.push(ch);if ch==q{quote=None;}}
         else if ch=='\''||ch=='"'{quote=Some(ch);token.push(ch);}
-        else if ch.is_ascii_whitespace(){if !token.is_empty(){tokens.push(std::mem::take(&mut token));}}
+        else if ch.is_ascii_whitespace()||ch=='/'{if !token.is_empty(){tokens.push(std::mem::take(&mut token));}if ch=='/'{tokens.push("/".to_string());}}
         else{token.push(ch);}
     }
     if quote.is_some(){return None;}if !token.is_empty(){tokens.push(token);}
@@ -24,7 +29,19 @@ pub fn font(value: &str) -> Option<String> {
         if let Some((number,scale))=units.iter().find_map(|(u,s)|size_token.strip_suffix(u).map(|n|(n,*s))){
             let size=number.parse::<f64>().ok()?*scale;
             if !size.is_finite()||size<0.0{return None;}
-            let family=tokens.get(i+1..)?.join(" ");
+            if i>4{return None;}
+            let mut family_index=i+1;
+            if tokens.get(family_index).map(String::as_str)==Some("/"){
+                let line=tokens.get(family_index+1)?.to_ascii_lowercase();
+                if line!="normal"{
+                    let numeric=if let Some(n)=line.strip_suffix('%'){n}else{
+                        units.iter().find_map(|(unit,_)|line.strip_suffix(unit)).unwrap_or(&line)
+                    };
+                    let n=numeric.parse::<f64>().ok()?;if !n.is_finite()||n<0.0{return None;}
+                }
+                family_index+=2;
+            }
+            let family=tokens.get(family_index..)?.join(" ");
             if family.is_empty(){return None;}
             // Family grammar: quoted names or CSS identifiers separated by commas.
             let mut quoted=None;let mut part=String::new();let mut families=Vec::new();
@@ -38,15 +55,12 @@ pub fn font(value: &str) -> Option<String> {
             for part in &families{
                 let p=part.trim();if p.is_empty(){return None;}
                 if p.starts_with(['\'', '"']){
-                    let q=p.chars().next()?;if p.len()<2||!p.ends_with(q){return None;}
+                    let q=p.chars().next()?;
+                    if p.len()<2||!p.ends_with(q)||p[1..p.len()-1].contains(q){return None;}
                 }else if !p.split_whitespace().all(|word|{
                     let mut chars=word.chars();chars.next().map(|c|c.is_alphabetic()||c=='_'||c=='-').unwrap_or(false)
                         &&chars.all(|c|c.is_alphanumeric()||c=='_'||c=='-')
                 }){return None;}
-            }
-            if let Some(line)=lower.split_once('/').map(|(_,line)|line){
-                let n=line.trim_end_matches(|c:char|c.is_ascii_alphabetic()||c=='%');
-                if line!="normal"&&n.parse::<f64>().map(|n|!n.is_finite()||n<0.0).unwrap_or(true){return None;}
             }
             let mut result=Vec::new();
             if let Some(s)=style{result.push(s);}if let Some(v)=variant{result.push(v);}if let Some(w)=weight{result.push(w);}
@@ -58,7 +72,7 @@ pub fn font(value: &str) -> Option<String> {
             "italic"|"oblique"=>{if style.is_some(){return None;}style=Some(lower);},
             "small-caps"=>{if variant.is_some(){return None;}variant=Some(lower);},
             "bold"|"bolder"|"lighter"=>{if weight.is_some(){return None;}weight=Some(lower);},
-            _=>{let n=lower.parse::<u32>().ok()?;if !(1..=1000).contains(&n)||weight.is_some(){return None;}weight=Some(lower);}
+            _=>{let n=lower.parse::<f64>().ok()?;if !n.is_finite()||!(1.0..=1000.0).contains(&n)||weight.is_some(){return None;}weight=Some((n.trunc() as u32).to_string());}
         }
     }
     None
@@ -74,11 +88,14 @@ pub fn function_color(value:&str)->Option<[u8;4]>{
     }
     let fields:Vec<&str>=if modern{body.split(|c:char|c.is_ascii_whitespace()||c=='/').filter(|v|!v.is_empty()).collect()}else{body.split(',').map(str::trim).collect()};
     if fields.len()!=3&&fields.len()!=4{return None;}
+    if !modern && name.starts_with("rgb") && fields[..3].iter().any(|s|s.ends_with('%')!=fields[0].ends_with('%')){return None;}
     let numeric=|s:&str|->Option<f64>{let n=s.parse::<f64>().ok()?;n.is_finite().then_some(n)};
     let alpha=if fields.len()==4{
         if let Some(p)=fields[3].strip_suffix('%'){
-            let v=numeric(p)?.clamp(0.0,100.0)*255.0/100.0;
-            if modern{v.floor() as u8}else{v.round() as u8}
+            // CSS percent conversion uses a float scale; preserve that precision
+            // through byte quantization (25% and 50% straddle different ties).
+            let a=(numeric(p)?*f64::from(0.01f32)).clamp(0.0,1.0);
+            (a*255.0).round() as u8
         }else{(numeric(fields[3])?.clamp(0.0,1.0)*255.0).round() as u8}
     }else{255};
     if name.starts_with("rgb"){

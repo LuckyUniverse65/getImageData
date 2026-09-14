@@ -7,6 +7,22 @@ const { encodePng } = require('./src/png');
 const OffscreenCanvasRenderingContext2D = native.OffscreenCanvasRenderingContext2D;
 const imageDataObjects = new WeakSet();
 const imageSources = new WeakSet();
+const contexts = new WeakSet();
+const isObject = value => value !== null && (typeof value === 'object' || typeof value === 'function');
+// Web IDL converts each iterator value immediately and does not perform
+// Array.from's IteratorClose on conversion failure.
+function convertSequence(value, iteratorMethod, convert) {
+    const iterator=iteratorMethod.call(value);
+    if(!isObject(iterator))throw new TypeError('Invalid iterator');
+    const next=iterator.next,values=[];
+    if(typeof next!=='function')throw new TypeError('Invalid iterator next');
+    for(;;){
+        const step=next.call(iterator);
+        if(!isObject(step))throw new TypeError('Invalid iterator result');
+        if(step.done)return values;
+        values.push(convert(step.value));
+    }
+}
 const domString = value => { if (typeof value === 'symbol') throw new TypeError('Cannot convert Symbol to string'); return String(value); };
 function checkImageSource(source) {
     if (!imageSources.has(source)) throw new TypeError('Expected a Canvas image source');
@@ -34,12 +50,15 @@ function offscreenDimension(value) {
 // Convert iterable and dictionary Web IDL arguments in JavaScript, then pass
 // normalized numeric data to the native drawing/state implementation.
 function adaptContextArguments(context) {
+    contexts.add(context);
     const nativeDash = context.setLineDash;
     context.setLineDash = function (segments) {
-        if (segments == null || typeof segments[Symbol.iterator] !== 'function') {
+        if (!isObject(segments))throw new TypeError('Line dash must be a sequence object');
+        const iterator=segments[Symbol.iterator];
+        if (typeof iterator !== 'function') {
             throw new TypeError('Line dash must be an iterable');
         }
-        return nativeDash.call(this, Array.from(segments, value => +value));
+        return nativeDash.call(this, convertSequence(segments,iterator,value=>+value));
     };
     const nativeTransform = context.setTransform;
     context.setTransform = function (...args) {
@@ -117,6 +136,14 @@ function adaptContextArguments(context) {
     context.putImageData=function(...args){
         if(args.length<3 || (args.length>3&&args.length<7))throw new TypeError('Invalid putImageData overload');
         if(!imageDataObjects.has(args[0]))throw new TypeError('Expected ImageData');
+        // Complete user conversions before native code obtains a buffer pointer.
+        const count=args.length>=7?7:3;
+        for(let i=1;i<count;i++){
+            const n=+args[i];
+            if(!Number.isFinite(n)||Math.trunc(n)<-2147483648||Math.trunc(n)>2147483647)throw new TypeError('Coordinate is outside signed long range');
+            args[i]=Math.trunc(n)||0;
+        }
+        if(args[0].data.buffer.byteLength===0)throw new DOMException('ImageData buffer is detached','InvalidStateError');
         return putImageData.apply(this,args);
     };
     for(const name of ['fill','clip','isPointInPath','isPointInStroke']) {
@@ -135,17 +162,29 @@ function adaptContextArguments(context) {
     context.roundRect=function(x,y,w,h,radii=0){
         if(arguments.length<4)throw new TypeError('roundRect requires four coordinates');
         const coords=[+x,+y,+w,+h];
-        const iterable=radii!=null&&(typeof radii==='object'||typeof radii==='function')&&typeof radii[Symbol.iterator]==='function';
-        const values=iterable?Array.from(radii):[radii];
-        const points=values.map(v=>{
-            if(v!==null&&(typeof v==='object'||typeof v==='function')){const x=v.x,y=v.y;return {x:x===undefined?0:+x,y:y===undefined?0:+y};}
+        const convertPoint=v=>{
+            if(isObject(v)){let x=v.x;x=x===undefined?0:+x;let y=v.y;y=y===undefined?0:+y;return {x,y};}
             const n=+v;return {x:n,y:n};
-        });
+        };
+        const iterator=isObject(radii)?radii[Symbol.iterator]:undefined;
+        if(iterator!=null&&typeof iterator!=='function')throw new TypeError('Invalid radii iterator');
+        const points=iterator==null?[convertPoint(radii)]:convertSequence(radii,iterator,convertPoint);
         if(points.length<1||points.length>4)throw new RangeError('Expected one to four radii');
-        if(points.some(p=>p.x<0||p.y<0))throw new RangeError('Negative radius');
         if(!coords.every(Number.isFinite)||points.some(p=>!Number.isFinite(p.x)||!Number.isFinite(p.y)))return;
+        if(points.some(p=>p.x<0||p.y<0))throw new RangeError('Negative radius');
         return roundRect.call(this,...coords,points);
     };
+    const stroke=context.stroke;
+    context.stroke=function(...args){
+        if(args.length)throw new TypeError('Expected Path2D');
+        return stroke.call(this);
+    };
+    // Validate the receiver before argument conversion, including no-op calls.
+    for(const name of Object.keys(context)){
+        if(typeof context[name]!=='function')continue;
+        const method=context[name];
+        context[name]=function(...args){if(!contexts.has(this))throw new TypeError('Illegal invocation');return method.apply(this,args);};
+    }
 }
 
 class ImageBitmap {

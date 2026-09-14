@@ -70,6 +70,7 @@ extern "C" {
     fn skia_canvas_measure_text(canvas: *mut c_void, text: *const u8, length: u32, family: *const c_char, size: f32, weight: i32, slant: i32) -> f32;
     fn skia_canvas_text_bounds(canvas: *mut c_void, text: *const u8, length: u32, family: *const c_char, size: f32, weight: i32, slant: i32, bounds: *mut f32);
     fn skia_canvas_font_metrics(canvas: *mut c_void, family: *const c_char, size: f32, weight: i32, slant: i32, ascent: *mut f32, descent: *mut f32);
+    fn skia_canvas_typo_metrics(canvas: *mut c_void, family: *const c_char, size: f32, weight: i32, slant: i32, ascent: *mut f32, descent: *mut f32);
     fn skia_canvas_reset(canvas: *mut c_void);
     fn skia_canvas_clear_bitmap(canvas: *mut c_void);
     fn skia_canvas_draw_rgba_image(canvas: *mut c_void, input: *const u8, image_width: u32, image_height: u32,
@@ -83,6 +84,7 @@ struct Napi {
     get_reference_value: unsafe extern "C" fn(NapiEnv, *mut c_void, *mut NapiValue) -> i32,
     delete_reference: unsafe extern "C" fn(NapiEnv, *mut c_void) -> i32,
     coerce_to_number: unsafe extern "C" fn(NapiEnv, NapiValue, *mut NapiValue) -> i32,
+    coerce_to_string: unsafe extern "C" fn(NapiEnv, NapiValue, *mut NapiValue) -> i32,
     coerce_to_bool: unsafe extern "C" fn(NapiEnv, NapiValue, *mut NapiValue) -> i32,
     get_value_bool: unsafe extern "C" fn(NapiEnv, NapiValue, *mut bool) -> i32,
     new_instance: unsafe extern "C" fn(NapiEnv, NapiValue, usize, *const NapiValue, *mut NapiValue) -> i32,
@@ -135,6 +137,7 @@ unsafe fn load_napi() {
             get_reference_value: symbol(module, b"napi_get_reference_value\0"),
             delete_reference: symbol(module, b"napi_delete_reference\0"),
             coerce_to_number: symbol(module, b"napi_coerce_to_number\0"),
+            coerce_to_string: symbol(module, b"napi_coerce_to_string\0"),
             coerce_to_bool: symbol(module, b"napi_coerce_to_bool\0"),
             get_value_bool: symbol(module, b"napi_get_value_bool\0"),
             new_instance: symbol(module, b"napi_new_instance\0"),
@@ -339,6 +342,12 @@ unsafe fn number(env: NapiEnv, value: NapiValue) -> f64 {
     let mut result = f64::NAN;
     (api().get_value_double)(env, converted, &mut result);
     result
+}
+
+unsafe fn dom_string(env:NapiEnv,value:NapiValue)->Option<String>{
+    let mut converted=ptr::null_mut();
+    if (api().coerce_to_string)(env,value,&mut converted)!=0{return None;}
+    value_string(env,converted)
 }
 
 unsafe fn range_error(env: NapiEnv, message: &str) {
@@ -550,38 +559,25 @@ unsafe fn clamped_pixels(env: NapiEnv, pixels: &[u8]) -> NapiValue {
 unsafe fn image_data(env: NapiEnv, width: usize, height: usize, pixels: &[u8]) -> NapiValue {
     let mut result = ptr::null_mut();
     (api().create_object)(env, &mut result);
-    set(env, result, "data", clamped_pixels(env, pixels));
-    set(env, result, "width", uint32(env, width as u32));
-    set(env, result, "height", uint32(env, height as u32));
+    let props=[(b"data\0".as_slice(),clamped_pixels(env,pixels)),(b"width\0".as_slice(),uint32(env,width as u32)),(b"height\0".as_slice(),uint32(env,height as u32))];
+    let descriptors:Vec<NapiPropertyDescriptor>=props.iter().map(|(name,value)|NapiPropertyDescriptor{
+        utf8name:name.as_ptr() as *const c_char,name:ptr::null_mut(),method:None,getter:None,setter:None,value:*value,attributes:2,data:ptr::null_mut()
+    }).collect();
+    (api().define_properties)(env,result,descriptors.len(),descriptors.as_ptr());
     result
 }
 
 fn parse_color(value: &str) -> Option<[u8; 4]> {
     let value = value.trim().to_ascii_lowercase();
-    if value.starts_with("hsl") || ((value.starts_with("rgb(")||value.starts_with("rgba("))&&!value.contains(',')) {
+    if value.starts_with("hsl") || value.starts_with("rgb(")||value.starts_with("rgba(") {
         return canvas_css::function_color(&value);
     }
     let named = match value.as_str() {
         "black" => Some([0, 0, 0, 255]), "white" => Some([255, 255, 255, 255]),
         "red" => Some([255, 0, 0, 255]), "green" => Some([0, 128, 0, 255]),
-        "blue" => Some([0, 0, 255, 255]), "transparent" => Some([0, 0, 0, 0]), _ => None,
+        "yellow"=>Some([255,255,0,255]), "aqua"|"cyan"=>Some([0,255,255,255]), "fuchsia"|"magenta"=>Some([255,0,255,255]), "lime"=>Some([0,255,0,255]), "gray"|"grey"=>Some([128,128,128,255]), "silver"=>Some([192,192,192,255]), "maroon"=>Some([128,0,0,255]), "olive"=>Some([128,128,0,255]), "purple"=>Some([128,0,128,255]), "teal"=>Some([0,128,128,255]), "navy"=>Some([0,0,128,255]), "blue" => Some([0, 0, 255, 255]), "transparent" => Some([0, 0, 0, 0]), _ => None,
     };
     if named.is_some() { return named; }
-    if let Some(body) = value.strip_prefix("rgb(").and_then(|body| body.strip_suffix(')')) {
-        let values: Vec<&str> = body.split(',').map(str::trim).collect();
-        if values.len() == 3 {
-            let channel = |part: &str| -> Option<u8> { if let Some(percent) = part.strip_suffix('%') { Some((percent.trim().parse::<f64>().ok()?.clamp(0.0, 100.0) * 2.55).round() as u8) } else { Some(part.parse::<f64>().ok()?.clamp(0.0, 255.0).round() as u8) } };
-            return Some([channel(values[0])?, channel(values[1])?, channel(values[2])?, 255]);
-        }
-    }
-    if let Some(body) = value.strip_prefix("rgba(").and_then(|body| body.strip_suffix(')')) {
-        let values: Vec<&str> = body.split(',').map(str::trim).collect();
-        if values.len() == 4 {
-            let channel = |part: &str| -> Option<u8> { if let Some(percent) = part.strip_suffix('%') { Some((percent.trim().parse::<f64>().ok()?.clamp(0.0, 100.0) * 2.55).round() as u8) } else { Some(part.parse::<f64>().ok()?.clamp(0.0, 255.0).round() as u8) } };
-            let alpha = if let Some(percent) = values[3].strip_suffix('%') { (percent.trim().parse::<f64>().ok()?.clamp(0.0, 100.0) * 2.55).round() as u8 } else { (values[3].parse::<f64>().ok()?.clamp(0.0, 1.0) * 255.0).round() as u8 };
-            return Some([channel(values[0])?, channel(values[1])?, channel(values[2])?, alpha]);
-        }
-    }
     let hex = value.strip_prefix('#')?;
     // Validate bytes before slicing UTF-8: malformed CSS must never panic.
     if !hex.bytes().all(|byte| byte.is_ascii_hexdigit()) { return None; }
@@ -772,7 +768,7 @@ unsafe fn style_value(env: NapiEnv, style: &Style) -> NapiValue {
     let color = style_color(style);
     if let Style::CssColor(_,alpha)=style {if *alpha<1.0{return string(env,&format!("rgba({}, {}, {}, {})",color[0],color[1],color[2],alpha));}}
     if color[3] == 255 { string(env, &format!("#{:02x}{:02x}{:02x}", color[0], color[1], color[2])) }
-    else { string(env, &format!("rgba({}, {}, {}, {})", color[0], color[1], color[2], color[3] as f64 / 255.0)) }
+    else { string(env, &format!("rgba({}, {}, {}, {})", color[0], color[1], color[2], canvas_css::serialized_alpha(color[3]))) }
 }
 
 // The JS-facing object and argument conversion remain in Rust.  Pixel generation is delegated
@@ -824,7 +820,7 @@ fn font_spec(value: &str) -> FontSpec {
             if parsed.is_finite() && parsed >= 0.0 { size = parsed; suffix = &value[index + 2..]; prefix = before; break; }
         }
     }
-    let mut family = suffix.split(',').next().unwrap_or("").trim().trim_matches(|c| c == '\'' || c == '\"');
+    let mut family = suffix.trim();
     if family.is_empty() { family = "Arial"; }
     let tokens: Vec<&str> = prefix.split_whitespace().collect();
     let slant = if tokens.iter().any(|token| token.eq_ignore_ascii_case("oblique")) { 2 }
@@ -837,12 +833,18 @@ fn font_spec(value: &str) -> FontSpec {
 unsafe fn text_baseline_offset(canvas: &Canvas2D, font: &FontSpec) -> f64 {
     if canvas.native.is_null() || canvas.text_baseline == "alphabetic" { return 0.0; }
     let mut ascent = 0.0f32; let mut descent = 0.0f32;
+    if matches!(canvas.text_baseline.as_str(), "top" | "bottom" | "middle") {
+        skia_canvas_typo_metrics(canvas.native, font.family.as_ptr(), font.size as f32, font.weight, font.slant, &mut ascent, &mut descent);
+        return match canvas.text_baseline.as_str() {
+            "top" => ascent as f64,
+            "bottom" => -(descent as f64),
+            _ => (ascent as f64 - descent as f64) / 2.0,
+        };
+    }
     skia_canvas_font_metrics(canvas.native, font.family.as_ptr(), font.size as f32, font.weight, font.slant, &mut ascent, &mut descent);
     match canvas.text_baseline.as_str() {
-        "top" => -ascent as f64,
         "hanging" => -(ascent as f64) * 0.8,
-        "middle" => ((-ascent as f64) - descent as f64) / 2.0,
-        "ideographic" | "bottom" => -(descent as f64),
+        "ideographic" => -(descent as f64),
         _ => 0.0,
     }
 }
@@ -863,11 +865,17 @@ unsafe extern "C" fn get_canvas_property(env: NapiEnv, info: NapiCallbackInfo) -
 
 unsafe extern "C" fn set_canvas_property(env: NapiEnv, info: NapiCallbackInfo) -> NapiValue {
     let (args, this_arg, data) = callback_info(env, info);
-    let Some(c) = canvas_2d_from(env, this_arg) else { return undefined(env); };
     let Some(value) = args.first() else { return undefined(env); };
+    // Convert strings before borrowing mutable state: toString can re-enter Canvas.
+    let prepared=if [0,1,2,6,7,8,9,12,13].contains(&data){
+        let(mut gradient,mut pattern)=(false,false);
+        if data<=1{(api().check_object_type_tag)(env,*value,&GRADIENT_TYPE_TAG,&mut gradient);(api().check_object_type_tag)(env,*value,&PATTERN_TYPE_TAG,&mut pattern);}
+        if gradient||pattern{None}else{let Some(s)=dom_string(env,*value)else{return undefined(env);};Some(s)}
+    }else{None};
+    let Some(c) = canvas_2d_from(env, this_arg) else { return type_error(env,"Illegal invocation"); };
     match data {
         0 | 1 => {
-            if let Some(s) = value_string(env, *value) {
+            if let Some(s) = prepared.clone() {
                 if let Some(col) = parse_color(&s) {
                     let style=if let Some(alpha)=canvas_css::alpha(&s){Style::CssColor(col,alpha)}else{Style::Color(col)};
                     if data == 0 { c.fill = style; } else { c.stroke = style; }
@@ -891,7 +899,7 @@ unsafe extern "C" fn set_canvas_property(env: NapiEnv, info: NapiCallbackInfo) -
                 }
             }
         },
-        2 => if let Some(s) = value_string(env, *value) { if let Some(col) = parse_color(&s) { c.shadow = col; } },
+        2 => if let Some(s) = prepared.clone() { if let Some(col) = parse_color(&s) { c.shadow = col; } },
         3 => { let n = number(env, *value); if n.is_finite() && n >= 0.0 { c.shadow_blur = n; } }, 4 => { let n = number(env, *value); if n.is_finite() && n > 0.0 { c.line_width = n; } },
         10 => { let n = number(env, *value); if n.is_finite() { c.shadow_offset_x = n; } }, 11 => { let n = number(env, *value); if n.is_finite() { c.shadow_offset_y = n; } },
         5 => {
@@ -900,11 +908,11 @@ unsafe extern "C" fn set_canvas_property(env: NapiEnv, info: NapiCallbackInfo) -
             let n = number(env, converted);
             if n.is_finite() && (0.0..=1.0).contains(&n) { c.global_alpha = n; }
         },
-        6 => if let Some(s) = value_string(env, *value) { if let Some(font) = canvas_css::font(&s) { c.font = font; } },
-        7 => if let Some(s) = value_string(env, *value) { if ["left", "right", "center", "start", "end"].contains(&s.as_str()) { c.text_align = s; } }, 8 => if let Some(s) = value_string(env, *value) { if ["top", "hanging", "middle", "alphabetic", "ideographic", "bottom"].contains(&s.as_str()) { c.text_baseline = s; } },
-        9 => if let Some(s) = value_string(env, *value) { if s == "source-over" || s == "copy" { c.composite_copy = s == "copy"; } },
-        12 => if let Some(s) = value_string(env, *value) { if ["butt", "round", "square"].contains(&s.as_str()) { c.line_cap = s; } },
-        13 => if let Some(s) = value_string(env, *value) { if ["miter", "round", "bevel"].contains(&s.as_str()) { c.line_join = s; } },
+        6 => if let Some(s) = prepared.clone() { if let Some(font) = canvas_css::font(&s) { c.font = font; } },
+        7 => if let Some(s) = prepared.clone() { if ["left", "right", "center", "start", "end"].contains(&s.as_str()) { c.text_align = s; } }, 8 => if let Some(s) = prepared.clone() { if ["top", "hanging", "middle", "alphabetic", "ideographic", "bottom"].contains(&s.as_str()) { c.text_baseline = s; } },
+        9 => if let Some(s) = prepared.clone() { if s == "source-over" || s == "copy" { c.composite_copy = s == "copy"; } },
+        12 => if let Some(s) = prepared.clone() { if ["butt", "round", "square"].contains(&s.as_str()) { c.line_cap = s; } },
+        13 => if let Some(s) = prepared.clone() { if ["miter", "round", "bevel"].contains(&s.as_str()) { c.line_join = s; } },
         14 => { let n = number(env, *value); if n.is_finite() && n > 0.0 { c.miter_limit = n; } },
         15 => { let n = number(env, *value); if n.is_finite() { c.line_dash_offset = n; } },
         16 => c.image_smoothing = truthy(env, Some(value)), _ => {}
@@ -1013,7 +1021,8 @@ unsafe extern "C" fn gradient_add_stop(env:NapiEnv, info:NapiCallbackInfo)->Napi
     let off=number(env,converted);
     if !off.is_finite(){return type_error(env,"Offset must be finite");}
     if !(0.0..=1.0).contains(&off){return dom_error(env,"IndexSizeError","Offset must be between zero and one");}
-    let Some(col)=value_string(env,args[1]).and_then(|s|parse_color(&s)) else{return dom_error(env,"SyntaxError","Invalid color");};
+    let Some(color)=dom_string(env,args[1])else{return undefined(env);};
+    let Some(col)=parse_color(&color) else{return dom_error(env,"SyntaxError","Invalid color");};
     let mut g=(*(raw as *mut GradientObject)).0.borrow_mut();g.stops.push((off,col));g.stops.sort_by(|a,b|a.0.total_cmp(&b.0));
     undefined(env)
 }
