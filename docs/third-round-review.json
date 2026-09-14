@@ -1,0 +1,1390 @@
+{
+  "date": "2026-09-14",
+  "implementationCommit": "450ad04f59b9b720edb9f07193921a2b91b27f55",
+  "productionModified": false,
+  "regular": {
+    "tested": 55,
+    "matched": 19,
+    "differing": 36,
+    "capture": {
+      "runId": "dd4b64dad1644b0d81b35906fb5b0675",
+      "capturedAt": "2026-09-14T08:07:25.682Z",
+      "browserMode": "user-chrome-cdp",
+      "chromeVersion": "153.0.8010.37",
+      "browserRevision": "@b75a5a95ea1a1b55bdbfd6d9f42d47be7507fb8b",
+      "debuggingPort": 9222,
+      "targetId": "FBE5D78C5A7AC57848530E4FAD0E91FD",
+      "backgroundTarget": true,
+      "script": "tests/third-round-cases.js",
+      "scriptSHA256": "A7DA5BC20CA1E20CE975A77029B1EFDD2D9AE29ED093F652B141C1D860417861"
+    },
+    "sha256": {
+      "index.js": "99CB8F30E32183F8B5B5E9DACC0AB059A007151151CECD74D77E00CEB42BF75C",
+      "src/webgl_native.rs": "13811FE9A68E0114E02364E607A9D2A2DE661062200B634582D9711FEEE8C2A2",
+      "src/skia_backend.cpp": "97909843F17BD071AE8905EF9F83FE6FD6BD2342E01D9B8D5A84FFB7DA44B6AB",
+      "webgl.node": "A76F70B3984602B7B9A429ECC2F26923BDBACE87AF9E47953DAA04D7324E0510",
+      "tests/third-round-cases.js": "A7DA5BC20CA1E20CE975A77029B1EFDD2D9AE29ED093F652B141C1D860417861"
+    },
+    "matches": [
+      "drawImageNull",
+      "drawImageSelfOverlap",
+      "drawImageInvalidNumber",
+      "createImageDataClone",
+      "putImageDataInfiniteOrigin",
+      "putImageDataIgnoresDrawingState",
+      "singularTransformRecovery",
+      "pathSurvivesSaveRestore",
+      "emptyClipRestore",
+      "resizeClearsStateStack",
+      "lineDashAllZero",
+      "matrixNon2D",
+      "matrix3DComponent",
+      "contextInvalidOptions",
+      "contextAttributeFailureLocksMode",
+      "opaqueZeroCanvasRead",
+      "opaqueCopyAlpha",
+      "colorPercentage",
+      "lineWidthInvalidPreserves"
+    ],
+    "differences": [
+      {
+        "name": "numericText",
+        "local": {
+          "value": {
+            "width": 0,
+            "painted": false
+          }
+        },
+        "browser": {
+          "value": {
+            "width": 16.64996337890625,
+            "painted": true
+          }
+        }
+      },
+      {
+        "name": "textObjectConversion",
+        "local": {
+          "value": {
+            "calls": 0,
+            "width": 0
+          }
+        },
+        "browser": {
+          "value": {
+            "calls": 1,
+            "width": 8.1199951171875
+          }
+        }
+      },
+      {
+        "name": "textSymbol",
+        "local": {
+          "value": {
+            "width": 0,
+            "actualBoundingBoxAscent": 0,
+            "actualBoundingBoxDescent": 0,
+            "fontBoundingBoxAscent": 11.600000381469727,
+            "fontBoundingBoxDescent": 2.880000114440918,
+            "emHeightAscent": 11.600000381469727,
+            "emHeightDescent": 2.880000114440918,
+            "hangingBaseline": 0,
+            "alphabeticBaseline": 0,
+            "ideographicBaseline": 2.880000114440918,
+            "actualBoundingBoxLeft": 0,
+            "actualBoundingBoxRight": 0
+          }
+        },
+        "browser": {
+          "error": "TypeError"
+        }
+      },
+      {
+        "name": "measureTextMissing",
+        "local": {
+          "value": {
+            "width": 0,
+            "actualBoundingBoxAscent": 0,
+            "actualBoundingBoxDescent": 0,
+            "fontBoundingBoxAscent": 11.600000381469727,
+            "fontBoundingBoxDescent": 2.880000114440918,
+            "emHeightAscent": 11.600000381469727,
+            "emHeightDescent": 2.880000114440918,
+            "hangingBaseline": 0,
+            "alphabeticBaseline": 0,
+            "ideographicBaseline": 2.880000114440918,
+            "actualBoundingBoxLeft": 0,
+            "actualBoundingBoxRight": 0
+          }
+        },
+        "browser": {
+          "error": "TypeError"
+        }
+      },
+      {
+        "name": "textWhitespace",
+        "local": {
+          "value": {
+            "space": 14.889999389648438,
+            "tab": 22.650001525878906,
+            "newline": 22.650001525878906
+          }
+        },
+        "browser": {
+          "value": {
+            "space": 14.889968872070312,
+            "tab": 14.889968872070312,
+            "newline": 14.889968872070312
+          }
+        }
+      },
+      {
+        "name": "textActualBounds",
+        "local": {
+          "value": {
+            "left": 0,
+            "right": 9.99609375,
+            "ascent": 10.86328125,
+            "descent": 2.54296875
+          }
+        },
+        "browser": {
+          "value": {
+            "left": 0,
+            "right": 10,
+            "ascent": 9,
+            "descent": 0
+          }
+        }
+      },
+      {
+        "name": "textAlignedBounds",
+        "local": {
+          "value": {
+            "left": 0,
+            "right": 19.9921875
+          }
+        },
+        "browser": {
+          "value": {
+            "left": 9.99609375,
+            "right": 10
+          }
+        }
+      },
+      {
+        "name": "fontPointUnits",
+        "local": {
+          "value": "10px sans-serif"
+        },
+        "browser": {
+          "value": "16px Arial"
+        }
+      },
+      {
+        "name": "fontDuplicateStyle",
+        "local": {
+          "value": "italic italic 16px Arial"
+        },
+        "browser": {
+          "value": "12px Arial"
+        }
+      },
+      {
+        "name": "fontMalformedFamily",
+        "local": {
+          "value": "16px /"
+        },
+        "browser": {
+          "value": "12px Arial"
+        }
+      },
+      {
+        "name": "fontCanonicalization",
+        "local": {
+          "value": "normal 12px Arial"
+        },
+        "browser": {
+          "value": "12px Arial"
+        }
+      },
+      {
+        "name": "textMaxWidthConversionOrder",
+        "local": {
+          "value": 0
+        },
+        "browser": {
+          "value": 1
+        }
+      },
+      {
+        "name": "drawImageMissing",
+        "local": {
+          "value": "<undefined>"
+        },
+        "browser": {
+          "error": "TypeError"
+        }
+      },
+      {
+        "name": "drawImageFourArguments",
+        "local": {
+          "value": [
+            [
+              255,
+              0,
+              0,
+              255
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "browser": {
+          "error": "TypeError"
+        }
+      },
+      {
+        "name": "drawImageFakeSource",
+        "local": {
+          "value": [
+            255,
+            0,
+            0,
+            255
+          ]
+        },
+        "browser": {
+          "error": "TypeError"
+        }
+      },
+      {
+        "name": "drawImageZeroSource",
+        "local": {
+          "value": "<undefined>"
+        },
+        "browser": {
+          "error": "InvalidStateError"
+        }
+      },
+      {
+        "name": "drawImageClosedBitmap",
+        "local": {
+          "value": "<undefined>"
+        },
+        "browser": {
+          "error": "InvalidStateError"
+        }
+      },
+      {
+        "name": "drawImageShadow",
+        "local": {
+          "value": [
+            [
+              255,
+              0,
+              0,
+              255
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "browser": {
+          "value": [
+            [
+              255,
+              0,
+              0,
+              255
+            ],
+            [
+              0,
+              0,
+              255,
+              255
+            ]
+          ]
+        }
+      },
+      {
+        "name": "patternInvalidRepetition",
+        "local": {
+          "value": {}
+        },
+        "browser": {
+          "error": "SyntaxError"
+        }
+      },
+      {
+        "name": "patternZeroSource",
+        "local": {
+          "value": "undefined"
+        },
+        "browser": {
+          "error": "InvalidStateError"
+        }
+      },
+      {
+        "name": "createImageDataMissing",
+        "local": {
+          "value": [
+            0,
+            0
+          ]
+        },
+        "browser": {
+          "error": "TypeError"
+        }
+      },
+      {
+        "name": "createImageDataFakeSource",
+        "local": {
+          "value": [
+            2,
+            2
+          ]
+        },
+        "browser": {
+          "error": "TypeError"
+        }
+      },
+      {
+        "name": "putImageDataMissing",
+        "local": {
+          "value": "<undefined>"
+        },
+        "browser": {
+          "error": "TypeError"
+        }
+      },
+      {
+        "name": "putImageDataFakeSource",
+        "local": {
+          "value": [
+            255,
+            0,
+            0,
+            255
+          ]
+        },
+        "browser": {
+          "error": "TypeError"
+        }
+      },
+      {
+        "name": "invalidFillRule",
+        "local": {
+          "value": "<undefined>"
+        },
+        "browser": {
+          "error": "TypeError"
+        }
+      },
+      {
+        "name": "invalidClipRule",
+        "local": {
+          "value": "<undefined>"
+        },
+        "browser": {
+          "error": "TypeError"
+        }
+      },
+      {
+        "name": "hitTestMissing",
+        "local": {
+          "value": false
+        },
+        "browser": {
+          "error": "TypeError"
+        }
+      },
+      {
+        "name": "hitTestInvalidRule",
+        "local": {
+          "value": false
+        },
+        "browser": {
+          "error": "TypeError"
+        }
+      },
+      {
+        "name": "roundRectMissing",
+        "local": {
+          "value": "<undefined>"
+        },
+        "browser": {
+          "error": "TypeError"
+        }
+      },
+      {
+        "name": "roundRectIterableRadii",
+        "local": {
+          "error": "RangeError"
+        },
+        "browser": {
+          "value": [
+            false,
+            true
+          ]
+        }
+      },
+      {
+        "name": "roundRectNonfinite",
+        "local": {
+          "error": "RangeError"
+        },
+        "browser": {
+          "value": false
+        }
+      },
+      {
+        "name": "matrixDictionaryReadOrder",
+        "local": {
+          "value": [
+            "a",
+            "m11",
+            "b",
+            "m12",
+            "c",
+            "m21",
+            "d",
+            "m22",
+            "e",
+            "m41",
+            "f",
+            "m42"
+          ]
+        },
+        "browser": {
+          "value": [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e",
+            "f",
+            "m11",
+            "m12",
+            "m21",
+            "m22",
+            "m41",
+            "m42",
+            "is2D",
+            "m13",
+            "m14",
+            "m23",
+            "m24",
+            "m31",
+            "m32",
+            "m33",
+            "m34",
+            "m43",
+            "m44"
+          ]
+        }
+      },
+      {
+        "name": "setTransformTwoArguments",
+        "local": {
+          "error": "TypeError"
+        },
+        "browser": {
+          "value": [
+            1,
+            0,
+            0,
+            1,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "name": "matrixContradictory2D",
+        "local": {
+          "value": [
+            1,
+            0,
+            0,
+            1,
+            0,
+            0
+          ]
+        },
+        "browser": {
+          "error": "TypeError"
+        }
+      },
+      {
+        "name": "colorModernSyntax",
+        "local": {
+          "value": {
+            "style": "#000000",
+            "pixel": [
+              0,
+              0,
+              0,
+              255
+            ]
+          }
+        },
+        "browser": {
+          "value": {
+            "style": "rgba(255, 0, 0, 0.5)",
+            "pixel": [
+              255,
+              0,
+              0,
+              127
+            ]
+          }
+        }
+      },
+      {
+        "name": "colorHsl",
+        "local": {
+          "value": [
+            0,
+            0,
+            0,
+            255
+          ]
+        },
+        "browser": {
+          "value": [
+            0,
+            255,
+            0,
+            255
+          ]
+        }
+      }
+    ]
+  },
+  "unicodeColor": {
+    "matched": false,
+    "nodeVersion": "v22.13.1",
+    "nativeSHA256": "A76F70B3984602B7B9A429ECC2F26923BDBACE87AF9E47953DAA04D7324E0510",
+    "local": {
+      "status": 3221226505,
+      "signal": null,
+      "stdout": "",
+      "stderr": "\nthread '<unnamed>' (10552) panicked at src\\webgl_native.rs:583:36:\nbyte index 1 is not a char boundary; it is inside '红' (bytes 0..3) of `红`\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+    },
+    "browser": {
+      "runId": "ea2386a847e746b7b8f402ca1ea8f6bd",
+      "capturedAt": "2026-09-14T08:06:54.507Z",
+      "browserMode": "user-chrome-cdp",
+      "chromeVersion": "153.0.8010.37",
+      "browserRevision": "@b75a5a95ea1a1b55bdbfd6d9f42d47be7507fb8b",
+      "debuggingPort": 9222,
+      "targetId": "86F127685EB431B1056FE19C632879FB",
+      "backgroundTarget": true,
+      "script": "tests/unicode-color-case.js",
+      "scriptSHA256": "CC9E5C88F5B060BD261063F77999C659450D8B6A0FEED80CD834BEC4B81381C2",
+      "value": {
+        "style": "#ff0000",
+        "pixel": [
+          255,
+          0,
+          0,
+          255
+        ]
+      }
+    }
+  },
+  "regression": {
+    "localCases": 47,
+    "additionalCases": 45,
+    "totalCases": 92,
+    "gradientGC": true,
+    "demoValues": 9216,
+    "browserVerified": true,
+    "browserMode": "user-chrome-cdp",
+    "chromeVersion": "153.0.8010.37",
+    "caseRunId": "730089fab5804dbfbc2557019b84eb3b",
+    "additionalRunId": "10bcd3baff25492a97f5f1076cbd652c",
+    "demoRunId": "5dc340d907474542a62d2d2968826d84",
+    "caseFailures": [],
+    "additionalFailures": [],
+    "demoMismatches": 0
+  },
+  "browser": {
+    "runId": "dd4b64dad1644b0d81b35906fb5b0675",
+    "capturedAt": "2026-09-14T08:07:25.682Z",
+    "browserMode": "user-chrome-cdp",
+    "chromeVersion": "153.0.8010.37",
+    "browserRevision": "@b75a5a95ea1a1b55bdbfd6d9f42d47be7507fb8b",
+    "debuggingPort": 9222,
+    "targetId": "FBE5D78C5A7AC57848530E4FAD0E91FD",
+    "backgroundTarget": true,
+    "script": "tests/third-round-cases.js",
+    "scriptSHA256": "A7DA5BC20CA1E20CE975A77029B1EFDD2D9AE29ED093F652B141C1D860417861",
+    "value": {
+      "numericText": {
+        "value": {
+          "width": 16.64996337890625,
+          "painted": true
+        }
+      },
+      "textObjectConversion": {
+        "value": {
+          "calls": 1,
+          "width": 8.1199951171875
+        }
+      },
+      "textSymbol": {
+        "error": "TypeError"
+      },
+      "measureTextMissing": {
+        "error": "TypeError"
+      },
+      "textWhitespace": {
+        "value": {
+          "space": 14.889968872070312,
+          "tab": 14.889968872070312,
+          "newline": 14.889968872070312
+        }
+      },
+      "textActualBounds": {
+        "value": {
+          "left": 0,
+          "right": 10,
+          "ascent": 9,
+          "descent": 0
+        }
+      },
+      "textAlignedBounds": {
+        "value": {
+          "left": 9.99609375,
+          "right": 10
+        }
+      },
+      "fontPointUnits": {
+        "value": "16px Arial"
+      },
+      "fontDuplicateStyle": {
+        "value": "12px Arial"
+      },
+      "fontMalformedFamily": {
+        "value": "12px Arial"
+      },
+      "fontCanonicalization": {
+        "value": "12px Arial"
+      },
+      "textMaxWidthConversionOrder": {
+        "value": 1
+      },
+      "drawImageMissing": {
+        "error": "TypeError"
+      },
+      "drawImageFourArguments": {
+        "error": "TypeError"
+      },
+      "drawImageNull": {
+        "error": "TypeError"
+      },
+      "drawImageFakeSource": {
+        "error": "TypeError"
+      },
+      "drawImageZeroSource": {
+        "error": "InvalidStateError"
+      },
+      "drawImageClosedBitmap": {
+        "error": "InvalidStateError"
+      },
+      "drawImageSelfOverlap": {
+        "value": [
+          [
+            255,
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            0,
+            0,
+            255
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ]
+        ]
+      },
+      "drawImageInvalidNumber": {
+        "value": [
+          0,
+          0,
+          255,
+          255
+        ]
+      },
+      "drawImageShadow": {
+        "value": [
+          [
+            255,
+            0,
+            0,
+            255
+          ],
+          [
+            0,
+            0,
+            255,
+            255
+          ]
+        ]
+      },
+      "patternInvalidRepetition": {
+        "error": "SyntaxError"
+      },
+      "patternZeroSource": {
+        "error": "InvalidStateError"
+      },
+      "createImageDataMissing": {
+        "error": "TypeError"
+      },
+      "createImageDataFakeSource": {
+        "error": "TypeError"
+      },
+      "createImageDataClone": {
+        "value": {
+          "width": 2,
+          "height": 2,
+          "allZero": true
+        }
+      },
+      "putImageDataMissing": {
+        "error": "TypeError"
+      },
+      "putImageDataFakeSource": {
+        "error": "TypeError"
+      },
+      "putImageDataInfiniteOrigin": {
+        "error": "TypeError"
+      },
+      "putImageDataIgnoresDrawingState": {
+        "value": [
+          255,
+          0,
+          0,
+          255
+        ]
+      },
+      "invalidFillRule": {
+        "error": "TypeError"
+      },
+      "invalidClipRule": {
+        "error": "TypeError"
+      },
+      "hitTestMissing": {
+        "error": "TypeError"
+      },
+      "hitTestInvalidRule": {
+        "error": "TypeError"
+      },
+      "roundRectMissing": {
+        "error": "TypeError"
+      },
+      "roundRectIterableRadii": {
+        "value": [
+          false,
+          true
+        ]
+      },
+      "roundRectNonfinite": {
+        "value": false
+      },
+      "singularTransformRecovery": {
+        "value": [
+          255,
+          0,
+          0,
+          255
+        ]
+      },
+      "pathSurvivesSaveRestore": {
+        "value": [
+          255,
+          0,
+          0,
+          255
+        ]
+      },
+      "emptyClipRestore": {
+        "value": [
+          255,
+          0,
+          0,
+          255
+        ]
+      },
+      "resizeClearsStateStack": {
+        "value": {
+          "style": "#000000",
+          "matrix": [
+            1,
+            0,
+            0,
+            1,
+            0,
+            0
+          ],
+          "dash": []
+        }
+      },
+      "lineDashAllZero": {
+        "value": [
+          0,
+          0
+        ]
+      },
+      "matrixDictionaryReadOrder": {
+        "value": [
+          "a",
+          "b",
+          "c",
+          "d",
+          "e",
+          "f",
+          "m11",
+          "m12",
+          "m21",
+          "m22",
+          "m41",
+          "m42",
+          "is2D",
+          "m13",
+          "m14",
+          "m23",
+          "m24",
+          "m31",
+          "m32",
+          "m33",
+          "m34",
+          "m43",
+          "m44"
+        ]
+      },
+      "setTransformTwoArguments": {
+        "value": [
+          1,
+          0,
+          0,
+          1,
+          0,
+          0
+        ]
+      },
+      "matrixNon2D": {
+        "value": [
+          1,
+          0,
+          0,
+          1,
+          0,
+          0
+        ]
+      },
+      "matrix3DComponent": {
+        "value": [
+          1,
+          0,
+          0,
+          1,
+          0,
+          0
+        ]
+      },
+      "matrixContradictory2D": {
+        "error": "TypeError"
+      },
+      "contextInvalidOptions": {
+        "value": true
+      },
+      "contextAttributeFailureLocksMode": {
+        "value": {
+          "error": {
+            "error": "Error"
+          },
+          "subsequent": true
+        }
+      },
+      "opaqueZeroCanvasRead": {
+        "value": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "opaqueCopyAlpha": {
+        "value": [
+          [
+            0,
+            0,
+            128,
+            255
+          ],
+          [
+            0,
+            0,
+            0,
+            255
+          ]
+        ]
+      },
+      "colorPercentage": {
+        "value": {
+          "style": "#ff0000",
+          "pixel": [
+            255,
+            0,
+            0,
+            255
+          ]
+        }
+      },
+      "colorModernSyntax": {
+        "value": {
+          "style": "rgba(255, 0, 0, 0.5)",
+          "pixel": [
+            255,
+            0,
+            0,
+            127
+          ]
+        }
+      },
+      "colorHsl": {
+        "value": [
+          0,
+          255,
+          0,
+          255
+        ]
+      },
+      "lineWidthInvalidPreserves": {
+        "value": 3
+      }
+    }
+  },
+  "local": {
+    "numericText": {
+      "value": {
+        "width": 0,
+        "painted": false
+      }
+    },
+    "textObjectConversion": {
+      "value": {
+        "calls": 0,
+        "width": 0
+      }
+    },
+    "textSymbol": {
+      "value": {
+        "width": 0,
+        "actualBoundingBoxAscent": 0,
+        "actualBoundingBoxDescent": 0,
+        "fontBoundingBoxAscent": 11.600000381469727,
+        "fontBoundingBoxDescent": 2.880000114440918,
+        "emHeightAscent": 11.600000381469727,
+        "emHeightDescent": 2.880000114440918,
+        "hangingBaseline": 0,
+        "alphabeticBaseline": 0,
+        "ideographicBaseline": 2.880000114440918,
+        "actualBoundingBoxLeft": 0,
+        "actualBoundingBoxRight": 0
+      }
+    },
+    "measureTextMissing": {
+      "value": {
+        "width": 0,
+        "actualBoundingBoxAscent": 0,
+        "actualBoundingBoxDescent": 0,
+        "fontBoundingBoxAscent": 11.600000381469727,
+        "fontBoundingBoxDescent": 2.880000114440918,
+        "emHeightAscent": 11.600000381469727,
+        "emHeightDescent": 2.880000114440918,
+        "hangingBaseline": 0,
+        "alphabeticBaseline": 0,
+        "ideographicBaseline": 2.880000114440918,
+        "actualBoundingBoxLeft": 0,
+        "actualBoundingBoxRight": 0
+      }
+    },
+    "textWhitespace": {
+      "value": {
+        "space": 14.889999389648438,
+        "tab": 22.650001525878906,
+        "newline": 22.650001525878906
+      }
+    },
+    "textActualBounds": {
+      "value": {
+        "left": 0,
+        "right": 9.99609375,
+        "ascent": 10.86328125,
+        "descent": 2.54296875
+      }
+    },
+    "textAlignedBounds": {
+      "value": {
+        "left": 0,
+        "right": 19.9921875
+      }
+    },
+    "fontPointUnits": {
+      "value": "10px sans-serif"
+    },
+    "fontDuplicateStyle": {
+      "value": "italic italic 16px Arial"
+    },
+    "fontMalformedFamily": {
+      "value": "16px /"
+    },
+    "fontCanonicalization": {
+      "value": "normal 12px Arial"
+    },
+    "textMaxWidthConversionOrder": {
+      "value": 0
+    },
+    "drawImageMissing": {
+      "value": "<undefined>"
+    },
+    "drawImageFourArguments": {
+      "value": [
+        [
+          255,
+          0,
+          0,
+          255
+        ],
+        [
+          0,
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    "drawImageNull": {
+      "error": "TypeError"
+    },
+    "drawImageFakeSource": {
+      "value": [
+        255,
+        0,
+        0,
+        255
+      ]
+    },
+    "drawImageZeroSource": {
+      "value": "<undefined>"
+    },
+    "drawImageClosedBitmap": {
+      "value": "<undefined>"
+    },
+    "drawImageSelfOverlap": {
+      "value": [
+        [
+          255,
+          0,
+          0,
+          255
+        ],
+        [
+          255,
+          0,
+          0,
+          255
+        ],
+        [
+          255,
+          0,
+          0,
+          255
+        ],
+        [
+          0,
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    "drawImageInvalidNumber": {
+      "value": [
+        0,
+        0,
+        255,
+        255
+      ]
+    },
+    "drawImageShadow": {
+      "value": [
+        [
+          255,
+          0,
+          0,
+          255
+        ],
+        [
+          0,
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    "patternInvalidRepetition": {
+      "value": {}
+    },
+    "patternZeroSource": {
+      "value": "undefined"
+    },
+    "createImageDataMissing": {
+      "value": [
+        0,
+        0
+      ]
+    },
+    "createImageDataFakeSource": {
+      "value": [
+        2,
+        2
+      ]
+    },
+    "createImageDataClone": {
+      "value": {
+        "width": 2,
+        "height": 2,
+        "allZero": true
+      }
+    },
+    "putImageDataMissing": {
+      "value": "<undefined>"
+    },
+    "putImageDataFakeSource": {
+      "value": [
+        255,
+        0,
+        0,
+        255
+      ]
+    },
+    "putImageDataInfiniteOrigin": {
+      "error": "TypeError"
+    },
+    "putImageDataIgnoresDrawingState": {
+      "value": [
+        255,
+        0,
+        0,
+        255
+      ]
+    },
+    "invalidFillRule": {
+      "value": "<undefined>"
+    },
+    "invalidClipRule": {
+      "value": "<undefined>"
+    },
+    "hitTestMissing": {
+      "value": false
+    },
+    "hitTestInvalidRule": {
+      "value": false
+    },
+    "roundRectMissing": {
+      "value": "<undefined>"
+    },
+    "roundRectIterableRadii": {
+      "error": "RangeError"
+    },
+    "roundRectNonfinite": {
+      "error": "RangeError"
+    },
+    "singularTransformRecovery": {
+      "value": [
+        255,
+        0,
+        0,
+        255
+      ]
+    },
+    "pathSurvivesSaveRestore": {
+      "value": [
+        255,
+        0,
+        0,
+        255
+      ]
+    },
+    "emptyClipRestore": {
+      "value": [
+        255,
+        0,
+        0,
+        255
+      ]
+    },
+    "resizeClearsStateStack": {
+      "value": {
+        "style": "#000000",
+        "matrix": [
+          1,
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        "dash": []
+      }
+    },
+    "lineDashAllZero": {
+      "value": [
+        0,
+        0
+      ]
+    },
+    "matrixDictionaryReadOrder": {
+      "value": [
+        "a",
+        "m11",
+        "b",
+        "m12",
+        "c",
+        "m21",
+        "d",
+        "m22",
+        "e",
+        "m41",
+        "f",
+        "m42"
+      ]
+    },
+    "setTransformTwoArguments": {
+      "error": "TypeError"
+    },
+    "matrixNon2D": {
+      "value": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+      ]
+    },
+    "matrix3DComponent": {
+      "value": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+      ]
+    },
+    "matrixContradictory2D": {
+      "value": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+      ]
+    },
+    "contextInvalidOptions": {
+      "value": true
+    },
+    "contextAttributeFailureLocksMode": {
+      "value": {
+        "error": {
+          "error": "Error"
+        },
+        "subsequent": true
+      }
+    },
+    "opaqueZeroCanvasRead": {
+      "value": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "opaqueCopyAlpha": {
+      "value": [
+        [
+          0,
+          0,
+          128,
+          255
+        ],
+        [
+          0,
+          0,
+          0,
+          255
+        ]
+      ]
+    },
+    "colorPercentage": {
+      "value": {
+        "style": "#ff0000",
+        "pixel": [
+          255,
+          0,
+          0,
+          255
+        ]
+      }
+    },
+    "colorModernSyntax": {
+      "value": {
+        "style": "#000000",
+        "pixel": [
+          0,
+          0,
+          0,
+          255
+        ]
+      }
+    },
+    "colorHsl": {
+      "value": [
+        0,
+        0,
+        0,
+        255
+      ]
+    },
+    "lineWidthInvalidPreserves": {
+      "value": 3
+    }
+  }
+}

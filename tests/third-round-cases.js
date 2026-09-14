@@ -1,0 +1,74 @@
+(function () {
+    function runThirdRoundCases(Canvas) {
+        const results = {};
+        const fresh = attributes => new Canvas(32, 24).getContext('2d', attributes);
+        const pixel = (g, x = 0, y = 0) => Array.from(g.getImageData(x, y, 1, 1).data);
+        const attempt = fn => { try { const value = fn(); return {value: value === undefined ? '<undefined>' : value}; } catch (e) { return {error:e.name}; } };
+        const add = (name, fn) => { results[name] = attempt(fn); };
+        const matrix = g => ['a','b','c','d','e','f'].map(k => g.getTransform()[k]);
+        const painted = g => Array.from(g.getImageData(0,0,32,24).data).filter((v,i) => i%4===3 && v).length;
+        const source = () => { const g=new Canvas(4,4).getContext('2d');g.fillStyle='red';g.fillRect(0,0,4,4);return g.canvas; };
+
+        add('numericText',()=>{const g=fresh();g.fillText(123,0,16);return {width:g.measureText(123).width,painted:painted(g)>0};});
+        add('textObjectConversion',()=>{const g=fresh();let calls=0;const text={toString(){calls++;return 'M';}};const width=g.measureText(text).width;return {calls,width};});
+        add('textSymbol',()=>fresh().measureText(Symbol('M')));
+        add('measureTextMissing',()=>fresh().measureText());
+        add('textWhitespace',()=>{const g=fresh();return {space:g.measureText('A B').width,tab:g.measureText('A\tB').width,newline:g.measureText('A\nB').width};});
+        add('textActualBounds',()=>{const g=fresh();g.font='12px Arial';const t=g.measureText('M');return {left:t.actualBoundingBoxLeft,right:t.actualBoundingBoxRight,ascent:t.actualBoundingBoxAscent,descent:t.actualBoundingBoxDescent};});
+        add('textAlignedBounds',()=>{const g=fresh();g.font='12px Arial';g.textAlign='center';const t=g.measureText('MM');return {left:t.actualBoundingBoxLeft,right:t.actualBoundingBoxRight};});
+        add('fontPointUnits',()=>{const g=fresh();g.font='12pt Arial';return g.font;});
+        add('fontDuplicateStyle',()=>{const g=fresh();g.font='12px Arial';g.font='italic italic 16px Arial';return g.font;});
+        add('fontMalformedFamily',()=>{const g=fresh();g.font='12px Arial';g.font='16px /';return g.font;});
+        add('fontCanonicalization',()=>{const g=fresh();g.font='normal 12px Arial';return g.font;});
+        add('textMaxWidthConversionOrder',()=>{const g=fresh();let calls=0;g.fillText('',0,0,{valueOf(){calls++;return 4;}});return calls;});
+
+        add('drawImageMissing',()=>fresh().drawImage(source(),0));
+        add('drawImageFourArguments',()=>{const g=fresh();g.drawImage(source(),2,2,8);return [pixel(g,2,2),pixel(g,7,2)];});
+        add('drawImageNull',()=>fresh().drawImage(null,0,0));
+        add('drawImageFakeSource',()=>{const g=fresh();g.drawImage({width:1,height:1,data:new Uint8ClampedArray([255,0,0,255])},0,0);return pixel(g);});
+        add('drawImageZeroSource',()=>fresh().drawImage(new Canvas(0,0),0,0));
+        add('drawImageClosedBitmap',()=>{const bitmap=source().transferToImageBitmap();bitmap.close();return fresh().drawImage(bitmap,0,0);});
+        add('drawImageSelfOverlap',()=>{const g=fresh();g.fillStyle='red';g.fillRect(0,0,4,4);g.drawImage(g.canvas,0,0,4,4,2,0,4,4);return [pixel(g,0,1),pixel(g,3,1),pixel(g,5,1),pixel(g,6,1)];});
+        add('drawImageInvalidNumber',()=>{const g=fresh();g.fillStyle='blue';g.fillRect(0,0,32,24);g.globalCompositeOperation='copy';g.drawImage(source(),NaN,0);return pixel(g);});
+        add('drawImageShadow',()=>{const g=fresh();g.shadowColor='blue';g.shadowOffsetX=8;g.drawImage(source(),0,0);return [pixel(g,1,1),pixel(g,9,1)];});
+        add('patternInvalidRepetition',()=>fresh().createPattern(source(),'invalid'));
+        add('patternZeroSource',()=>{const p=fresh().createPattern(new Canvas(0,0),'repeat');return p===null?'null':typeof p;});
+
+        add('createImageDataMissing',()=>{const d=fresh().createImageData();return [d.width,d.height];});
+        add('createImageDataFakeSource',()=>{const d=fresh().createImageData({width:2,height:2});return [d.width,d.height];});
+        add('createImageDataClone',()=>{const g=fresh(),d=g.createImageData(2,2);d.data.fill(255);const copy=g.createImageData(d);return {width:copy.width,height:copy.height,allZero:Array.from(copy.data).every(v=>v===0)};});
+        add('putImageDataMissing',()=>fresh().putImageData());
+        add('putImageDataFakeSource',()=>{const g=fresh();g.putImageData({width:1,height:1,data:new Uint8ClampedArray([255,0,0,255])},0,0);return pixel(g);});
+        add('putImageDataInfiniteOrigin',()=>{const g=fresh();g.putImageData(g.createImageData(1,1),Infinity,0);});
+        add('putImageDataIgnoresDrawingState',()=>{const g=fresh();g.beginPath();g.clip();g.translate(12,12);g.globalAlpha=0;g.globalCompositeOperation='copy';const d=g.createImageData(1,1);d.data.set([255,0,0,255]);g.putImageData(d,1,1);return pixel(g,1,1);});
+
+        add('invalidFillRule',()=>fresh().fill('invalid'));
+        add('invalidClipRule',()=>fresh().clip('invalid'));
+        add('hitTestMissing',()=>fresh().isPointInPath(1));
+        add('hitTestInvalidRule',()=>fresh().isPointInPath(1,1,'invalid'));
+        add('roundRectMissing',()=>fresh().roundRect(0,0,4));
+        add('roundRectIterableRadii',()=>{const g=fresh();g.roundRect(0,0,8,8,new Set([2]));return [g.isPointInPath(0.1,0.1),g.isPointInPath(4,4)];});
+        add('roundRectNonfinite',()=>{const g=fresh();g.roundRect(0,0,8,8,NaN);return g.isPointInPath(4,4);});
+        add('singularTransformRecovery',()=>{const g=fresh();g.scale(0,1);g.fillRect(0,0,8,8);g.resetTransform();g.fillStyle='red';g.fillRect(0,0,4,4);return pixel(g);});
+        add('pathSurvivesSaveRestore',()=>{const g=fresh();g.save();g.rect(0,0,4,4);g.restore();g.fillStyle='red';g.fill();return pixel(g);});
+        add('emptyClipRestore',()=>{const g=fresh();g.save();g.beginPath();g.clip();g.restore();g.fillStyle='red';g.fillRect(0,0,4,4);return pixel(g);});
+        add('resizeClearsStateStack',()=>{const g=fresh();g.fillStyle='red';g.save();g.canvas.width=32;g.restore();return {style:g.fillStyle,matrix:matrix(g),dash:g.getLineDash()};});
+        add('lineDashAllZero',()=>{const g=fresh();g.setLineDash([0,0]);return g.getLineDash();});
+        add('matrixDictionaryReadOrder',()=>{const g=fresh(),keys=[];g.setTransform(new Proxy({}, {get(o,k){keys.push(k);return undefined;}}));return keys;});
+        add('setTransformTwoArguments',()=>{const g=fresh();g.setTransform({},undefined);return matrix(g);});
+        add('matrixNon2D',()=>{const g=fresh();g.translate(3,4);g.setTransform({is2D:false});return matrix(g);});
+        add('matrix3DComponent',()=>{const g=fresh();g.translate(3,4);g.setTransform({m13:1});return matrix(g);});
+        add('matrixContradictory2D',()=>{const g=fresh();g.translate(3,4);g.setTransform({is2D:true,m13:1});return matrix(g);});
+        add('contextInvalidOptions',()=>{const g=new Canvas(2,2).getContext('2d',3);return !!g;});
+        add('contextAttributeFailureLocksMode',()=>{const c=new Canvas(2,2);const error=attempt(()=>c.getContext('2d',{get alpha(){throw new Error('sentinel');}}));return {error,subsequent:!!c.getContext('2d')};});
+        add('opaqueZeroCanvasRead',()=>pixel(new Canvas(0,0).getContext('2d',{alpha:false})));
+        add('opaqueCopyAlpha',()=>{const g=fresh({alpha:false});g.fillStyle='red';g.fillRect(0,0,32,24);g.globalCompositeOperation='copy';g.fillStyle='rgba(0,0,255,0.5)';g.fillRect(0,0,4,4);return [pixel(g),pixel(g,8,8)];});
+        add('colorPercentage',()=>{const g=fresh();g.fillStyle='rgb(100%, 0%, 0%)';g.fillRect(0,0,4,4);return {style:g.fillStyle,pixel:pixel(g)};});
+        add('colorModernSyntax',()=>{const g=fresh();g.fillStyle='rgb(255 0 0 / 50%)';g.fillRect(0,0,4,4);return {style:g.fillStyle,pixel:pixel(g)};});
+        add('colorHsl',()=>{const g=fresh();g.fillStyle='hsl(120,100%,50%)';g.fillRect(0,0,4,4);return pixel(g);});
+        add('lineWidthInvalidPreserves',()=>{const g=fresh();g.lineWidth=3;g.lineWidth=NaN;g.lineWidth=-1;g.lineWidth=0;return g.lineWidth;});
+        return results;
+    }
+    if (typeof module !== 'undefined' && module.exports) module.exports = runThirdRoundCases;
+    else globalThis.__canvasResult = runThirdRoundCases(OffscreenCanvas);
+})();

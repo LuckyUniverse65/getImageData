@@ -4,6 +4,8 @@ Windows 上的 Node.js `OffscreenCanvas` 兼容层。JavaScript 提供 Canvas �
 
 2026-09-14 完成第二轮修复：原有 47 项与扩充后的 45 项边界测试，共 92 项结果均与用户手动打开的 Chrome 153.0.8010.37 一致；`demo.js` 的 9216 个 RGBA 值零差异，强制 GC 检查通过。详见[第二轮修复与验证](docs/2026-09-14_offscreen-fixes-report.md)。此前的 25 项差异保留在[历史检测报告](docs/additional-review.md)中。
 
+随后第三轮检测发现：55 项新增定向测试中仍有 36 项差异；独立测试还确认 `fillStyle='#红'` 会触发原生 panic 并终止 Node 进程。原有 92 项复验仍通过。问题尚未修复，复现与优先级见[第三轮检测报告](docs/2026-09-14_third-round-review-report.md)。
+
 ## 运行
 
 需要 Windows x64、Node.js，以及支持当前 Dawn D3D11 后端的显卡和驱动。本机使用 Node.js v22.13.1。仓库包含编译产物，可直接执行：
@@ -84,6 +86,7 @@ Blob 导出支持 PNG；其他 MIME 请求回退为 PNG。位图是本地兼容�
 | [tests/browser-cases.js](tests/browser-cases.js) | Node 与现有 Chrome 共用的 47 项兼容性用例。 |
 | [tests/additional-cases.js](tests/additional-cases.js)、[tests/compare-additional.cjs](tests/compare-additional.cjs) | 第二轮 45 项边界用例及差异比较，已纳入主回归。 |
 | [docs/2026-09-14_offscreen-fixes-report.md](docs/2026-09-14_offscreen-fixes-report.md) | 第二轮修复、92 项验证及产物哈希。 |
+| [docs/2026-09-14_third-round-review-report.md](docs/2026-09-14_third-round-review-report.md) | 第三轮新增差异、独立崩溃复现和对应诊断入口。 |
 | [tests/gradient-gc.cjs](tests/gradient-gc.cjs) | 渐变共享引用与强制 GC 检查。 |
 | [tests/png-reader.js](tests/png-reader.js) | 本地独立 PNG 解码；浏览器侧使用 createImageBitmap。 |
 | [test.js](test.js)、[capture-cdp.cjs](capture-cdp.cjs) | 本地断言、现有 Chrome CDP 采集与比较。 |
