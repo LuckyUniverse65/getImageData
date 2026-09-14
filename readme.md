@@ -6,6 +6,8 @@ Windows 上的 Node.js `OffscreenCanvas` 兼容层。JavaScript 提供 Canvas �
 
 [第二轮修复记录](docs/2026-09-14_offscreen-fixes-report.md)和[第三轮修复前检测](docs/2026-09-14_third-round-review-report.md)保留了历史结果及证据。
 
+第四轮继续检测：46 项新增定向用例中发现 29 项差异，涉及 ImageData 生命周期、25% 透明度像素、非法 CSS 校验及转换顺序等，尚未修复。详见[第四轮检测报告](docs/2026-09-14_fourth-round-review-report.md)。此前 158 项通过不代表这些新增边界已被覆盖。
+
 ## 运行
 
 需要 Windows x64、Node.js，以及支持当前 Dawn D3D11 后端的显卡和驱动。本机使用 Node.js v22.13.1。仓库包含编译产物，可直接执行：

@@ -1,0 +1,1180 @@
+{
+  "date": "2026-09-14",
+  "implementationCommit": "4c005caca8ae0c8aa0e0933ef1dee4c464c7425a",
+  "productionModified": false,
+  "comparison": {
+    "tested": 46,
+    "matched": 17,
+    "differing": 29,
+    "capture": {
+      "runId": "4708a8d9408b4f2291b3ebcfafb42da1",
+      "capturedAt": "2026-09-14T10:08:23.117Z",
+      "browserMode": "user-chrome-cdp",
+      "chromeVersion": "153.0.8010.37",
+      "browserRevision": "@b75a5a95ea1a1b55bdbfd6d9f42d47be7507fb8b",
+      "debuggingPort": 9222,
+      "targetId": "35D7048858853A93C26C3BE92E4449A1",
+      "backgroundTarget": true,
+      "script": "tests/fourth-round-cases.js",
+      "scriptSHA256": "321137E21503D574ECCE2B1958FB8FA2486A4D75721BDA173CEE6ABEFD4B9957"
+    },
+    "sha256": {
+      "index.js": "DB9EDFEDBD0668883EC43D6990364E424FA0D117BCF24FE3659C71A2152DC06D",
+      "src/webgl_native.rs": "E1E9A5239682642022987299D2E0BB1A8E008B13D466947337CA9714AF93C95C",
+      "src/canvas_css.rs": "6B2D84CAB019FC71808DEB265F98F01DC7F1BB15B3E540A6875CB336093F3292",
+      "src/skia_backend.cpp": "03F4161843D5ED43CBD488310DBB58D580ADA239FBDCC5C1B3A7B8207A4B2C46",
+      "webgl.node": "5BF24327F7B2E531C0970F807806C0EC1A2283A7CD8E7ACF13B2DE1DE55F0EE0",
+      "tests/fourth-round-cases.js": "321137E21503D574ECCE2B1958FB8FA2486A4D75721BDA173CEE6ABEFD4B9957"
+    },
+    "matches": [
+      "imageDataCloneDetached",
+      "putImageDataCoordinateOverflow",
+      "getImageDataCoordinateOverflow",
+      "createImageDataWrappedSize",
+      "createImageDataNaN",
+      "putImageDataUndefinedCoordinate",
+      "putImageDataConversionOrder",
+      "bitmapCloseIdempotent",
+      "transferCanvasWithoutContext",
+      "bitmapRemainsAfterResize",
+      "modernAlphaDecimal",
+      "hslNegativeHue",
+      "hslHueTurn",
+      "fontUnitCase",
+      "textSpaceBounds",
+      "textTabsDrawing",
+      "isPointNonfinite"
+    ],
+    "differences": [
+      {
+        "name": "imageDataReadonlyWidth",
+        "local": {
+          "value": {
+            "accepted": true,
+            "width": 2
+          }
+        },
+        "browser": {
+          "value": {
+            "accepted": false,
+            "width": 1
+          }
+        }
+      },
+      {
+        "name": "imageDataReadonlyData",
+        "local": {
+          "value": {
+            "accepted": true,
+            "same": false
+          }
+        },
+        "browser": {
+          "value": {
+            "accepted": false,
+            "same": true
+          }
+        }
+      },
+      {
+        "name": "detachedImageData",
+        "local": {
+          "value": "<undefined>"
+        },
+        "browser": {
+          "error": "InvalidStateError"
+        }
+      },
+      {
+        "name": "dashIteratorLookup",
+        "local": {
+          "value": {
+            "reads": 2,
+            "dash": [
+              2,
+              3
+            ]
+          }
+        },
+        "browser": {
+          "value": {
+            "reads": 1,
+            "dash": [
+              2,
+              3
+            ]
+          }
+        }
+      },
+      {
+        "name": "dashStringSequence",
+        "local": {
+          "value": [
+            1,
+            2
+          ]
+        },
+        "browser": {
+          "error": "TypeError"
+        }
+      },
+      {
+        "name": "dashIteratorClose",
+        "local": {
+          "value": {
+            "failure": {
+              "error": "TypeError"
+            },
+            "closed": true
+          }
+        },
+        "browser": {
+          "value": {
+            "failure": {
+              "error": "TypeError"
+            },
+            "closed": false
+          }
+        }
+      },
+      {
+        "name": "roundRectIteratorConversionOrder",
+        "local": {
+          "value": [
+            "next0",
+            "next1",
+            "done",
+            "x0",
+            "y0",
+            "x1",
+            "y1"
+          ]
+        },
+        "browser": {
+          "value": [
+            "next0",
+            "x0",
+            "y0",
+            "next1",
+            "x1",
+            "y1",
+            "done"
+          ]
+        }
+      },
+      {
+        "name": "roundRectPointConversionOrder",
+        "local": {
+          "value": [
+            "getX",
+            "getY",
+            "convertX"
+          ]
+        },
+        "browser": {
+          "value": [
+            "getX",
+            "convertX",
+            "getY"
+          ]
+        }
+      },
+      {
+        "name": "roundRectNonfiniteAndNegative",
+        "local": {
+          "error": "RangeError"
+        },
+        "browser": {
+          "value": false
+        }
+      },
+      {
+        "name": "roundRectNegativeNonfiniteCoordinate",
+        "local": {
+          "error": "RangeError"
+        },
+        "browser": {
+          "value": "<undefined>"
+        }
+      },
+      {
+        "name": "gradientStopObjectString",
+        "local": {
+          "error": "SyntaxError"
+        },
+        "browser": {
+          "value": {
+            "calls": 1,
+            "pixel": [
+              255,
+              0,
+              0,
+              255
+            ]
+          }
+        }
+      },
+      {
+        "name": "fillStyleObjectString",
+        "local": {
+          "value": {
+            "calls": 0,
+            "style": "#000000",
+            "pixel": [
+              0,
+              0,
+              0,
+              255
+            ]
+          }
+        },
+        "browser": {
+          "value": {
+            "calls": 1,
+            "style": "#ff0000",
+            "pixel": [
+              255,
+              0,
+              0,
+              255
+            ]
+          }
+        }
+      },
+      {
+        "name": "fontObjectString",
+        "local": {
+          "value": {
+            "calls": 0,
+            "font": "10px sans-serif"
+          }
+        },
+        "browser": {
+          "value": {
+            "calls": 1,
+            "font": "12px Arial"
+          }
+        }
+      },
+      {
+        "name": "modernAlphaPercent25",
+        "local": {
+          "value": {
+            "style": "rgba(255, 0, 0, 0.25)",
+            "pixel": [
+              255,
+              0,
+              0,
+              63
+            ]
+          }
+        },
+        "browser": {
+          "value": {
+            "style": "rgba(255, 0, 0, 0.25)",
+            "pixel": [
+              255,
+              0,
+              0,
+              64
+            ]
+          }
+        }
+      },
+      {
+        "name": "legacyAlphaSerialization",
+        "local": {
+          "value": {
+            "style": "rgba(255, 0, 0, 0.5019607843137255)",
+            "pixel": [
+              255,
+              0,
+              0,
+              128
+            ]
+          }
+        },
+        "browser": {
+          "value": {
+            "style": "rgba(255, 0, 0, 0.5)",
+            "pixel": [
+              255,
+              0,
+              0,
+              128
+            ]
+          }
+        }
+      },
+      {
+        "name": "legacyMixedPercent",
+        "local": {
+          "value": {
+            "style": "#ff0000",
+            "pixel": [
+              255,
+              0,
+              0,
+              255
+            ]
+          }
+        },
+        "browser": {
+          "value": {
+            "style": "#0000ff",
+            "pixel": [
+              0,
+              0,
+              255,
+              255
+            ]
+          }
+        }
+      },
+      {
+        "name": "legacyNaN",
+        "local": {
+          "value": {
+            "style": "#000000",
+            "pixel": [
+              0,
+              0,
+              0,
+              255
+            ]
+          }
+        },
+        "browser": {
+          "value": {
+            "style": "#0000ff",
+            "pixel": [
+              0,
+              0,
+              255,
+              255
+            ]
+          }
+        }
+      },
+      {
+        "name": "legacyInfinity",
+        "local": {
+          "value": {
+            "style": "#ff0000",
+            "pixel": [
+              255,
+              0,
+              0,
+              255
+            ]
+          }
+        },
+        "browser": {
+          "value": {
+            "style": "#0000ff",
+            "pixel": [
+              0,
+              0,
+              255,
+              255
+            ]
+          }
+        }
+      },
+      {
+        "name": "transparentHexSerialization",
+        "local": {
+          "value": {
+            "style": "rgba(255, 0, 0, 0.5019607843137255)",
+            "pixel": [
+              255,
+              0,
+              0,
+              128
+            ]
+          }
+        },
+        "browser": {
+          "value": {
+            "style": "rgba(255, 0, 0, 0.5)",
+            "pixel": [
+              255,
+              0,
+              0,
+              128
+            ]
+          }
+        }
+      },
+      {
+        "name": "namedColorYellow",
+        "local": {
+          "value": {
+            "style": "#0000ff",
+            "pixel": [
+              0,
+              0,
+              255,
+              255
+            ]
+          }
+        },
+        "browser": {
+          "value": {
+            "style": "#ffff00",
+            "pixel": [
+              255,
+              255,
+              0,
+              255
+            ]
+          }
+        }
+      },
+      {
+        "name": "fontSeparatedLineHeight",
+        "local": {
+          "value": "14px Arial"
+        },
+        "browser": {
+          "value": "12px Arial"
+        }
+      },
+      {
+        "name": "fontInvalidLineHeightUnit",
+        "local": {
+          "value": "12px Arial"
+        },
+        "browser": {
+          "value": "14px Arial"
+        }
+      },
+      {
+        "name": "fontRepeatedNormal",
+        "local": {
+          "value": "12px Arial"
+        },
+        "browser": {
+          "value": "14px Arial"
+        }
+      },
+      {
+        "name": "fontFamilyTwoQuotedNames",
+        "local": {
+          "value": "12px \"Arial\" \"Courier\""
+        },
+        "browser": {
+          "value": "14px Arial"
+        }
+      },
+      {
+        "name": "fontDecimalWeight",
+        "local": {
+          "value": "14px Arial"
+        },
+        "browser": {
+          "value": "450 12px Arial"
+        }
+      },
+      {
+        "name": "fontFallbackList",
+        "local": {
+          "value": {
+            "candidate": 38.9759521484375,
+            "reference": 39.984375
+          }
+        },
+        "browser": {
+          "value": {
+            "candidate": 39.984375,
+            "reference": 39.984375
+          }
+        }
+      },
+      {
+        "name": "emptyTextTopBaseline",
+        "local": {
+          "value": {
+            "ascent": -10.86328125,
+            "descent": 10.86328125
+          }
+        },
+        "browser": {
+          "value": {
+            "ascent": -9.3125,
+            "descent": 9.3125
+          }
+        }
+      },
+      {
+        "name": "strokeInvalidArgument",
+        "local": {
+          "value": "<undefined>"
+        },
+        "browser": {
+          "error": "TypeError"
+        }
+      },
+      {
+        "name": "fillMissingReceiver",
+        "local": {
+          "value": "<undefined>"
+        },
+        "browser": {
+          "error": "TypeError"
+        }
+      }
+    ]
+  },
+  "browser": {
+    "runId": "4708a8d9408b4f2291b3ebcfafb42da1",
+    "capturedAt": "2026-09-14T10:08:23.117Z",
+    "browserMode": "user-chrome-cdp",
+    "chromeVersion": "153.0.8010.37",
+    "browserRevision": "@b75a5a95ea1a1b55bdbfd6d9f42d47be7507fb8b",
+    "debuggingPort": 9222,
+    "targetId": "35D7048858853A93C26C3BE92E4449A1",
+    "backgroundTarget": true,
+    "script": "tests/fourth-round-cases.js",
+    "scriptSHA256": "321137E21503D574ECCE2B1958FB8FA2486A4D75721BDA173CEE6ABEFD4B9957",
+    "value": {
+      "imageDataReadonlyWidth": {
+        "value": {
+          "accepted": false,
+          "width": 1
+        }
+      },
+      "imageDataReadonlyData": {
+        "value": {
+          "accepted": false,
+          "same": true
+        }
+      },
+      "detachedImageData": {
+        "error": "InvalidStateError"
+      },
+      "imageDataCloneDetached": {
+        "value": {
+          "width": 1,
+          "height": 1,
+          "length": 4
+        }
+      },
+      "putImageDataCoordinateOverflow": {
+        "error": "TypeError"
+      },
+      "getImageDataCoordinateOverflow": {
+        "error": "TypeError"
+      },
+      "createImageDataWrappedSize": {
+        "error": "TypeError"
+      },
+      "createImageDataNaN": {
+        "error": "TypeError"
+      },
+      "putImageDataUndefinedCoordinate": {
+        "error": "TypeError"
+      },
+      "putImageDataConversionOrder": {
+        "value": {
+          "log": [
+            "x",
+            "y",
+            "dirtyX",
+            "dirtyY",
+            "width",
+            "height"
+          ],
+          "pixel": [
+            255,
+            0,
+            0,
+            255
+          ]
+        }
+      },
+      "bitmapCloseIdempotent": {
+        "value": [
+          0,
+          0
+        ]
+      },
+      "transferCanvasWithoutContext": {
+        "error": "InvalidStateError"
+      },
+      "bitmapRemainsAfterResize": {
+        "value": [
+          255,
+          0,
+          0,
+          255
+        ]
+      },
+      "dashIteratorLookup": {
+        "value": {
+          "reads": 1,
+          "dash": [
+            2,
+            3
+          ]
+        }
+      },
+      "dashStringSequence": {
+        "error": "TypeError"
+      },
+      "dashIteratorClose": {
+        "value": {
+          "failure": {
+            "error": "TypeError"
+          },
+          "closed": false
+        }
+      },
+      "roundRectIteratorConversionOrder": {
+        "value": [
+          "next0",
+          "x0",
+          "y0",
+          "next1",
+          "x1",
+          "y1",
+          "done"
+        ]
+      },
+      "roundRectPointConversionOrder": {
+        "value": [
+          "getX",
+          "convertX",
+          "getY"
+        ]
+      },
+      "roundRectNonfiniteAndNegative": {
+        "value": false
+      },
+      "roundRectNegativeNonfiniteCoordinate": {
+        "value": "<undefined>"
+      },
+      "gradientStopObjectString": {
+        "value": {
+          "calls": 1,
+          "pixel": [
+            255,
+            0,
+            0,
+            255
+          ]
+        }
+      },
+      "fillStyleObjectString": {
+        "value": {
+          "calls": 1,
+          "style": "#ff0000",
+          "pixel": [
+            255,
+            0,
+            0,
+            255
+          ]
+        }
+      },
+      "fontObjectString": {
+        "value": {
+          "calls": 1,
+          "font": "12px Arial"
+        }
+      },
+      "modernAlphaDecimal": {
+        "value": {
+          "style": "rgba(255, 0, 0, 0.5)",
+          "pixel": [
+            255,
+            0,
+            0,
+            128
+          ]
+        }
+      },
+      "modernAlphaPercent25": {
+        "value": {
+          "style": "rgba(255, 0, 0, 0.25)",
+          "pixel": [
+            255,
+            0,
+            0,
+            64
+          ]
+        }
+      },
+      "legacyAlphaSerialization": {
+        "value": {
+          "style": "rgba(255, 0, 0, 0.5)",
+          "pixel": [
+            255,
+            0,
+            0,
+            128
+          ]
+        }
+      },
+      "legacyMixedPercent": {
+        "value": {
+          "style": "#0000ff",
+          "pixel": [
+            0,
+            0,
+            255,
+            255
+          ]
+        }
+      },
+      "legacyNaN": {
+        "value": {
+          "style": "#0000ff",
+          "pixel": [
+            0,
+            0,
+            255,
+            255
+          ]
+        }
+      },
+      "legacyInfinity": {
+        "value": {
+          "style": "#0000ff",
+          "pixel": [
+            0,
+            0,
+            255,
+            255
+          ]
+        }
+      },
+      "hslNegativeHue": {
+        "value": {
+          "style": "#00ff00",
+          "pixel": [
+            0,
+            255,
+            0,
+            255
+          ]
+        }
+      },
+      "hslHueTurn": {
+        "value": {
+          "style": "#00ffff",
+          "pixel": [
+            0,
+            255,
+            255,
+            255
+          ]
+        }
+      },
+      "transparentHexSerialization": {
+        "value": {
+          "style": "rgba(255, 0, 0, 0.5)",
+          "pixel": [
+            255,
+            0,
+            0,
+            128
+          ]
+        }
+      },
+      "namedColorYellow": {
+        "value": {
+          "style": "#ffff00",
+          "pixel": [
+            255,
+            255,
+            0,
+            255
+          ]
+        }
+      },
+      "fontSeparatedLineHeight": {
+        "value": "12px Arial"
+      },
+      "fontInvalidLineHeightUnit": {
+        "value": "14px Arial"
+      },
+      "fontRepeatedNormal": {
+        "value": "14px Arial"
+      },
+      "fontFamilyTwoQuotedNames": {
+        "value": "14px Arial"
+      },
+      "fontDecimalWeight": {
+        "value": "450 12px Arial"
+      },
+      "fontUnitCase": {
+        "value": "12px Arial"
+      },
+      "fontFallbackList": {
+        "value": {
+          "candidate": 39.984375,
+          "reference": 39.984375
+        }
+      },
+      "emptyTextTopBaseline": {
+        "value": {
+          "ascent": -9.3125,
+          "descent": 9.3125
+        }
+      },
+      "textSpaceBounds": {
+        "value": {
+          "width": 3.333984375,
+          "left": 0,
+          "right": 0,
+          "ascent": 0,
+          "descent": 0
+        }
+      },
+      "textTabsDrawing": {
+        "value": true
+      },
+      "strokeInvalidArgument": {
+        "error": "TypeError"
+      },
+      "fillMissingReceiver": {
+        "error": "TypeError"
+      },
+      "isPointNonfinite": {
+        "value": [
+          false,
+          false
+        ]
+      }
+    }
+  },
+  "local": {
+    "imageDataReadonlyWidth": {
+      "value": {
+        "accepted": true,
+        "width": 2
+      }
+    },
+    "imageDataReadonlyData": {
+      "value": {
+        "accepted": true,
+        "same": false
+      }
+    },
+    "detachedImageData": {
+      "value": "<undefined>"
+    },
+    "imageDataCloneDetached": {
+      "value": {
+        "width": 1,
+        "height": 1,
+        "length": 4
+      }
+    },
+    "putImageDataCoordinateOverflow": {
+      "error": "TypeError"
+    },
+    "getImageDataCoordinateOverflow": {
+      "error": "TypeError"
+    },
+    "createImageDataWrappedSize": {
+      "error": "TypeError"
+    },
+    "createImageDataNaN": {
+      "error": "TypeError"
+    },
+    "putImageDataUndefinedCoordinate": {
+      "error": "TypeError"
+    },
+    "putImageDataConversionOrder": {
+      "value": {
+        "log": [
+          "x",
+          "y",
+          "dirtyX",
+          "dirtyY",
+          "width",
+          "height"
+        ],
+        "pixel": [
+          255,
+          0,
+          0,
+          255
+        ]
+      }
+    },
+    "bitmapCloseIdempotent": {
+      "value": [
+        0,
+        0
+      ]
+    },
+    "transferCanvasWithoutContext": {
+      "error": "InvalidStateError"
+    },
+    "bitmapRemainsAfterResize": {
+      "value": [
+        255,
+        0,
+        0,
+        255
+      ]
+    },
+    "dashIteratorLookup": {
+      "value": {
+        "reads": 2,
+        "dash": [
+          2,
+          3
+        ]
+      }
+    },
+    "dashStringSequence": {
+      "value": [
+        1,
+        2
+      ]
+    },
+    "dashIteratorClose": {
+      "value": {
+        "failure": {
+          "error": "TypeError"
+        },
+        "closed": true
+      }
+    },
+    "roundRectIteratorConversionOrder": {
+      "value": [
+        "next0",
+        "next1",
+        "done",
+        "x0",
+        "y0",
+        "x1",
+        "y1"
+      ]
+    },
+    "roundRectPointConversionOrder": {
+      "value": [
+        "getX",
+        "getY",
+        "convertX"
+      ]
+    },
+    "roundRectNonfiniteAndNegative": {
+      "error": "RangeError"
+    },
+    "roundRectNegativeNonfiniteCoordinate": {
+      "error": "RangeError"
+    },
+    "gradientStopObjectString": {
+      "error": "SyntaxError"
+    },
+    "fillStyleObjectString": {
+      "value": {
+        "calls": 0,
+        "style": "#000000",
+        "pixel": [
+          0,
+          0,
+          0,
+          255
+        ]
+      }
+    },
+    "fontObjectString": {
+      "value": {
+        "calls": 0,
+        "font": "10px sans-serif"
+      }
+    },
+    "modernAlphaDecimal": {
+      "value": {
+        "style": "rgba(255, 0, 0, 0.5)",
+        "pixel": [
+          255,
+          0,
+          0,
+          128
+        ]
+      }
+    },
+    "modernAlphaPercent25": {
+      "value": {
+        "style": "rgba(255, 0, 0, 0.25)",
+        "pixel": [
+          255,
+          0,
+          0,
+          63
+        ]
+      }
+    },
+    "legacyAlphaSerialization": {
+      "value": {
+        "style": "rgba(255, 0, 0, 0.5019607843137255)",
+        "pixel": [
+          255,
+          0,
+          0,
+          128
+        ]
+      }
+    },
+    "legacyMixedPercent": {
+      "value": {
+        "style": "#ff0000",
+        "pixel": [
+          255,
+          0,
+          0,
+          255
+        ]
+      }
+    },
+    "legacyNaN": {
+      "value": {
+        "style": "#000000",
+        "pixel": [
+          0,
+          0,
+          0,
+          255
+        ]
+      }
+    },
+    "legacyInfinity": {
+      "value": {
+        "style": "#ff0000",
+        "pixel": [
+          255,
+          0,
+          0,
+          255
+        ]
+      }
+    },
+    "hslNegativeHue": {
+      "value": {
+        "style": "#00ff00",
+        "pixel": [
+          0,
+          255,
+          0,
+          255
+        ]
+      }
+    },
+    "hslHueTurn": {
+      "value": {
+        "style": "#00ffff",
+        "pixel": [
+          0,
+          255,
+          255,
+          255
+        ]
+      }
+    },
+    "transparentHexSerialization": {
+      "value": {
+        "style": "rgba(255, 0, 0, 0.5019607843137255)",
+        "pixel": [
+          255,
+          0,
+          0,
+          128
+        ]
+      }
+    },
+    "namedColorYellow": {
+      "value": {
+        "style": "#0000ff",
+        "pixel": [
+          0,
+          0,
+          255,
+          255
+        ]
+      }
+    },
+    "fontSeparatedLineHeight": {
+      "value": "14px Arial"
+    },
+    "fontInvalidLineHeightUnit": {
+      "value": "12px Arial"
+    },
+    "fontRepeatedNormal": {
+      "value": "12px Arial"
+    },
+    "fontFamilyTwoQuotedNames": {
+      "value": "12px \"Arial\" \"Courier\""
+    },
+    "fontDecimalWeight": {
+      "value": "14px Arial"
+    },
+    "fontUnitCase": {
+      "value": "12px Arial"
+    },
+    "fontFallbackList": {
+      "value": {
+        "candidate": 38.9759521484375,
+        "reference": 39.984375
+      }
+    },
+    "emptyTextTopBaseline": {
+      "value": {
+        "ascent": -10.86328125,
+        "descent": 10.86328125
+      }
+    },
+    "textSpaceBounds": {
+      "value": {
+        "width": 3.333984375,
+        "left": 0,
+        "right": 0,
+        "ascent": 0,
+        "descent": 0
+      }
+    },
+    "textTabsDrawing": {
+      "value": true
+    },
+    "strokeInvalidArgument": {
+      "value": "<undefined>"
+    },
+    "fillMissingReceiver": {
+      "value": "<undefined>"
+    },
+    "isPointNonfinite": {
+      "value": [
+        false,
+        false
+      ]
+    }
+  },
+  "regression": {
+    "localCases": 47,
+    "additionalCases": 45,
+    "thirdRoundCases": 65,
+    "unicodeColor": true,
+    "totalCases": 158,
+    "gradientGC": true,
+    "demoValues": 9216,
+    "browserVerified": true,
+    "browserMode": "user-chrome-cdp",
+    "chromeVersion": "153.0.8010.37",
+    "caseRunId": "3647a5fa660e4e86b180274b9eaf3a76",
+    "additionalRunId": "0a0cb380e39a42db8c50c3c277a75c61",
+    "demoRunId": "c93b55de2e46451097faf33817e3f4b7",
+    "caseFailures": [],
+    "additionalFailures": [],
+    "demoMismatches": 0,
+    "thirdRoundRunId": "bd78e3c87ec44707a245822dc0cc54eb",
+    "unicodeColorRunId": "67e0d83c05fc466580078b324f4b7322",
+    "thirdRoundFailures": [],
+    "unicodeColorMatches": true
+  }
+}
