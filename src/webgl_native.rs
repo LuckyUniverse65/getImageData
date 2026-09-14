@@ -1,6 +1,8 @@
 use std::ffi::{c_char, c_void, CString};
 use std::ptr;
 use std::sync::OnceLock;
+use std::rc::Rc;
+use std::cell::RefCell;
 
 type NapiEnv = *mut c_void;
 type NapiValue = *mut c_void;
@@ -43,8 +45,8 @@ extern "C" {
     fn skia_canvas_rect(canvas: *mut c_void, x: f32, y: f32, width: f32, height: f32);
     fn skia_canvas_round_rect(canvas: *mut c_void, x: f32, y: f32, width: f32, height: f32, radii: *const f32);
     fn skia_canvas_arc_to(canvas: *mut c_void, x1: f32, y1: f32, x2: f32, y2: f32, radius: f32);
-    fn skia_canvas_arc(canvas: *mut c_void, x: f32, y: f32, radius: f32, start: f32, end: f32);
-    fn skia_canvas_ellipse(canvas: *mut c_void, cx: f32, cy: f32, rx: f32, ry: f32, rotation: f32, start: f32, end: f32);
+    fn skia_canvas_arc(canvas: *mut c_void, x: f32, y: f32, radius: f32, start: f32, end: f32, ccw: i32);
+    fn skia_canvas_ellipse(canvas: *mut c_void, cx: f32, cy: f32, rx: f32, ry: f32, rotation: f32, start: f32, end: f32, ccw: i32);
     fn skia_canvas_fill(canvas: *mut c_void, evenodd: i32);
     fn skia_canvas_stroke(canvas: *mut c_void);
     fn skia_canvas_fill_rect(canvas: *mut c_void, x: f32, y: f32, width: f32, height: f32);
@@ -65,6 +67,7 @@ extern "C" {
     fn skia_canvas_measure_text(canvas: *mut c_void, text: *const u8, length: u32, family: *const c_char, size: f32, weight: i32, slant: i32) -> f32;
     fn skia_canvas_font_metrics(canvas: *mut c_void, family: *const c_char, size: f32, weight: i32, slant: i32, ascent: *mut f32, descent: *mut f32);
     fn skia_canvas_reset(canvas: *mut c_void);
+    fn skia_canvas_clear_bitmap(canvas: *mut c_void);
     fn skia_canvas_draw_rgba_image(canvas: *mut c_void, input: *const u8, image_width: u32, image_height: u32,
                                    sx: f32, sy: f32, sw: f32, sh: f32, dx: f32, dy: f32, dw: f32, dh: f32);
     fn skia_canvas_read(canvas: *mut c_void, x: i32, y: i32, width: u32, height: u32, output: *mut u8);
@@ -72,6 +75,15 @@ extern "C" {
 }
 
 struct Napi {
+    create_reference: unsafe extern "C" fn(NapiEnv, NapiValue, u32, *mut *mut c_void) -> i32,
+    get_reference_value: unsafe extern "C" fn(NapiEnv, *mut c_void, *mut NapiValue) -> i32,
+    delete_reference: unsafe extern "C" fn(NapiEnv, *mut c_void) -> i32,
+    coerce_to_number: unsafe extern "C" fn(NapiEnv, NapiValue, *mut NapiValue) -> i32,
+    coerce_to_bool: unsafe extern "C" fn(NapiEnv, NapiValue, *mut NapiValue) -> i32,
+    get_value_bool: unsafe extern "C" fn(NapiEnv, NapiValue, *mut bool) -> i32,
+    new_instance: unsafe extern "C" fn(NapiEnv, NapiValue, usize, *const NapiValue, *mut NapiValue) -> i32,
+    throw: unsafe extern "C" fn(NapiEnv, NapiValue) -> i32,
+    throw_type_error: unsafe extern "C" fn(NapiEnv, *const c_char, *const c_char) -> i32,
     create_object: unsafe extern "C" fn(NapiEnv, *mut NapiValue) -> i32,
     create_function: unsafe extern "C" fn(NapiEnv, *const c_char, usize, NapiCallback, *mut c_void, *mut NapiValue) -> i32,
     set_named_property: unsafe extern "C" fn(NapiEnv, NapiValue, *const c_char, NapiValue) -> i32,
@@ -115,6 +127,15 @@ unsafe fn load_napi() {
         let module = GetModuleHandleW(ptr::null());
         assert!(!module.is_null(), "cannot find the Node executable");
         Napi {
+            create_reference: symbol(module, b"napi_create_reference\0"),
+            get_reference_value: symbol(module, b"napi_get_reference_value\0"),
+            delete_reference: symbol(module, b"napi_delete_reference\0"),
+            coerce_to_number: symbol(module, b"napi_coerce_to_number\0"),
+            coerce_to_bool: symbol(module, b"napi_coerce_to_bool\0"),
+            get_value_bool: symbol(module, b"napi_get_value_bool\0"),
+            new_instance: symbol(module, b"napi_new_instance\0"),
+            throw: symbol(module, b"napi_throw\0"),
+            throw_type_error: symbol(module, b"napi_throw_type_error\0"),
             create_object: symbol(module, b"napi_create_object\0"),
             create_function: symbol(module, b"napi_create_function\0"),
             set_named_property: symbol(module, b"napi_set_named_property\0"),
@@ -230,7 +251,7 @@ struct CanvasState {
 #[derive(Clone)]
 enum Style {
     Color([u8; 4]),
-    Gradient(Gradient),
+    Gradient(Rc<GradientStyle>),
     Pattern(Pattern),
 }
 
@@ -247,7 +268,16 @@ struct Path {
     closed: bool,
 }
 
-struct GradientObject(Gradient);
+struct GradientObject(Rc<RefCell<Gradient>>);
+
+struct GradientStyle {
+    data: Rc<RefCell<Gradient>>,
+    env: NapiEnv,
+    reference: *mut c_void,
+}
+impl Drop for GradientStyle {
+    fn drop(&mut self) { unsafe { (api().delete_reference)(self.env, self.reference); } }
+}
 
 #[derive(Clone)]
 struct Pattern { pixels: Vec<u8>, width: u32, height: u32, repeat_x: bool, repeat_y: bool }
@@ -303,6 +333,39 @@ unsafe fn number(env: NapiEnv, value: NapiValue) -> f64 {
 unsafe fn range_error(env: NapiEnv, message: &str) {
     let message = CString::new(message).unwrap();
     (api().throw_range_error)(env, ptr::null(), message.as_ptr());
+}
+
+unsafe fn type_error(env: NapiEnv, message: &str) -> NapiValue {
+    let message = CString::new(message).unwrap();
+    (api().throw_type_error)(env, ptr::null(), message.as_ptr());
+    undefined(env)
+}
+
+unsafe fn dom_error(env: NapiEnv, name: &str, message: &str) -> NapiValue {
+    let mut global = ptr::null_mut(); let mut constructor = ptr::null_mut(); let mut error = ptr::null_mut();
+    (api().get_global)(env, &mut global);
+    (api().get_named_property)(env, global, b"DOMException\0".as_ptr() as *const c_char, &mut constructor);
+    let args = [string(env, message), string(env, name)];
+    if (api().new_instance)(env, constructor, 2, args.as_ptr(), &mut error) == 0 { (api().throw)(env, error); }
+    undefined(env)
+}
+
+unsafe fn webidl_long(env: NapiEnv, value: NapiValue) -> Option<i64> {
+    let mut converted = ptr::null_mut();
+    if (api().coerce_to_number)(env, value, &mut converted) != 0 { return None; }
+    let n = number(env, converted);
+    if !n.is_finite() || n.trunc() < i32::MIN as f64 || n.trunc() > i32::MAX as f64 {
+        type_error(env, "Value is outside the range of a finite signed long");
+        return None;
+    }
+    Some(n.trunc() as i64)
+}
+
+unsafe fn truthy(env: NapiEnv, value: Option<&NapiValue>) -> bool {
+    let Some(value) = value else { return false; };
+    let mut converted = ptr::null_mut(); let mut result = false;
+    if (api().coerce_to_bool)(env, *value, &mut converted) == 0 { (api().get_value_bool)(env, converted, &mut result); }
+    result
 }
 
 unsafe fn radius_pair(env: NapiEnv, value: NapiValue) -> Option<[f64; 2]> {
@@ -605,6 +668,7 @@ const WEBGL_OBJECT_TYPES: &[&str] = &[
 ];
 
 const CANVAS_2D_METHODS: &[&str] = &[
+    "_resize", "_clearBitmap",
     "arc", "arcTo", "beginPath", "bezierCurveTo", "clearRect", "clip", "closePath",
     "createConicGradient", "createImageData", "createLinearGradient", "createPattern",
     "createRadialGradient", "drawImage", "ellipse", "fill", "fillRect", "fillText",
@@ -658,7 +722,18 @@ fn rectangle(x: f64, y: f64, width: f64, height: f64) -> (isize, isize, isize, i
     (x1.min(x2), y1.min(y2), x1.max(x2), y1.max(y2))
 }
 
-fn style_color(style: &Style) -> [u8; 4] { match style { Style::Color(c) => *c, Style::Gradient(g) => g.stops.first().map(|s| s.1).unwrap_or([0,0,0,255]), Style::Pattern(_) => [0,0,0,255] } }
+fn style_color(style: &Style) -> [u8; 4] { match style { Style::Color(c) => *c, Style::Gradient(g) => g.data.borrow().stops.first().map(|s| s.1).unwrap_or([0,0,0,255]), Style::Pattern(_) => [0,0,0,255] } }
+
+unsafe fn style_value(env: NapiEnv, style: &Style) -> NapiValue {
+    if let Style::Gradient(g) = style {
+        let mut value = ptr::null_mut();
+        (api().get_reference_value)(env, g.reference, &mut value);
+        return value;
+    }
+    let color = style_color(style);
+    if color[3] == 255 { string(env, &format!("#{:02x}{:02x}{:02x}", color[0], color[1], color[2])) }
+    else { string(env, &format!("rgba({}, {}, {}, {})", color[0], color[1], color[2], color[3] as f64 / 255.0)) }
+}
 
 // The JS-facing object and argument conversion remain in Rust.  Pixel generation is delegated
 // to the linked Skia surface through this small C ABI boundary.
@@ -667,6 +742,7 @@ unsafe fn sync_native_style(canvas: &Canvas2D, style: &Style, stroke: bool) {
     match style {
         Style::Color(color) => skia_canvas_set_color(canvas.native, stroke as i32, color[0], color[1], color[2], color[3]),
         Style::Gradient(gradient) => {
+            let gradient = gradient.data.borrow();
             let args = gradient.args.map(|value| value as f32);
             let positions: Vec<f32> = gradient.stops.iter().map(|(position, _)| *position as f32).collect();
             let mut colors = Vec::with_capacity(gradient.stops.len() * 4);
@@ -734,8 +810,8 @@ unsafe extern "C" fn get_canvas_property(env: NapiEnv, info: NapiCallbackInfo) -
     let (_, this_arg, data) = callback_info(env, info);
     let Some(c) = canvas_2d_from(env, this_arg) else { return undefined(env); };
     match data {
-        0 => string(env, &format!("#{:02x}{:02x}{:02x}", style_color(&c.fill)[0], style_color(&c.fill)[1], style_color(&c.fill)[2])),
-        1 => string(env, &format!("#{:02x}{:02x}{:02x}", style_color(&c.stroke)[0], style_color(&c.stroke)[1], style_color(&c.stroke)[2])),
+        0 => style_value(env, &c.fill),
+        1 => style_value(env, &c.stroke),
         2 => string(env, &format!("#{:02x}{:02x}{:02x}{:02x}", c.shadow[0], c.shadow[1], c.shadow[2], c.shadow[3])),
         3 => number_value(env, c.shadow_blur), 4 => number_value(env, c.line_width), 10 => number_value(env, c.shadow_offset_x), 11 => number_value(env, c.shadow_offset_y),
         5 => number_value(env, c.global_alpha), 6 => string(env, &c.font),
@@ -760,7 +836,11 @@ unsafe extern "C" fn set_canvas_property(env: NapiEnv, info: NapiCallbackInfo) -
                 (api().check_object_type_tag)(env, *value, &PATTERN_TYPE_TAG, &mut is_pattern);
                 if (is_gradient || is_pattern) && (api().unwrap)(env,*value,&mut raw)==0 && !raw.is_null() {
                     if is_gradient {
-                        let g=&*(raw as *mut GradientObject); if data==0 {c.fill=Style::Gradient(g.0.clone());} else {c.stroke=Style::Gradient(g.0.clone());}
+                        let g=&*(raw as *mut GradientObject);
+                        let mut reference = ptr::null_mut();
+                        if (api().create_reference)(env, *value, 1, &mut reference) != 0 { return undefined(env); }
+                        let style = Style::Gradient(Rc::new(GradientStyle { data: g.0.clone(), env, reference }));
+                        if data==0 {c.fill=style;} else {c.stroke=style;}
                     } else if is_pattern {
                         let p=&*(raw as *mut PatternObject); if data==0 {c.fill=Style::Pattern(p.0.clone());} else {c.stroke=Style::Pattern(p.0.clone());}
                     }
@@ -805,6 +885,7 @@ fn style_at(style: &Style, x: f64, y: f64) -> [u8; 4] {
     match style {
         Style::Color(c) => *c,
         Style::Gradient(g) => {
+            let g = g.data.borrow();
             if g.stops.is_empty() { return [0,0,0,0]; }
             let p = match g.kind {
                 1 => { let dx=g.args[2]-g.args[0]; let dy=g.args[3]-g.args[1]; let d=dx*dx+dy*dy; if d==0.0 {1.0} else {((x-g.args[0])*dx+(y-g.args[1])*dy)/d} },
@@ -871,9 +952,26 @@ impl Canvas2D {
     }
 }
 
-unsafe extern "C" fn gradient_add_stop(env:NapiEnv, info:NapiCallbackInfo)->NapiValue { let (args,this_arg,_)=callback_info(env,info); let mut tagged=false; (api().check_object_type_tag)(env,this_arg,&GRADIENT_TYPE_TAG,&mut tagged); if !tagged { return undefined(env); } let mut raw=ptr::null_mut(); if (api().unwrap)(env,this_arg,&mut raw)!=0 || raw.is_null() {return undefined(env);} let g=&mut *(raw as *mut GradientObject); if args.len()>=2 { let off=number(env,args[0]).clamp(0.0,1.0); if let Some(s)=value_string(env,args[1]) { if let Some(col)=parse_color(&s) { g.0.stops.push((off,col)); g.0.stops.sort_by(|a,b|a.0.partial_cmp(&b.0).unwrap()); } } } undefined(env) }
-unsafe fn create_gradient(env:NapiEnv, g:Gradient)->NapiValue { let mut o=ptr::null_mut(); (api().create_object)(env,&mut o); (api().type_tag_object)(env,o,&GRADIENT_TYPE_TAG); (api().wrap)(env,o,Box::into_raw(Box::new(GradientObject(g))) as *mut c_void,Some(finalize_gradient),ptr::null_mut(),ptr::null_mut()); let mut f=ptr::null_mut(); (api().create_function)(env,b"addColorStop\0".as_ptr() as *const c_char,12,gradient_add_stop,ptr::null_mut(),&mut f); set(env,o,"addColorStop",f); o }
+unsafe extern "C" fn gradient_add_stop(env:NapiEnv, info:NapiCallbackInfo)->NapiValue {
+    let (args,this_arg,_)=callback_info(env,info);
+    if args.len()<2{return type_error(env,"addColorStop requires two arguments");}
+    let mut tagged=false; (api().check_object_type_tag)(env,this_arg,&GRADIENT_TYPE_TAG,&mut tagged);
+    if !tagged{return type_error(env,"Illegal invocation");}
+    let mut raw=ptr::null_mut();if (api().unwrap)(env,this_arg,&mut raw)!=0 || raw.is_null(){return undefined(env);}
+    let mut converted=ptr::null_mut();if (api().coerce_to_number)(env,args[0],&mut converted)!=0{return undefined(env);}
+    let off=number(env,converted);
+    if !off.is_finite(){return type_error(env,"Offset must be finite");}
+    if !(0.0..=1.0).contains(&off){return dom_error(env,"IndexSizeError","Offset must be between zero and one");}
+    let Some(col)=value_string(env,args[1]).and_then(|s|parse_color(&s)) else{return dom_error(env,"SyntaxError","Invalid color");};
+    let mut g=(*(raw as *mut GradientObject)).0.borrow_mut();g.stops.push((off,col));g.stops.sort_by(|a,b|a.0.total_cmp(&b.0));
+    undefined(env)
+}
+unsafe fn create_gradient(env:NapiEnv, g:Gradient)->NapiValue { let mut o=ptr::null_mut(); (api().create_object)(env,&mut o); (api().type_tag_object)(env,o,&GRADIENT_TYPE_TAG); (api().wrap)(env,o,Box::into_raw(Box::new(GradientObject(Rc::new(RefCell::new(g))))) as *mut c_void,Some(finalize_gradient),ptr::null_mut(),ptr::null_mut()); let mut f=ptr::null_mut(); (api().create_function)(env,b"addColorStop\0".as_ptr() as *const c_char,12,gradient_add_stop,ptr::null_mut(),&mut f); set(env,o,"addColorStop",f); o }
 unsafe fn create_pattern(env:NapiEnv, pattern:Pattern)->NapiValue { let mut o=ptr::null_mut(); (api().create_object)(env,&mut o); (api().type_tag_object)(env,o,&PATTERN_TYPE_TAG); (api().wrap)(env,o,Box::into_raw(Box::new(PatternObject(pattern))) as *mut c_void,Some(finalize_pattern),ptr::null_mut(),ptr::null_mut()); o }
+
+unsafe fn reset_canvas_state(canvas: &mut Canvas2D) {
+ canvas.fill=Style::Color([0,0,0,255]); canvas.stroke=Style::Color([0,0,0,255]); canvas.shadow=[0,0,0,0]; canvas.shadow_blur=0.0; canvas.shadow_offset_x=0.0; canvas.shadow_offset_y=0.0; canvas.transform=[1.0,0.0,0.0,1.0,0.0,0.0]; canvas.path.clear(); canvas.current_path=None; canvas.line_width=1.0; canvas.line_cap="butt".to_string(); canvas.line_join="miter".to_string(); canvas.miter_limit=10.0; canvas.line_dash.clear(); canvas.line_dash_offset=0.0; canvas.global_alpha=1.0; canvas.composite_copy=false; canvas.font="10px sans-serif".to_string(); canvas.text_align="start".to_string(); canvas.text_baseline="alphabetic".to_string(); canvas.state_stack.clear(); canvas.clip.clear(); if !canvas.native.is_null(){skia_canvas_reset(canvas.native);}  canvas.pixels.fill(0);
+}
 
 unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> NapiValue {
     let (args, this_arg, index) = callback_info(env, info);
@@ -972,11 +1070,11 @@ unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> N
                 }
             } undefined(env)
         }
-        "arc" => { if args.len()>=5 { let x=number(env,args[0]); let y=number(env,args[1]); let r=number(env,args[2]); let sa=number(env,args[3]); let ea=number(env,args[4]); if !canvas.native.is_null(){skia_canvas_arc(canvas.native,x as f32,y as f32,r as f32,sa as f32,ea as f32);} let i=canvas.path.len(); let mut p=Path{points:Vec::new(),closed:false}; for k in 0..=64 { let t=sa+(ea-sa)*k as f64/64.0; p.points.push(tx(canvas.transform,x+r*t.cos(),y+r*t.sin())); } canvas.path.push(p); canvas.current_path=Some(i); } undefined(env) }
+        "arc" => { if args.len()>=5 { let x=number(env,args[0]); let y=number(env,args[1]); let r=number(env,args[2]); let sa=number(env,args[3]); let ea=number(env,args[4]); if r<0.0{return dom_error(env,"IndexSizeError","Negative arc radius");}if ![x,y,r,sa,ea].iter().all(|v|v.is_finite()){return undefined(env);}if !canvas.native.is_null(){skia_canvas_arc(canvas.native,x as f32,y as f32,r as f32,sa as f32,ea as f32,truthy(env,args.get(5)) as i32);} let i=canvas.path.len(); let mut p=Path{points:Vec::new(),closed:false}; for k in 0..=64 { let t=sa+(ea-sa)*k as f64/64.0; p.points.push(tx(canvas.transform,x+r*t.cos(),y+r*t.sin())); } canvas.path.push(p); canvas.current_path=Some(i); } undefined(env) }
         "moveTo" | "lineTo" => { if args.len()>=2 { let raw_x=number(env,args[0]);let raw_y=number(env,args[1]); let (x,y)=tx(canvas.transform,raw_x,raw_y); if name=="moveTo" || canvas.current_path.is_none() { canvas.path.push(Path{points:vec![(x,y)],closed:false}); canvas.current_path=Some(canvas.path.len()-1); } else if let Some(i)=canvas.current_path { canvas.path[i].points.push((x,y)); } if !canvas.native.is_null(){if name=="moveTo"{skia_canvas_move_to(canvas.native,raw_x as f32,raw_y as f32)}else{skia_canvas_line_to(canvas.native,raw_x as f32,raw_y as f32)}} } undefined(env) }
         "quadraticCurveTo" => { if args.len()>=4 { let (x1,y1,x2,y2)=(number(env,args[0]),number(env,args[1]),number(env,args[2]),number(env,args[3])); if !canvas.native.is_null(){skia_canvas_quad_to(canvas.native,x1 as f32,y1 as f32,x2 as f32,y2 as f32);} if let Some(i)=canvas.current_path { let p=*canvas.path[i].points.last().unwrap(); let q=tx(canvas.transform,x1,y1); let e=tx(canvas.transform,x2,y2); for n in 1..=32 { let t=n as f64/32.0; let m=1.0-t; canvas.path[i].points.push((m*m*p.0+2.0*m*t*q.0+t*t*e.0,m*m*p.1+2.0*m*t*q.1+t*t*e.1)); } } } undefined(env) }
         "bezierCurveTo" => { if args.len()>=6 { let (x1,y1,x2,y2,x3,y3)=(number(env,args[0]),number(env,args[1]),number(env,args[2]),number(env,args[3]),number(env,args[4]),number(env,args[5])); if !canvas.native.is_null(){skia_canvas_cubic_to(canvas.native,x1 as f32,y1 as f32,x2 as f32,y2 as f32,x3 as f32,y3 as f32);} if let Some(i)=canvas.current_path { let p=*canvas.path[i].points.last().unwrap(); let q=tx(canvas.transform,x1,y1); let r=tx(canvas.transform,x2,y2); let e=tx(canvas.transform,x3,y3); for n in 1..=48 { let t=n as f64/48.0; let m=1.0-t; canvas.path[i].points.push((m*m*m*p.0+3.0*m*m*t*q.0+3.0*m*t*t*r.0+t*t*t*e.0,m*m*m*p.1+3.0*m*m*t*q.1+3.0*m*t*t*r.1+t*t*t*e.1)); } } } undefined(env) }
-        "ellipse" => { if args.len()>=7 { let (x,y,rx,ry,rot,sa,ea)=(number(env,args[0]),number(env,args[1]),number(env,args[2]),number(env,args[3]),number(env,args[4]),number(env,args[5]),number(env,args[6])); if !canvas.native.is_null(){skia_canvas_ellipse(canvas.native,x as f32,y as f32,rx as f32,ry as f32,rot as f32,sa as f32,ea as f32);} let i=canvas.path.len(); let mut p=Path{points:Vec::new(),closed:true}; let n:usize=96; for k in 0..=n { let t: f64=sa+(ea-sa)*k as f64/n as f64; let (sx,sy)=(rx*t.cos(),ry*t.sin()); p.points.push(tx(canvas.transform,x+sx*rot.cos()-sy*rot.sin(),y+sx*rot.sin()+sy*rot.cos())); } canvas.path.push(p); canvas.current_path=Some(i); } undefined(env) }
+        "ellipse" => { if args.len()>=7 { let (x,y,rx,ry,rot,sa,ea)=(number(env,args[0]),number(env,args[1]),number(env,args[2]),number(env,args[3]),number(env,args[4]),number(env,args[5]),number(env,args[6])); if rx<0.0 || ry<0.0{return dom_error(env,"IndexSizeError","Negative ellipse radius");}if ![x,y,rx,ry,rot,sa,ea].iter().all(|v|v.is_finite()){return undefined(env);}if !canvas.native.is_null(){skia_canvas_ellipse(canvas.native,x as f32,y as f32,rx as f32,ry as f32,rot as f32,sa as f32,ea as f32,truthy(env,args.get(7)) as i32);} let i=canvas.path.len(); let mut p=Path{points:Vec::new(),closed:true}; let n:usize=96; for k in 0..=n { let t: f64=sa+(ea-sa)*k as f64/n as f64; let (sx,sy)=(rx*t.cos(),ry*t.sin()); p.points.push(tx(canvas.transform,x+sx*rot.cos()-sy*rot.sin(),y+sx*rot.sin()+sy*rot.cos())); } canvas.path.push(p); canvas.current_path=Some(i); } undefined(env) }
         "fill" | "stroke" => { sync_native_paint(canvas); if !canvas.native.is_null(){if name=="fill"{let evenodd=args.first().and_then(|value|value_string(env,*value)).as_deref()==Some("evenodd");skia_canvas_fill(canvas.native,evenodd as i32)}else{skia_canvas_stroke(canvas.native)}} undefined(env) }
         "strokeRect" => { if args.len()>=4 { let x=number(env,args[0]);let y=number(env,args[1]);let w=number(env,args[2]);let h=number(env,args[3]); sync_native_paint(canvas); if !canvas.native.is_null(){skia_canvas_stroke_rect(canvas.native,x as f32,y as f32,w as f32,h as f32);} } undefined(env) }
         "scale" => { if args.len()>=1 { let sx=number(env,args[0]); let sy=if args.len()>1{number(env,args[1])}else{sx}; canvas.transform[0]*=sx; canvas.transform[1]*=sx; canvas.transform[2]*=sy; canvas.transform[3]*=sy; if !canvas.native.is_null(){skia_canvas_scale(canvas.native,sx as f32,sy as f32);} } undefined(env) }
@@ -1012,12 +1110,18 @@ unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> N
             o
         }
         "getImageData" => {
-            if args.len() < 4 { return image_data(env, 0, 0, &[]); }
-            let x = floor(number(env, args[0])); let y = floor(number(env, args[1]));
-            let width = floor(number(env, args[2])); let height = floor(number(env, args[3]));
-            if width <= 0 || height <= 0 { return image_data(env, 0, 0, &[]); }
-            let width = width as usize; let height = height as usize;
-            let mut pixels = vec![0; width.saturating_mul(height).saturating_mul(4)];
+            if args.len() < 4 { return type_error(env,"getImageData requires four arguments"); }
+            let Some(mut x)=webidl_long(env,args[0]) else{return undefined(env);};
+            let Some(mut y)=webidl_long(env,args[1]) else{return undefined(env);};
+            let Some(mut width)=webidl_long(env,args[2]) else{return undefined(env);};
+            let Some(mut height)=webidl_long(env,args[3]) else{return undefined(env);};
+            if width==0 || height==0 {return dom_error(env,"IndexSizeError","Image dimensions must be nonzero");}
+            if width<0{x+=width;width=-width;}if height<0{y+=height;height=-height;}
+            let (x,y)=(x as isize,y as isize);let (width,height)=(width as usize,height as usize);
+            let Some(length)=width.checked_mul(height).and_then(|n|n.checked_mul(4)) else{return dom_error(env,"RangeError","Image allocation is too large");};
+            let mut pixels=Vec::new();
+            if pixels.try_reserve_exact(length).is_err(){return dom_error(env,"RangeError","Image allocation failed");}
+            pixels.resize(length,0);
             if !canvas.native.is_null() {
                 skia_canvas_read(canvas.native, x.clamp(i32::MIN as isize, i32::MAX as isize) as i32,
                                  y.clamp(i32::MIN as isize, i32::MAX as isize) as i32,
@@ -1112,7 +1216,18 @@ unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> N
             }
             undefined(env)
         }
-        "reset" => { canvas.fill=Style::Color([0,0,0,255]); canvas.stroke=Style::Color([0,0,0,255]); canvas.shadow=[0,0,0,0]; canvas.shadow_blur=0.0; canvas.shadow_offset_x=0.0; canvas.shadow_offset_y=0.0; canvas.transform=[1.0,0.0,0.0,1.0,0.0,0.0]; canvas.path.clear(); canvas.current_path=None; canvas.line_width=1.0; canvas.line_cap="butt".to_string(); canvas.line_join="miter".to_string(); canvas.miter_limit=10.0; canvas.line_dash.clear(); canvas.line_dash_offset=0.0; canvas.global_alpha=1.0; canvas.composite_copy=false; canvas.font="10px sans-serif".to_string(); canvas.text_align="start".to_string(); canvas.text_baseline="alphabetic".to_string(); canvas.state_stack.clear(); canvas.clip.clear(); if !canvas.native.is_null(){skia_canvas_reset(canvas.native);} undefined(env) }
+        "reset" => { reset_canvas_state(canvas); undefined(env) }
+        "_resize" => {
+            if args.len()<2{return type_error(env,"resize requires dimensions");}
+            let width=number(env,args[0]) as usize;let height=number(env,args[1]) as usize;
+            let next=skia_canvas_create(width as u32,height as u32);
+            if width>0 && height>0 && next.is_null(){return dom_error(env,"InvalidStateError","Canvas allocation failed");}
+            if !canvas.native.is_null(){skia_canvas_destroy(canvas.native);}
+            canvas.native=next;canvas.width=width;canvas.height=height;
+            canvas.pixels=vec![0;width.saturating_mul(height).saturating_mul(4)];
+            reset_canvas_state(canvas);undefined(env)
+        }
+        "_clearBitmap" => {canvas.pixels.fill(0);if !canvas.native.is_null(){skia_canvas_clear_bitmap(canvas.native);}undefined(env)}
         "isContextLost" => boolean(env, false),
         "isPointInPath" | "isPointInStroke" => { if args.len() < 2 || canvas.native.is_null() { boolean(env, false) } else { let evenodd=name=="isPointInPath"&&args.get(2).and_then(|value|value_string(env,*value)).as_deref()==Some("evenodd"); boolean(env, skia_canvas_point_in_path(canvas.native, number(env,args[0]) as f32, number(env,args[1]) as f32, (name == "isPointInStroke") as i32, evenodd as i32) != 0) } },
         "getLineDash" => { let mut result = ptr::null_mut(); (api().create_array_with_length)(env, canvas.line_dash.len(), &mut result); for (index, value) in canvas.line_dash.iter().enumerate() { (api().set_element)(env, result, index as u32, number_value(env, *value)); } result }

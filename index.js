@@ -1,6 +1,7 @@
 "use strict";
 
 const native = require("./webgl.node");
+const { encodePng } = require('./src/png');
 // Canvas 2D is provided by the compiled Node-API module.  The reference
 // JavaScript rasterizer is intentionally not used as the production backend.
 const OffscreenCanvasRenderingContext2D = native.OffscreenCanvasRenderingContext2D;
@@ -14,6 +15,18 @@ function dimension(value, fallback) {
     return Math.floor(n);
 }
 
+class ImageBitmap {
+    constructor(width, height, pixels) {
+        this._width = width;
+        this._height = height;
+        this._pixels = new Uint8ClampedArray(pixels);
+    }
+    get width() { return this._width; }
+    get height() { return this._height; }
+    get data() { return this._pixels; }
+    close() { this._width = 0; this._height = 0; this._pixels = new Uint8ClampedArray(0); }
+}
+
 class OffscreenCanvas {
     constructor(width = 300, height = 150) {
         this._width = dimension(width, 300);
@@ -24,25 +37,28 @@ class OffscreenCanvas {
 
     get width() { return this._width; }
     set width(value) {
-        this._width = dimension(value, 300);
-        this._resetContexts();
+        this._resize(dimension(value, 300), this._height);
     }
 
     get height() { return this._height; }
     set height(value) {
-        this._height = dimension(value, 150);
-        this._resetContexts();
+        this._resize(this._width, dimension(value, 150));
     }
 
     get data() {
+        if (!this._width || !this._height) return new Uint8ClampedArray(0);
         const context = this._contexts.get("2d");
         if (!context) return new Uint8ClampedArray(this._width * this._height * 4);
         return context.getImageData(0, 0, this._width, this._height).data;
     }
 
-    _resetContexts() {
-        this._native = new native.OffscreenCanvas(this._width, this._height);
-        this._contexts.clear();
+    _resize(width, height) {
+        const context = this._contexts.get('2d');
+        if (context) context._resize(width, height);
+        this._width = width;
+        this._height = height;
+        this._native.width = width;
+        this._native.height = height;
     }
 
     getContext(type, attributes) {
@@ -53,6 +69,7 @@ class OffscreenCanvas {
             if (kind === "2d" && context && Object.getPrototypeOf(context) !== OffscreenCanvasRenderingContext2D.prototype) {
                 Object.setPrototypeOf(context, OffscreenCanvasRenderingContext2D.prototype);
             }
+            if (context) Object.defineProperty(context, 'canvas', { value: this, enumerable: true });
             this._contexts.set(kind, context);
             return context;
         }
@@ -61,17 +78,17 @@ class OffscreenCanvas {
 
     transferToImageBitmap() {
         const context = this._contexts.get("2d");
-        const pixels = context ? context.getImageData(0, 0, this._width, this._height).data : new Uint8ClampedArray(this._width * this._height * 4);
-        if (context && typeof context.reset === "function") context.reset();
-        return {width: this._width, height: this._height, data: new Uint8ClampedArray(pixels)};
+        if (!context) throw new DOMException('Canvas has no rendering context', 'InvalidStateError');
+        if (!this._width || !this._height) throw new DOMException('Canvas has no transferable image', 'UnknownError');
+        const bitmap = new ImageBitmap(this._width, this._height, this.data);
+        context._clearBitmap();
+        return bitmap;
     }
 
-    convertToBlob(options) {
-        const bitmap = this.transferToImageBitmap();
-        const bytes = Buffer.from(bitmap.data);
-        const type = options && options.type || "image/raw";
-        if (typeof Blob === "function") return Promise.resolve(new Blob([bytes], {type}));
-        return Promise.resolve({size: bytes.length, type, arrayBuffer: () => Promise.resolve(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength))});
+    async convertToBlob(options = {}) {
+        if (!this._width || !this._height) throw new DOMException('Canvas has zero size', 'IndexSizeError');
+        const bytes = encodePng(this._width, this._height, this.data);
+        return new Blob([bytes], {type: 'image/png'});
     }
 }
 

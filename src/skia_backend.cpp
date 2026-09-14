@@ -29,6 +29,7 @@
 #include "include/gpu/ganesh/gl/GrGLDirectContext.h"
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/ContextOptions.h"
+#include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
 #include "include/gpu/graphite/Surface.h"
@@ -337,6 +338,10 @@ struct Canvas {
     sk_sp<SkSurface> surface;
     bool graphite = false;
     SkPathBuilder path;
+    SkMatrix path_matrix = SkMatrix::I();
+    bool simple_arc = false;
+    SkRect arc_oval;
+    float arc_start = 0, arc_sweep = 0;
     Style fill;
     Style stroke;
     SkColor4f shadow = {0, 0, 0, 0};
@@ -372,6 +377,36 @@ static float clockwise_end_angle(float start, float end) {
         return start + (kTwoPiFloat - std::fmod(start - end, kTwoPiFloat));
     }
     return end;
+}
+
+static float directed_end_angle(float start, float end, bool ccw) {
+    if (!ccw) return clockwise_end_angle(start, end);
+    if (start - end >= kTwoPiFloat) return start - kTwoPiFloat;
+    if (end > start) return start - (kTwoPiFloat - std::fmod(end - start, kTwoPiFloat));
+    return end;
+}
+
+// Retain paths in their last local coordinate space. Rebase only when the
+// CTM changes; unchanged drawing sequences retain their original float math.
+static bool prepare_path(Canvas* canvas) {
+    if (!canvas || !canvas->surface) return false;
+    const SkMatrix current = canvas->surface->getCanvas()->getTotalMatrix();
+    SkMatrix inverse;
+    if (!current.invert(&inverse)) return false;
+    if (current != canvas->path_matrix) {
+        canvas->simple_arc = false;
+        if (!canvas->path.isEmpty()) {
+            canvas->path.transform(SkMatrix::Concat(inverse, canvas->path_matrix));
+        }
+        canvas->path_matrix = current;
+    }
+    return true;
+}
+
+static bool mutate_path(Canvas* canvas) {
+    if (!prepare_path(canvas)) return false;
+    canvas->simple_arc = false;
+    return true;
 }
 
 static float radians_to_degrees(float radians) {
@@ -479,14 +514,15 @@ static bool has_visible_shadow(const Canvas* canvas) {
 }
 
 static void draw_path(Canvas* canvas, bool stroke, bool evenodd = false) {
-    if (!canvas || !canvas->surface) return;
+    if (!prepare_path(canvas)) return;
     SkPath path = canvas->path.snapshot();
     if (!stroke && evenodd) path.setFillType(SkPathFillType::kEvenOdd);
     const Style& source_style = stroke ? canvas->stroke : canvas->fill;
     const SkPaint source = make_paint(canvas, source_style, stroke);
     draw_with_shadow(canvas, source_style, source,
                      [&](SkCanvas* draw_canvas, const SkPaint& paint) {
-                         draw_canvas->drawPath(path, paint);
+                         if (canvas->simple_arc) draw_canvas->drawArc(canvas->arc_oval, canvas->arc_start, canvas->arc_sweep, false, paint);
+                         else draw_canvas->drawPath(path, paint);
                      });
 }
 
@@ -724,7 +760,11 @@ void* skia_canvas_create(uint32_t width, uint32_t height) {
             gpu.ganesh.get(), skgpu::Budgeted::kNo, image_info,
             0, surface_origin, &surface_props);
     }
-    return canvas->surface ? canvas.release() : nullptr;
+    if (!canvas->surface) return nullptr;
+    // A protected root frame lets reset remove even clips made before save().
+    canvas->surface->getCanvas()->clear(SK_ColorTRANSPARENT);
+    canvas->surface->getCanvas()->save();
+    return canvas.release();
 }
 
 void skia_canvas_destroy(void* value) {
@@ -737,7 +777,7 @@ void skia_canvas_scale(void* value, float x, float y) { if (auto* c = static_cas
 void skia_canvas_translate(void* value, float x, float y) { if (auto* c = static_cast<Canvas*>(value)) c->surface->getCanvas()->translate(x, y); }
 void skia_canvas_rotate(void* value, float radians) { if (auto* c = static_cast<Canvas*>(value)) c->surface->getCanvas()->rotate(radians * 180.0f / SK_ScalarPI); }
 void skia_canvas_save(void* value) { if (auto* c = static_cast<Canvas*>(value)) c->surface->getCanvas()->save(); }
-void skia_canvas_restore(void* value) { if (auto* c = static_cast<Canvas*>(value)) c->surface->getCanvas()->restore(); }
+void skia_canvas_restore(void* value) { if (auto* c = static_cast<Canvas*>(value); c && c->surface->getCanvas()->getSaveCount() > 2) c->surface->getCanvas()->restore(); }
 void skia_canvas_set_transform(void* value, float a, float b, float cc, float d, float e, float f) {
     auto* c = static_cast<Canvas*>(value); if (!c) return;
     SkMatrix matrix; matrix.setAll(a, cc, e, b, d, f, 0, 0, 1); c->surface->getCanvas()->setMatrix(matrix);
@@ -747,15 +787,15 @@ void skia_canvas_transform(void* value, float a, float b, float cc, float d, flo
     SkMatrix matrix; matrix.setAll(a, cc, e, b, d, f, 0, 0, 1); c->surface->getCanvas()->concat(matrix);
 }
 
-void skia_canvas_begin_path(void* value) { if (auto* c = static_cast<Canvas*>(value)) c->path.reset(); }
-void skia_canvas_move_to(void* value, float x, float y) { if (auto* c = static_cast<Canvas*>(value)) c->path.moveTo(x, y); }
-void skia_canvas_line_to(void* value, float x, float y) { if (auto* c = static_cast<Canvas*>(value)) c->path.lineTo(x, y); }
-void skia_canvas_quad_to(void* value, float x1, float y1, float x2, float y2) { if (auto* c = static_cast<Canvas*>(value)) c->path.quadTo(x1, y1, x2, y2); }
-void skia_canvas_cubic_to(void* value, float x1, float y1, float x2, float y2, float x3, float y3) { if (auto* c = static_cast<Canvas*>(value)) c->path.cubicTo(x1, y1, x2, y2, x3, y3); }
-void skia_canvas_close_path(void* value) { if (auto* c = static_cast<Canvas*>(value)) c->path.close(); }
-void skia_canvas_rect(void* value, float x, float y, float width, float height) { if (auto* c = static_cast<Canvas*>(value)) c->path.addRect(SkRect::MakeXYWH(x, y, width, height)); }
+void skia_canvas_begin_path(void* value) { if (auto* c = static_cast<Canvas*>(value)) { c->path.reset(); c->simple_arc=false; c->path_matrix = c->surface->getCanvas()->getTotalMatrix(); } }
+void skia_canvas_move_to(void* value, float x, float y) { if (auto* c = static_cast<Canvas*>(value); mutate_path(c)) c->path.moveTo(x, y); }
+void skia_canvas_line_to(void* value, float x, float y) { if (auto* c = static_cast<Canvas*>(value); mutate_path(c)) c->path.lineTo(x, y); }
+void skia_canvas_quad_to(void* value, float x1, float y1, float x2, float y2) { if (auto* c = static_cast<Canvas*>(value); mutate_path(c)) c->path.quadTo(x1, y1, x2, y2); }
+void skia_canvas_cubic_to(void* value, float x1, float y1, float x2, float y2, float x3, float y3) { if (auto* c = static_cast<Canvas*>(value); mutate_path(c)) c->path.cubicTo(x1, y1, x2, y2, x3, y3); }
+void skia_canvas_close_path(void* value) { if (auto* c = static_cast<Canvas*>(value)) { c->path.close(); c->simple_arc=false; } }
+void skia_canvas_rect(void* value, float x, float y, float width, float height) { if (auto* c = static_cast<Canvas*>(value); mutate_path(c)) c->path.addRect(SkRect::MakeXYWH(x, y, width, height)); }
 void skia_canvas_round_rect(void* value, float x, float y, float width, float height, const float* radii) {
-    if (auto* c = static_cast<Canvas*>(value); c && radii) {
+    if (auto* c = static_cast<Canvas*>(value); mutate_path(c) && radii) {
         const SkRect rect = SkRect::MakeLTRB(std::min(x, x + width), std::min(y, y + height),
                                              std::max(x, x + width), std::max(y, y + height));
         const SkVector corners[4] = {
@@ -766,21 +806,30 @@ void skia_canvas_round_rect(void* value, float x, float y, float width, float he
     }
 }
 void skia_canvas_arc_to(void* value, float x1, float y1, float x2, float y2, float radius) {
-    if (auto* c = static_cast<Canvas*>(value)) c->path.arcTo({x1, y1}, {x2, y2}, std::max(0.f, radius));
+    if (auto* c = static_cast<Canvas*>(value); mutate_path(c)) c->path.arcTo({x1, y1}, {x2, y2}, std::max(0.f, radius));
 }
-void skia_canvas_arc(void* value, float x, float y, float radius, float start, float end) {
-    if (auto* c = static_cast<Canvas*>(value)) {
+void skia_canvas_arc(void* value, float x, float y, float radius, float start, float end, int ccw) {
+    if (auto* c = static_cast<Canvas*>(value); mutate_path(c)) {
         canonicalize_angle(&start, &end);
-        end = clockwise_end_angle(start, end);
-        c->path.addArc(SkRect::MakeLTRB(x-radius, y-radius, x+radius, y+radius),
-                       radians_to_degrees(start),
-                       radians_to_degrees(end - start));
+        end = directed_end_angle(start, end, ccw != 0);
+        const SkRect oval = SkRect::MakeLTRB(x-radius, y-radius, x+radius, y+radius);
+        const float degrees = radians_to_degrees(start), sweep = radians_to_degrees(end-start);
+        if (c->path.isEmpty()) {
+            c->path.addArc(oval, degrees, sweep);
+            c->simple_arc=true;c->arc_oval=oval;c->arc_start=degrees;c->arc_sweep=sweep;
+            return;
+        }
+        if (SkScalarNearlyEqual(std::abs(sweep), 360.0f)) {
+            const float half = std::copysign(180.0f, sweep);
+            c->path.arcTo(oval, degrees, half, false);
+            c->path.arcTo(oval, degrees+half, half, false);
+        } else { c->path.arcTo(oval, degrees, sweep, false); }
     }
 }
-void skia_canvas_ellipse(void* value, float cx, float cy, float rx, float ry, float rotation, float start, float end) {
-    auto* c = static_cast<Canvas*>(value); if (!c) return;
+void skia_canvas_ellipse(void* value, float cx, float cy, float rx, float ry, float rotation, float start, float end, int ccw) {
+    auto* c = static_cast<Canvas*>(value); if (!mutate_path(c)) return;
     canonicalize_angle(&start, &end);
-    end = clockwise_end_angle(start, end);
+    end = directed_end_angle(start, end, ccw != 0);
 
     SkMatrix forward = SkMatrix::I();
     if (rotation != 0) {
@@ -846,15 +895,17 @@ void skia_canvas_stroke_rect(void* value, float x, float y, float width, float h
 }
 void skia_canvas_clip(void* value, int evenodd) {
     auto* c = static_cast<Canvas*>(value);
-    if (!c) return;
+    if (!prepare_path(c)) return;
     SkPath path = c->path.snapshot();
     if (evenodd) path.setFillType(SkPathFillType::kEvenOdd);
     c->surface->getCanvas()->clipPath(path, SkClipOp::kIntersect, true);
 }
 int skia_canvas_point_in_path(void* value, float x, float y, int stroke, int evenodd) {
-    auto* c = static_cast<Canvas*>(value); if (!c || !c->surface) return 0;
+    auto* c = static_cast<Canvas*>(value); if (!prepare_path(c)) return 0;
     SkPoint point = {x, y};
-    c->surface->getCanvas()->getTotalMatrix().mapPoints(SkSpan<SkPoint>(&point, 1));
+    SkMatrix inverse;
+    if (!c->path_matrix.invert(&inverse)) return 0;
+    inverse.mapPoints(SkSpan<SkPoint>(&point, 1));
     SkPath path = c->path.snapshot();
     if (!stroke && evenodd) path.setFillType(SkPathFillType::kEvenOdd);
     if (!stroke) return path.contains(point);
@@ -1015,8 +1066,19 @@ void skia_canvas_reset(void* value) {
     auto* c = static_cast<Canvas*>(value); if (!c || !c->surface) return;
     SkCanvas* target = c->surface->getCanvas();
     target->restoreToCount(1);
+    target->resetMatrix();
     target->clear(SK_ColorTRANSPARENT);
+    target->save();
     c->path.reset();
+    c->path_matrix = SkMatrix::I();
+    c->simple_arc = false;
+}
+void skia_canvas_clear_bitmap(void* value) {
+    auto* c=static_cast<Canvas*>(value); if (!c || !c->surface) return;
+    // writePixels ignores the current clip and CTM and preserves the state stack.
+    const int width=c->surface->width(), height=c->surface->height();
+    std::vector<uint8_t> zeros(static_cast<size_t>(width)*height*4, 0);
+    c->surface->writePixels(SkPixmap(SkImageInfo::MakeN32Premul(width,height),zeros.data(),static_cast<size_t>(width)*4),0,0);
 }
 void skia_canvas_draw_rgba_image(void* value, const uint8_t* input, uint32_t image_width, uint32_t image_height,
                                  float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh) {
@@ -1027,6 +1089,10 @@ void skia_canvas_draw_rgba_image(void* value, const uint8_t* input, uint32_t ima
     auto image = SkImages::RasterFromData(SkImageInfo::Make(image_width, image_height, kRGBA_8888_SkColorType,
                                                              kUnpremul_SkAlphaType), std::move(pixels), image_width * 4);
     if (!image) return;
+    if (c->graphite) {
+        image = SkImages::TextureFromImage(c->recorder.get(), image);
+        if (!image) return;
+    }
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setAlphaf(c->global_alpha);
