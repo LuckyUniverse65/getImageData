@@ -1,0 +1,47 @@
+{
+  "baseline": "b7cc778",
+  "localCases": 47,
+  "gradientGC": true,
+  "demoValues": 9216,
+  "browserVerified": true,
+  "browserMode": "user-visible-f12",
+  "chromeVersion": "153.0.8010.37",
+  "caseRunId": "feaf1fd08053400c85fda05742c11205",
+  "demoRunId": "01a9d41157a742ffb9c8120eb57ed4ae",
+  "caseFailures": [],
+  "demoMismatches": 0,
+  "nodeVersion": "v22.13.1",
+  "captures": [
+    {
+      "runId": "feaf1fd08053400c85fda05742c11205",
+      "capturedAt": "2026-09-14T06:56:43.8213528Z",
+      "browserMode": "user-visible-f12",
+      "chromeVersion": "153.0.8010.37",
+      "processId": 3668,
+      "title": "DevTools - chrome://new-tab-page/",
+      "script": "tests/browser-cases.js",
+      "scriptSHA256": "56027520C8C6212BFCE2BC71965F5713913177434C6CBF1EB6E4EBDAF8C0B1AE"
+    },
+    {
+      "runId": "01a9d41157a742ffb9c8120eb57ed4ae",
+      "capturedAt": "2026-09-14T06:56:48.1698667Z",
+      "browserMode": "user-visible-f12",
+      "chromeVersion": "153.0.8010.37",
+      "processId": 3668,
+      "title": "DevTools - chrome://new-tab-page/",
+      "script": "demo.js",
+      "scriptSHA256": "FEA443544EEFDB59C29593EAEC43BBA59CECADCF104A69B99B189B6206F9300E"
+    }
+  ],
+  "sha256": {
+    "index.js": "5B0658C0101FA14E974279C8A2CE669E5B7B49594315E86CC197276462D7B224",
+    "src/webgl_native.rs": "F091807E2FC67FA07F52840FC415AD95CC5C7FFA3AB137BCA1CEAC49888C5B10",
+    "src/skia_backend.cpp": "E5759A9353AB7C2B8A34391E294B82D6E042FB44909146892A5E66F0A6635C2B",
+    "webgl.node": "5478C15749BC2EC8E493E38B8248D73C0188703A032064FB53F6AF38F414B5DD",
+    "test.js": "E24DA8013E5F9DD0A272514A9B4449A5E4F95E600A97131026959FAD5A5F4665",
+    "tests/browser-cases.js": "56027520C8C6212BFCE2BC71965F5713913177434C6CBF1EB6E4EBDAF8C0B1AE",
+    "visible-f12-demo.ps1": "0C06E0D7B3E1A655D7759D419DFA977F951B0194FA7CF580C7215C52D781DFD4",
+    "tests/VisibleDevTools.cs": "E7A7EA2EB12DB2CC87C80BAFCA9728D8472701EB92E8F95F98CB7DCC176D246A",
+    "demo.js": "FEA443544EEFDB59C29593EAEC43BBA59CECADCF104A69B99B189B6206F9300E"
+  }
+}

@@ -72,6 +72,42 @@ public static class VisibleDevToolsInput
 
     private delegate bool EnumWindowsProc(IntPtr window, IntPtr parameter);
 
+    public sealed class DesktopWindow
+    {
+        public IntPtr Handle;
+        public uint ProcessId;
+        public string Title;
+        public string ClassName;
+    }
+
+    [DllImport("user32.dll")]
+    private static extern bool EnumWindows(EnumWindowsProc callback, IntPtr parameter);
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    private static extern int GetWindowText(IntPtr window, StringBuilder text, int count);
+
+    [DllImport("user32.dll")]
+    private static extern uint GetWindowThreadProcessId(IntPtr window, out uint processId);
+
+    public static DesktopWindow[] VisibleWindows()
+    {
+        var windows = new List<DesktopWindow>();
+        EnumWindows(delegate(IntPtr window, IntPtr parameter)
+        {
+            if (!IsWindowVisible(window)) return true;
+            var title = new StringBuilder(1024);
+            var className = new StringBuilder(256);
+            GetWindowText(window, title, title.Capacity);
+            GetClassName(window, className, className.Capacity);
+            uint processId;
+            GetWindowThreadProcessId(window, out processId);
+            windows.Add(new DesktopWindow { Handle = window, ProcessId = processId,
+                Title = title.ToString(), ClassName = className.ToString() });
+            return true;
+        }, IntPtr.Zero);
+        return windows.ToArray();
+    }
+
     [DllImport("user32.dll")]
     public static extern bool SetProcessDPIAware();
 

@@ -29,6 +29,22 @@ async function main() {
     for(const [name,value] of Object.entries(local))assert.ok(!value?.unexpectedError,name+': '+value?.message);
     assert.deepEqual(local.gradientLive,{same:true,pixel:red});
     assert.ok(local.gradientSavedReference.fill && local.gradientSavedReference.stroke);
+    assert.deepEqual(local.radialGradientValidation,['IndexSizeError','IndexSizeError','IndexSizeError',null,'TypeError','TypeError','TypeError']);
+    assert.deepEqual(local.gradientArgumentValidation,Array(4).fill('TypeError'));
+    for(const sample of local.conicFullTurns) assert.deepEqual(sample,local.conicFullTurns[0]);
+    assert.deepEqual(local.conicRotations[2],local.conicRotations[3]);
+    assert.notDeepEqual(local.conicRotations[0],local.conicRotations[1]);
+    assert.deepEqual(local.globalAlphaValidation,{invalid:Array(6).fill(0.5),coerced:0.25,symbolError:'TypeError',after:0.25});
+    assert.deepEqual(local.drawImageAlphaState,[clear,[255,0,0,128],[255,0,0,128],red]);
+    assert.deepEqual(local.drawImageCompositeState,[clear,red]);
+    assert.deepEqual(local.strokeHitCurrentWidth,[true,true,false]);
+    assert.equal(local.strokeHitSavedState,true);
+    assert.deepEqual(local.strokeHitCapsAndDash,{butt:false,round:true,dash:[true,false],offset:[false,true]});
+    for(const row of local.contextModes) {
+        assert.ok(row.created && row.same,row.mode);
+        assert.deepEqual(row.blocked,[true,true,true],row.mode);
+    }
+    assert.deepEqual(local.contextInvalidNames,{invalid:Array(5).fill('TypeError'),missing:'TypeError',after:true});
     assert.ok(local.resize.same && local.resize.canvas && local.resizeZeroAndBack.same);
     assert.deepEqual(local.resetClipTransform.outside,red);
     assert.deepEqual(local.pathTranslateAfterCreation,[red,clear]);

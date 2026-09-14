@@ -62,15 +62,21 @@ class OffscreenCanvas {
     }
 
     getContext(type, attributes) {
-        const kind = String(type).toLowerCase();
+        // OffscreenRenderingContextId is a case-sensitive Web IDL enum.
+        const kind = String(type);
+        if (!['2d', 'webgl', 'webgl2', 'bitmaprenderer'].includes(kind)) {
+            throw new TypeError('Invalid OffscreenCanvas context type');
+        }
         if (this._contexts.has(kind)) return this._contexts.get(kind);
-        if (kind === "2d" || kind === "webgl" || kind === "experimental-webgl" || kind === "webgl2") {
+        // Only a successful context creation locks the canvas to that mode.
+        if (this._contexts.size) return null;
+        if (kind === "2d" || kind === "webgl" || kind === "webgl2") {
             const context = this._native.getContext(kind, attributes);
             if (kind === "2d" && context && Object.getPrototypeOf(context) !== OffscreenCanvasRenderingContext2D.prototype) {
                 Object.setPrototypeOf(context, OffscreenCanvasRenderingContext2D.prototype);
             }
             if (context) Object.defineProperty(context, 'canvas', { value: this, enumerable: true });
-            this._contexts.set(kind, context);
+            if (context) this._contexts.set(kind, context);
             return context;
         }
         return null;
@@ -104,8 +110,12 @@ class HTMLCanvasElement {
         return this._offscreen;
     }
     getContext(type, attributes) {
+        // HTMLCanvasElement takes a DOMString and also accepts the WebGL alias.
+        const name = String(type);
+        const kind = name === 'experimental-webgl' ? 'webgl' : name;
+        if (!['2d', 'webgl', 'webgl2', 'bitmaprenderer'].includes(kind)) return null;
         if (!this._offscreen) this._offscreen = new OffscreenCanvas(this.width, this.height);
-        return this._offscreen.getContext(type, attributes);
+        return this._offscreen.getContext(kind, attributes);
     }
     get data() {
         if (!this._offscreen) return new Uint8ClampedArray(this.width * this.height * 4);

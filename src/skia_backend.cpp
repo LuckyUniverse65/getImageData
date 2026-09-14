@@ -17,6 +17,7 @@
 #include "include/effects/SkDashPathEffect.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
+#include "include/core/SkPathUtils.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkSurface.h"
@@ -450,9 +451,12 @@ static SkPaint make_paint(const Canvas* canvas, const Style& style, bool stroke)
             shader = SkShaders::TwoPointConicalGradient({g.args[0], g.args[1]}, g.args[4],
                                                          {g.args[2], g.args[3]}, g.args[5], gradient);
         } else if (g.kind == 3) {
-            shader = SkShaders::SweepGradient({g.args[0], g.args[1]},
-                                               g.args[2] * 180.0f / SK_ScalarPI,
-                                               g.args[2] * 180.0f / SK_ScalarPI + 360.0f, gradient);
+            // A shifted sweep interval clamps the sector before startAngle.
+            // Rotate a complete sweep instead so the color ramp wraps at its origin.
+            SkMatrix rotation;
+            rotation.setRotate(g.args[2] * 180.0f / SK_ScalarPI, g.args[0], g.args[1]);
+            shader = SkShaders::SweepGradient({g.args[0], g.args[1]}, 0, 360, gradient,
+                                               &rotation);
         }
         paint.setShader(std::move(shader));
         paint.setAlphaf(canvas->global_alpha);
@@ -910,8 +914,8 @@ int skia_canvas_point_in_path(void* value, float x, float y, int stroke, int eve
     if (!stroke && evenodd) path.setFillType(SkPathFillType::kEvenOdd);
     if (!stroke) return path.contains(point);
     SkPathBuilder outline;
-    SkStrokeRec record(make_paint(c, c->stroke, true));
-    if (!record.applyToPath(&outline, path)) return 0;
+    // Include path effects (notably dashes) as well as stroke width/caps/joins.
+    if (!skpathutils::FillPathWithPaint(path, make_paint(c, c->stroke, true), &outline)) return 0;
     return outline.snapshot().contains(point);
 }
 
@@ -1095,7 +1099,8 @@ void skia_canvas_draw_rgba_image(void* value, const uint8_t* input, uint32_t ima
     }
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setAlphaf(c->global_alpha);
+    // Blink quantizes the image paint alpha to a byte before GPU composition.
+    paint.setAlpha(static_cast<U8CPU>(std::round(c->global_alpha * 255.0f)));
     paint.setBlendMode(c->blend_mode);
     c->surface->getCanvas()->drawImageRect(image.get(), SkRect::MakeXYWH(sx, sy, sw, sh),
                                            SkRect::MakeXYWH(dx, dy, dw, dh), SkSamplingOptions(), &paint,

@@ -26,6 +26,98 @@
             const [,g]=fresh();const gr=g.createLinearGradient(0,0,24,0);
             return [error(()=>gr.addColorStop(-0.1,'red')),error(()=>gr.addColorStop(1.1,'red')),error(()=>gr.addColorStop(NaN,'red')),error(()=>gr.addColorStop(0,'invalid-color'))];
         });
+        await add('radialGradientValidation', () => {
+            const [, g] = fresh();
+            return [
+                error(() => g.createRadialGradient(0,0,-1,1,1,2)),
+                error(() => g.createRadialGradient(0,0,1,1,1,-2)),
+                error(() => g.createRadialGradient(0,0,'-1',1,1,2)),
+                error(() => g.createRadialGradient(0,0,0,1,1,0)),
+                error(() => g.createRadialGradient(0,0,NaN,1,1,2)),
+                error(() => g.createRadialGradient(0,0,-1,Infinity,1,2)),
+                error(() => g.createRadialGradient(0,0,1))
+            ];
+        });
+        await add('gradientArgumentValidation', () => {
+            const [, g] = fresh();
+            return [error(() => g.createLinearGradient(0,0,Infinity,0)),
+                error(() => g.createConicGradient(NaN,0,0)),
+                error(() => g.createConicGradient(0,0)),
+                error(() => g.createConicGradient(Symbol(),0,0))];
+        });
+        const conicSample = (angle) => {
+            const [, g] = fresh(); const gr = g.createConicGradient(angle,12,12);
+            gr.addColorStop(0,'red'); gr.addColorStop(0.5,'#00ff00'); gr.addColorStop(1,'blue');
+            g.fillStyle=gr; g.fillRect(0,0,24,24);
+            return [[20,12],[12,20],[3,12],[12,3],[20,20],[3,3]].map(([x,y])=>pixel(g,x,y));
+        };
+        await add('conicFullTurns', () => [0,2*Math.PI,-2*Math.PI,8*Math.PI].map(conicSample));
+        await add('conicRotations', () => [Math.PI/2,-Math.PI/2,34,34-10*Math.PI].map(conicSample));
+        await add('globalAlphaValidation', () => {
+            const [,g]=fresh();g.globalAlpha=0.5;
+            const invalid=[2,-1,NaN,Infinity,-Infinity,undefined].map(value=>{g.globalAlpha=value;return g.globalAlpha;});
+            g.globalAlpha='0.25';const coerced=g.globalAlpha;
+            const symbolError=error(()=>{g.globalAlpha=Symbol();});
+            return {invalid,coerced,symbolError,after:g.globalAlpha};
+        });
+        await add('drawImageAlphaState', () => {
+            const [source,s]=fresh(2,2);s.fillStyle='red';s.fillRect(0,0,2,2);
+            const [,g]=fresh();g.globalAlpha=0;g.drawImage(source,0,0);
+            const invisible=pixel(g);g.globalAlpha=0.5;g.drawImage(source,2,0);
+            g.save();g.globalAlpha=1;g.fillRect(10,10,1,1);g.restore();g.drawImage(source,4,0);
+            g.globalAlpha=1;g.drawImage(source,6,0);
+            return [invisible,pixel(g,2,0),pixel(g,4,0),pixel(g,6,0)];
+        });
+        await add('drawImageCompositeState', () => {
+            const [source]=fresh(2,2);const [,g]=fresh();g.fillStyle='red';g.fillRect(0,0,24,24);
+            g.globalCompositeOperation='copy';g.drawImage(source,0,0);const copied=pixel(g);
+            g.globalCompositeOperation='source-over';g.fillStyle='red';g.fillRect(0,0,2,2);
+            g.save();g.globalCompositeOperation='copy';g.fillRect(0,0,2,2);g.restore();
+            g.drawImage(source,0,0);return [copied,pixel(g)];
+        });
+        await add('drawImageAlphaRounding', () => {
+            const [source,s]=fresh(2,2);s.fillStyle='red';s.fillRect(0,0,2,2);
+            const [,g]=fresh();const samples=[];
+            for(const alpha of [0,0.1,0.25,0.5,0.75,1]) {
+                g.clearRect(0,0,24,24);g.globalAlpha=alpha;g.drawImage(source,0,0);samples.push(pixel(g));
+            }
+            s.clearRect(0,0,2,2);s.fillStyle='rgba(255, 0, 0, 0.5)';s.fillRect(0,0,2,2);
+            g.clearRect(0,0,24,24);g.globalAlpha=0.5;g.drawImage(source,0,0);samples.push(pixel(g));
+            return samples;
+        });
+        await add('strokeHitCurrentWidth', () => {
+            const [,g]=fresh();g.moveTo(6,4);g.lineTo(6,20);g.lineWidth=4;
+            const before=g.isPointInStroke(7,12);g.stroke();const after=g.isPointInStroke(7,12);
+            g.lineWidth=1;return [before,after,g.isPointInStroke(7,12)];
+        });
+        await add('strokeHitSavedState', () => {
+            const [,g]=fresh();g.moveTo(6,4);g.lineTo(6,20);g.lineWidth=4;g.save();
+            g.lineWidth=1;g.stroke();g.restore();return g.isPointInStroke(7,12);
+        });
+        await add('strokeHitCapsAndDash', () => {
+            const [,g]=fresh();g.moveTo(4,12);g.lineTo(20,12);g.lineWidth=4;
+            g.lineCap='butt';const butt=g.isPointInStroke(3,12);
+            g.lineCap='round';const round=g.isPointInStroke(3,12);
+            g.lineCap='butt';g.setLineDash([4,4]);
+            const dash=[g.isPointInStroke(6,12),g.isPointInStroke(10,12)];
+            g.lineDashOffset=4;
+            return {butt,round,dash,offset:[g.isPointInStroke(6,12),g.isPointInStroke(10,12)]};
+        });
+        await add('contextModes', () => {
+            const rows=[];
+            for(const mode of ['2d','webgl','webgl2']) {
+                const c=new Canvas(2,2);const first=c.getContext(mode);
+                const blocked=['2d','webgl','webgl2','bitmaprenderer'].filter(k=>k!==mode).map(k=>c.getContext(k)===null);
+                c.width=3;
+                rows.push({mode,created:!!first,same:c.getContext(mode)===first,blocked});
+            }
+            return rows;
+        });
+        await add('contextInvalidNames', () => {
+            const c=new Canvas(2,2);
+            const invalid=['2D','WEBGL','experimental-webgl','invalid',undefined].map(value=>error(()=>c.getContext(value)));
+            return {invalid,missing:error(()=>c.getContext()),after:!!c.getContext('2d')};
+        });
         await add('resize', () => {
             const [c, g] = fresh(); g.fillStyle = 'red'; g.fillRect(0, 0, 24, 24); g.save(); g.translate(5, 5);
             c.width = 24; g.restore(); g.fillRect(0, 0, 2, 2);

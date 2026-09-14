@@ -361,6 +361,17 @@ unsafe fn webidl_long(env: NapiEnv, value: NapiValue) -> Option<i64> {
     Some(n.trunc() as i64)
 }
 
+unsafe fn webidl_double(env: NapiEnv, value: NapiValue) -> Option<f64> {
+    let mut converted = ptr::null_mut();
+    if (api().coerce_to_number)(env, value, &mut converted) != 0 { return None; }
+    let n = number(env, converted);
+    if !n.is_finite() {
+        type_error(env, "Value must be a finite double");
+        return None;
+    }
+    Some(n)
+}
+
 unsafe fn truthy(env: NapiEnv, value: Option<&NapiValue>) -> bool {
     let Some(value) = value else { return false; };
     let mut converted = ptr::null_mut(); let mut result = false;
@@ -850,7 +861,13 @@ unsafe extern "C" fn set_canvas_property(env: NapiEnv, info: NapiCallbackInfo) -
         2 => if let Some(s) = value_string(env, *value) { if let Some(col) = parse_color(&s) { c.shadow = col; } },
         3 => { let n = number(env, *value); if n.is_finite() && n >= 0.0 { c.shadow_blur = n; } }, 4 => { let n = number(env, *value); if n.is_finite() && n > 0.0 { c.line_width = n; } },
         10 => { let n = number(env, *value); if n.is_finite() { c.shadow_offset_x = n; } }, 11 => { let n = number(env, *value); if n.is_finite() { c.shadow_offset_y = n; } },
-        5 => { c.global_alpha = number(env, *value).clamp(0.0, 1.0); }, 6 => if let Some(s) = value_string(env, *value) { c.font = s; },
+        5 => {
+            let mut converted = ptr::null_mut();
+            if (api().coerce_to_number)(env, *value, &mut converted) != 0 { return undefined(env); }
+            let n = number(env, converted);
+            if n.is_finite() && (0.0..=1.0).contains(&n) { c.global_alpha = n; }
+        },
+        6 => if let Some(s) = value_string(env, *value) { c.font = s; },
         7 => if let Some(s) = value_string(env, *value) { if ["left", "right", "center", "start", "end"].contains(&s.as_str()) { c.text_align = s; } }, 8 => if let Some(s) = value_string(env, *value) { if ["top", "hanging", "middle", "alphabetic", "ideographic", "bottom"].contains(&s.as_str()) { c.text_baseline = s; } },
         9 => if let Some(s) = value_string(env, *value) { if s == "source-over" || s == "copy" { c.composite_copy = s == "copy"; } },
         12 => if let Some(s) = value_string(env, *value) { if ["butt", "round", "square"].contains(&s.as_str()) { c.line_cap = s; } },
@@ -1006,6 +1023,7 @@ unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> N
             } else {
                 (0.0, 0.0, width as f64, height as f64, number(env,args[1]), number(env,args[2]), width as f64, height as f64)
             };
+            sync_native_paint(canvas);
             skia_canvas_draw_rgba_image(canvas.native, source as *const u8, width, height, sx as f32, sy as f32, sw as f32, sh as f32, dx as f32, dy as f32, dw as f32, dh as f32);
             undefined(env)
         }
@@ -1021,9 +1039,31 @@ unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> N
             let (repeat_x,repeat_y)=match repetition.as_str() { "repeat-x"=>(true,false), "repeat-y"=>(false,true), "no-repeat"=>(false,false), _=>(true,true) };
             create_pattern(env,Pattern{pixels:std::slice::from_raw_parts(source as *const u8,width as usize*height as usize*4).to_vec(),width,height,repeat_x,repeat_y})
         }
-        "createLinearGradient" => { if args.len()<4{return undefined(env);} create_gradient(env,Gradient{kind:1,args:[number(env,args[0]),number(env,args[1]),number(env,args[2]),number(env,args[3]),0.0,0.0],stops:Vec::new()}) }
-        "createRadialGradient" => { if args.len()<6{return undefined(env);} create_gradient(env,Gradient{kind:2,args:[number(env,args[0]),number(env,args[1]),number(env,args[3]),number(env,args[4]),number(env,args[2]),number(env,args[5])],stops:Vec::new()}) }
-        "createConicGradient" => { if args.len()<3{return undefined(env);} create_gradient(env,Gradient{kind:3,args:[number(env,args[1]),number(env,args[2]),number(env,args[0]),0.0,0.0,0.0],stops:Vec::new()}) }
+        "createLinearGradient" | "createRadialGradient" | "createConicGradient" => {
+            let count = match name { "createLinearGradient" => 4, "createRadialGradient" => 6, _ => 3 };
+            if args.len() < count { return type_error(env, "Not enough gradient arguments"); }
+            let mut values = [0.0; 6];
+            // Convert all arguments before checking radii, as Web IDL does.
+            for index in 0..count {
+                let Some(n) = webidl_double(env, args[index]) else { return undefined(env); };
+                values[index] = n;
+            }
+            let (kind, parameters) = match name {
+                "createLinearGradient" => (1, values),
+                "createRadialGradient" => {
+                    if values[2] < 0.0 || values[5] < 0.0 {
+                        return dom_error(env, "IndexSizeError", "Negative gradient radius");
+                    }
+                    (2, [values[0], values[1], values[3], values[4], values[2], values[5]])
+                },
+                _ => {
+                    // Normalize in double precision before crossing the float Skia ABI.
+                    let angle = values[0].rem_euclid(std::f64::consts::TAU);
+                    (3, [values[1], values[2], angle, 0.0, 0.0, 0.0])
+                },
+            };
+            create_gradient(env, Gradient { kind, args: parameters, stops: Vec::new() })
+        }
         "beginPath" => { canvas.path.clear(); canvas.current_path=None; if !canvas.native.is_null(){skia_canvas_begin_path(canvas.native);} undefined(env) }
         "closePath" => { if let Some(i)=canvas.current_path { canvas.path[i].closed=true; } if !canvas.native.is_null(){skia_canvas_close_path(canvas.native);} undefined(env) }
         "rect" => { if args.len()>=4 { let x=number(env,args[0]); let y=number(env,args[1]); let w=number(env,args[2]); let h=number(env,args[3]); if !canvas.native.is_null(){skia_canvas_rect(canvas.native,x as f32,y as f32,w as f32,h as f32);} let p=[tx(canvas.transform,x,y),tx(canvas.transform,x+w,y),tx(canvas.transform,x+w,y+h),tx(canvas.transform,x,y+h)]; canvas.path.push(Path{points:p.to_vec(),closed:true}); canvas.current_path=Some(canvas.path.len()-1); } undefined(env) }
@@ -1229,7 +1269,13 @@ unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> N
         }
         "_clearBitmap" => {canvas.pixels.fill(0);if !canvas.native.is_null(){skia_canvas_clear_bitmap(canvas.native);}undefined(env)}
         "isContextLost" => boolean(env, false),
-        "isPointInPath" | "isPointInStroke" => { if args.len() < 2 || canvas.native.is_null() { boolean(env, false) } else { let evenodd=name=="isPointInPath"&&args.get(2).and_then(|value|value_string(env,*value)).as_deref()==Some("evenodd"); boolean(env, skia_canvas_point_in_path(canvas.native, number(env,args[0]) as f32, number(env,args[1]) as f32, (name == "isPointInStroke") as i32, evenodd as i32) != 0) } },
+        "isPointInPath" | "isPointInStroke" => {
+            if args.len() < 2 || canvas.native.is_null() { return boolean(env, false); }
+            if name == "isPointInStroke" { sync_native_paint(canvas); }
+            let evenodd = name == "isPointInPath" && args.get(2).and_then(|value|value_string(env,*value)).as_deref() == Some("evenodd");
+            boolean(env, skia_canvas_point_in_path(canvas.native, number(env,args[0]) as f32,
+                number(env,args[1]) as f32, (name == "isPointInStroke") as i32, evenodd as i32) != 0)
+        },
         "getLineDash" => { let mut result = ptr::null_mut(); (api().create_array_with_length)(env, canvas.line_dash.len(), &mut result); for (index, value) in canvas.line_dash.iter().enumerate() { (api().set_element)(env, result, index as u32, number_value(env, *value)); } result }
         "clip" => { let evenodd=args.first().and_then(|value|value_string(env,*value)).as_deref()==Some("evenodd"); let paths=canvas.path.clone(); if !paths.is_empty() { canvas.clip.push(paths); if !canvas.native.is_null(){skia_canvas_clip(canvas.native,evenodd as i32);} } undefined(env) }
         _ => undefined(env),
