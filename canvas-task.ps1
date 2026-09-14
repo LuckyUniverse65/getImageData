@@ -1,11 +1,16 @@
 param(
-    [ValidateSet('Capture','Build','Test','Inspect')][string]$Action,
+    [ValidateSet('Capture','Build','Test','Inspect','SessionStart','SessionStatus','SessionStop')][string]$Action,
     [string]$ScriptPath = 'tests/browser-cases.js',
     [string]$OutputName = 'compatibility'
 )
 $ErrorActionPreference = 'Stop'
 Set-Location -LiteralPath $PSScriptRoot
 switch ($Action) {
+    { $_ -in 'SessionStart','SessionStatus','SessionStop' } {
+        $sessionCommand = '--session-' + $Action.Substring(7).ToLowerInvariant()
+        & node "$PSScriptRoot/capture-cdp.cjs" $sessionCommand
+        if ($LASTEXITCODE -ne 0) { throw 'CDP session command failed.' }
+    }
     'Inspect' {
         Add-Type -AssemblyName System.Drawing
         Add-Type -Path (Join-Path $PSScriptRoot 'tests/VisibleDevTools.cs')

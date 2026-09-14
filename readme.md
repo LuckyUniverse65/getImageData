@@ -40,7 +40,9 @@ node test.js
 
 脚本直接通过 CDP 执行 JavaScript 和读取结果，不移动鼠标、不模拟键盘、不使用剪贴板。每次在现有浏览器及 profile 中创建后台测试标签页，结束后只关闭该测试页。不会启动新浏览器、切换 profile 或操作用户已有标签页；你可以继续处理其他任务。
 
-Chrome 首次连接可能显示远程调试授权提示，需要用户允许。端口可通过 `CHROME_DEBUG_PORT` 设置。优先读取现有 profile 的 `DevToolsActivePort`；非默认 profile 可通过 `CHROME_DEVTOOLS_ACTIVE_PORT_FILE` 指定其文件路径。如果 HTTP `/json/version` 返回 404，仍可通过该文件提供的 WebSocket 连接。
+采集命令现在共用一个隐藏的后台进程，持续保持同一条 CDP 连接；测试完成只关闭测试标签页，不断开浏览器连接。Chrome 首次连接可能要求允许一次，同一连接有效期间后续命令无需重新连接。连接失败、被撤销或 Chrome 重启后，服务不会自动重连，以免重复触发授权提示。用 `node capture-cdp.cjs --session-status` 查看状态；主动结束用 `--session-stop`，准备重新授权时再执行 `--session-start`。详见[持久会话说明](docs/cdp-session.md)。
+
+端口可通过 `CHROME_DEBUG_PORT` 设置。优先读取现有 profile 的 `DevToolsActivePort`；非默认 profile 可通过 `CHROME_DEVTOOLS_ACTIVE_PORT_FILE` 指定其文件路径。如果 HTTP `/json/version` 返回 404，仍可通过该文件提供的 WebSocket 连接。
 
 只运行本地回归：
 

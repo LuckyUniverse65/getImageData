@@ -6,22 +6,27 @@ const crypto = require('node:crypto');
 const root = __dirname;
 
 class CDP {
-    constructor(url) {
+    constructor(url, {signal} = {}) {
+        signal?.throwIfAborted();
         this.pending = new Map();
         this.sequence = 0;
         this.socket = new WebSocket(url);
         this.ready = new Promise((resolve, reject) => {
+            const cancel=()=>{clearTimeout(timer);reject(new Error('CDP connection cancelled'));this.socket.close();};
             const timer = setTimeout(() => {
                 reject(new Error('CDP connection timed out. Check the existing Chrome remote debugging permission.'));
                 this.socket.close();
-            }, 30000);
-            this.socket.addEventListener('open', () => { clearTimeout(timer); resolve(); }, {once:true});
+            }, 120000);
+            signal?.addEventListener('abort',cancel,{once:true});
+            this.socket.addEventListener('open', () => { clearTimeout(timer); signal?.removeEventListener('abort',cancel); resolve(); }, {once:true});
             this.socket.addEventListener('error', () => {
                 clearTimeout(timer);
+                signal?.removeEventListener('abort',cancel);
                 reject(new Error('Cannot connect to the existing Chrome CDP socket'));
             }, {once:true});
             this.socket.addEventListener('close', () => {
                 clearTimeout(timer);
+                signal?.removeEventListener('abort',cancel);
                 reject(new Error('Chrome closed the CDP connection'));
                 for (const {reject, timer} of this.pending.values()) {
                     clearTimeout(timer); reject(new Error('CDP connection closed'));
@@ -75,7 +80,7 @@ async function browserSocket(port) {
     return url.href;
 }
 
-async function capture({script = 'demo.js', outputName = 'cdp-demo', port = Number(process.env.CHROME_DEBUG_PORT || 9222)} = {}) {
+async function captureWithConnection(cdp, {script = 'demo.js', outputName = 'cdp-demo', port = Number(process.env.CHROME_DEBUG_PORT || 9222)} = {}) {
     if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('Invalid CDP port');
     if (!/^[a-zA-Z0-9_-]+$/.test(outputName)) throw new Error('Invalid capture output name');
     const scriptFile = path.resolve(root, script);
@@ -84,7 +89,6 @@ async function capture({script = 'demo.js', outputName = 'cdp-demo', port = Numb
     const source = fs.readFileSync(scriptFile, 'utf8');
     const scriptSHA256 = crypto.createHash('sha256').update(source).digest('hex').toUpperCase();
     const runId = crypto.randomUUID().replaceAll('-', '');
-    const cdp = new CDP(await browserSocket(port));
     let targetId;
     try {
         const version = await cdp.send('Browser.getVersion');
@@ -99,21 +103,27 @@ async function capture({script = 'demo.js', outputName = 'cdp-demo', port = Numb
         if (!returned || returned.runId !== runId) throw new Error('CDP result does not match this run');
         const result = {runId, capturedAt:new Date().toISOString(), browserMode:'user-chrome-cdp',
             chromeVersion:version.product.replace(/^Chrome\//,''), browserRevision:version.revision,
-            debuggingPort:port, targetId, backgroundTarget:true, script:relative.replaceAll('\\','/'),
+            debuggingPort:port, connectionId:cdp.connectionId, targetId, backgroundTarget:true, script:relative.replaceAll('\\','/'),
             scriptSHA256, value:returned.value};
         fs.mkdirSync(path.join(root,'out'), {recursive:true});
         fs.writeFileSync(path.join(root,'out',outputName+'-browser.json'), JSON.stringify(result)+'\n');
         return result;
     } finally {
         // Close only the target created by this call, even when evaluation fails.
-        try { if (targetId) await cdp.send('Target.closeTarget', {targetId}); }
-        finally { cdp.close(); }
+        if (targetId) await cdp.send('Target.closeTarget', {targetId});
     }
 }
 
-module.exports = {capture};
+async function capture(options = {}) {
+    return require('./cdp-session.cjs').request('capture', options, {start:true});
+}
+
+module.exports = {capture, captureWithConnection, CDP, browserSocket};
 if (require.main === module) {
-    capture({script:process.argv[2] || 'demo.js', outputName:process.argv[3] || 'cdp-demo'})
-        .then(({value,...metadata}) => console.log(JSON.stringify(metadata)))
+    const action=process.argv[2];
+    const result=action?.startsWith('--session-')
+        ? require('./cdp-session.cjs').request(action.slice('--session-'.length), {}, {start:action==='--session-start'})
+        : capture({script:action || 'demo.js', outputName:process.argv[3] || 'cdp-demo'});
+    result.then(({value,...metadata}) => console.log(JSON.stringify(metadata)))
         .catch(error => { console.error(error.message); process.exitCode=1; });
 }
