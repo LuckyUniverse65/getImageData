@@ -11,7 +11,8 @@ Add-Type -AssemblyName System.Drawing
 Add-Type -Path (Join-Path $projectRoot 'tests/VisibleDevTools.cs')
 [VisibleDevToolsInput]::SetProcessDPIAware() | Out-Null
 $targets = @([VisibleDevToolsInput]::VisibleWindows() | Where-Object {
-    $_.Title -like 'DevTools -*' -and (Get-Process -Id $_.ProcessId -ErrorAction SilentlyContinue).ProcessName -eq 'chrome'
+    $_.Title -like 'DevTools -*' -and $_.Title -notlike 'DevTools - Node.js:*' -and
+        (Get-Process -Id $_.ProcessId -ErrorAction SilentlyContinue).ProcessName -eq 'chrome'
 })
 if ($targets.Count -ne 1) { throw 'Expected one existing detached Chrome F12 Console. No browser will be started.' }
 $target = $targets[0]

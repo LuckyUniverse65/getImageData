@@ -2,7 +2,7 @@
 
 Windows 上的 Node.js `OffscreenCanvas` 兼容层。JavaScript 提供 Canvas 外壳，Rust 通过 Node-API 分派接口，C++ 调用 Skia Graphite / Dawn D3D11 绘制和读取像素。
 
-2026-09-14 验证：47 项兼容性结果与用户手动打开的 Chrome 153.0.8010.37 / F12 一致，`demo.js` 的 9216 个 RGBA 值零差异。此结果覆盖现有用例，不代表完整浏览器 Canvas API。详见[本次修复记录](docs/offscreen-compatibility.md)。
+2026-09-14 通过 CDP 复核：47 项兼容性结果与用户手动打开的 Chrome 153.0.8010.37 一致，`demo.js` 的 9216 个 RGBA 值零差异。额外 30 项边界检查中仍有 25 项差异，详见[第二轮报告](docs/additional-review.md)和 [CDP 验证记录](docs/cdp-verification.md)。
 
 ## 运行
 
@@ -26,15 +26,17 @@ console.log(Array.from(context.getImageData(0, 0, 1, 1).data));
 
 `webgl.node`、`libEGL.dll` 和 `libGLESv2.dll` 应放在项目根目录。项目没有 npm 安装步骤；`require('./')` 通过 `index.js` 加载模块。
 
-## 使用现有 Chrome/F12 验证
+## 使用现有 Chrome 的 CDP 验证
 
-所有浏览器验证均使用用户手动打开的 Chrome/F12。提前将 F12 分离为独立窗口，选中 Console，保留一个这样的窗口，然后执行：
+在用户手动打开的 Chrome 中开启远程调试，保持浏览器运行，默认端口为 9222。F12 可以关闭，然后执行：
 
 ```powershell
 node test.js
 ```
 
-脚本会聚焦现有 DevTools、输入测试代码、临时使用并恢复剪贴板，保存本次结果和截图。运行过程中让脚本使用键盘和鼠标。它不会启动、重启或关闭 Chrome，也不会使用其他 profile 或历史数组替代本次浏览器执行结果。
+脚本直接通过 CDP 执行 JavaScript 和读取结果，不移动鼠标、不模拟键盘、不使用剪贴板。每次在现有浏览器及 profile 中创建后台测试标签页，结束后只关闭该测试页。不会启动新浏览器、切换 profile 或操作用户已有标签页；你可以继续处理其他任务。
+
+Chrome 首次连接可能显示远程调试授权提示，需要用户允许。端口可通过 `CHROME_DEBUG_PORT` 设置。优先读取现有 profile 的 `DevToolsActivePort`；非默认 profile 可通过 `CHROME_DEVTOOLS_ACTIVE_PORT_FILE` 指定其文件路径。如果 HTTP `/json/version` 返回 404，仍可通过该文件提供的 WebSocket 连接。
 
 只运行本地回归：
 
@@ -42,14 +44,15 @@ node test.js
 node test.js --local
 ```
 
-单独采集 demo 或诊断已有窗口：
+单独采集 demo，或重跑第二轮边界检测：
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\canvas-task.ps1 -Action Capture -ScriptPath demo.js -OutputName demo
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\canvas-task.ps1 -Action Inspect
+node capture-cdp.cjs demo.js cdp-demo
+node capture-cdp.cjs tests/additional-cases.js cdp-additional-review
+node tests/compare-additional.cjs
 ```
 
-`out/verification-result.json` 保存对比结果；`out/compatibility-browser.json` 和 `out/demo-browser.json` 保存实际浏览器返回值、运行编号、采集时间、进程、Chrome 版本和测试源码 SHA-256。对应的 `*-f12.png` 是窗口截图。脚本只接受本次运行编号的结果，`out/` 不提交到 Git。
+`out/cdp-verification-result.json` 保存主回归结果；`out/cdp-compatibility-browser.json` 和 `out/cdp-demo-browser.json` 保存实际浏览器返回值、运行编号、时间、Chrome 版本、测试标签页 ID 和源码 SHA-256。第二轮结果为 `out/cdp-additional-review-diff.json`；存在差异时比较器退出码为 1。CDP 输出与历史 F12 输出分别保存，`out/` 不提交到 Git。
 
 `demo.js` 的渐变没有添加色标，填充按语义透明；有色渐变由独立用例检查。字体回退、Chrome 后端、显卡及驱动变化可能改变像素结果。部分越界读取使用同一 Chrome 的 `willReadFrequently: true` 路径作为规范参照，原因见[此前的修复记录](docs/canvas-fixes.md#chrome-越界读取差异)。
 
@@ -73,12 +76,13 @@ Blob 导出支持 PNG；其他 MIME 请求回退为 PNG。位图是本地兼容�
 | [src/webgl_native.rs](src/webgl_native.rs) | Node-API、参数转换、绘制状态和 Skia 调用。 |
 | [src/skia_backend.cpp](src/skia_backend.cpp) | Skia 后端、路径、渐变、字体、图像和像素读回。 |
 | [src/png.js](src/png.js) | 使用 Node zlib 生成 PNG。 |
-| [tests/browser-cases.js](tests/browser-cases.js) | Node 与现有 Chrome/F12 共用的兼容性用例。 |
+| [tests/browser-cases.js](tests/browser-cases.js) | Node 与现有 Chrome 共用的 47 项兼容性用例。 |
+| [tests/additional-cases.js](tests/additional-cases.js)、[tests/compare-additional.cjs](tests/compare-additional.cjs) | 第二轮 30 项边界用例及差异比较。 |
 | [tests/gradient-gc.cjs](tests/gradient-gc.cjs) | 渐变共享引用与强制 GC 检查。 |
 | [tests/png-reader.js](tests/png-reader.js) | 本地独立 PNG 解码；浏览器侧使用 createImageBitmap。 |
-| [test.js](test.js) | 本地断言、F12 采集、完整结果比较。 |
-| [visible-f12-demo.ps1](visible-f12-demo.ps1)、[tests/VisibleDevTools.cs](tests/VisibleDevTools.cs) | 枚举现有窗口，执行 F12 输入、剪贴板采集及截图。 |
-| [canvas-task.ps1](canvas-task.ps1) | Build、Test、Capture、Inspect 入口。 |
+| [test.js](test.js)、[capture-cdp.cjs](capture-cdp.cjs) | 本地断言、现有 Chrome CDP 采集与比较。 |
+| [visible-f12-demo.ps1](visible-f12-demo.ps1)、[tests/VisibleDevTools.cs](tests/VisibleDevTools.cs) | 历史桌面 F12 采集工具，默认验证不再调用。 |
+| [canvas-task.ps1](canvas-task.ps1) | Build、Test、CDP Capture，以及历史窗口 Inspect 入口。 |
 | [docs/offscreen-compatibility.md](docs/offscreen-compatibility.md) | 本次六类问题的修复与证据。 |
 | [docs/canvas-fixes.md](docs/canvas-fixes.md) | 此前修复及 34 项验收记录。 |
 | [HANDOFF.md](HANDOFF.md) | 历史 Chrome 后端分析与交接资料。 |

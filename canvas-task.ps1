@@ -29,8 +29,8 @@ switch ($Action) {
         }
     }
     'Capture' {
-        & "$PSScriptRoot/visible-f12-demo.ps1" -ScriptPath $ScriptPath -OutputName $OutputName
-        if (-not $?) { throw 'F12 capture failed.' }
+        & node "$PSScriptRoot/capture-cdp.cjs" $ScriptPath ('cdp-' + $OutputName)
+        if ($LASTEXITCODE -ne 0) { throw 'CDP capture failed.' }
     }
     'Build' {
         & cargo build --release

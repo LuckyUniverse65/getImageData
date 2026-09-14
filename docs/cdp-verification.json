@@ -1,0 +1,97 @@
+{
+  "main": {
+    "localCases": 47,
+    "gradientGC": true,
+    "demoValues": 9216,
+    "browserVerified": true,
+    "browserMode": "user-chrome-cdp",
+    "chromeVersion": "153.0.8010.37",
+    "caseRunId": "774882e947d44c34a5df9ffadfabb126",
+    "demoRunId": "c9bb96775e7e45ac924edb403fed9c89",
+    "caseFailures": [],
+    "demoMismatches": 0
+  },
+  "additional": {
+    "tested": 30,
+    "matched": 5,
+    "differing": 25,
+    "cases": [
+      "emptyClip",
+      "setTransformObject",
+      "setTransformNoArgs",
+      "invalidLineDash",
+      "iterableLineDash",
+      "numericStringRect",
+      "copyFillOutside",
+      "copyImageOutside",
+      "copyClippedOutside",
+      "negativeImageDestination",
+      "negativeImageSource",
+      "imageSmoothingDefault",
+      "imageSmoothingState",
+      "opaqueContext",
+      "negativeCreateImageData",
+      "zeroCreateImageData",
+      "putNegativeDirtySize",
+      "putFractionalOrigin",
+      "emptyTextBounds",
+      "fillTextMaxWidth",
+      "invalidFont",
+      "negativeArcTo",
+      "missingScaleArgument",
+      "missingCanvasDimensions",
+      "undefinedCanvasDimension"
+    ]
+  },
+  "previousF12": {
+    "runId": "b8ba39eb823b4130b0697c6beb73185b",
+    "all30BrowserResultsEqual": true
+  },
+  "captures": [
+    {
+      "runId": "774882e947d44c34a5df9ffadfabb126",
+      "capturedAt": "2026-09-14T07:35:00.781Z",
+      "browserMode": "user-chrome-cdp",
+      "chromeVersion": "153.0.8010.37",
+      "browserRevision": "@b75a5a95ea1a1b55bdbfd6d9f42d47be7507fb8b",
+      "debuggingPort": 9222,
+      "targetId": "999758737B678E2284B4B509A2548660",
+      "backgroundTarget": true,
+      "script": "tests/browser-cases.js",
+      "scriptSHA256": "56027520C8C6212BFCE2BC71965F5713913177434C6CBF1EB6E4EBDAF8C0B1AE"
+    },
+    {
+      "runId": "c9bb96775e7e45ac924edb403fed9c89",
+      "capturedAt": "2026-09-14T07:35:02.254Z",
+      "browserMode": "user-chrome-cdp",
+      "chromeVersion": "153.0.8010.37",
+      "browserRevision": "@b75a5a95ea1a1b55bdbfd6d9f42d47be7507fb8b",
+      "debuggingPort": 9222,
+      "targetId": "EC999183BAC63088FE79C363EB076B3B",
+      "backgroundTarget": true,
+      "script": "demo.js",
+      "scriptSHA256": "FEA443544EEFDB59C29593EAEC43BBA59CECADCF104A69B99B189B6206F9300E"
+    },
+    {
+      "runId": "a3c47ea8a9754f9b81209b82cb9b0d3f",
+      "capturedAt": "2026-09-14T07:35:37.131Z",
+      "browserMode": "user-chrome-cdp",
+      "chromeVersion": "153.0.8010.37",
+      "browserRevision": "@b75a5a95ea1a1b55bdbfd6d9f42d47be7507fb8b",
+      "debuggingPort": 9222,
+      "targetId": "0C99B9600515B38CC631A7B35E90A93F",
+      "backgroundTarget": true,
+      "script": "tests/additional-cases.js",
+      "scriptSHA256": "FE4A71513D42E915A220B6CD46E29C164DEC9D1AE78C1B7405945237CEACAE30"
+    }
+  ],
+  "nodeVersion": "v22.13.1",
+  "sha256": {
+    "capture-cdp.cjs": "98FCE8DD43EEA04348DF51BE0E364590E48B940695392F9996F75A62AD8E9BC9",
+    "test.js": "AA59ECBE92698CE19C54A15A819F8297DA8DB53AEF6EE9979B64F2E6292B785C",
+    "canvas-task.ps1": "351B5405D520AD7BB8BB7BF866DF29C71A2A7C4D976C1391528EF79CB3ECF35E",
+    "tests/compare-additional.cjs": "4491993877FDF164179EFC0CD5DD62DBAB7F2C8ABF76C54F839DC1E0C4D43BCE",
+    "tests/additional-cases.js": "FE4A71513D42E915A220B6CD46E29C164DEC9D1AE78C1B7405945237CEACAE30",
+    "webgl.node": "5478C15749BC2EC8E493E38B8248D73C0188703A032064FB53F6AF38F414B5DD"
+  }
+}

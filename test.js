@@ -7,6 +7,7 @@ const { spawnSync } = require('node:child_process');
 const runCases = require('./tests/browser-cases');
 const decodePng = require('./tests/png-reader');
 const { OffscreenCanvas } = require('./');
+const { capture: captureCDP } = require('./capture-cdp.cjs');
 
 function run(command, args) {
     const result = spawnSync(command, args, {cwd:__dirname, encoding:'utf8', maxBuffer:16*1024*1024, timeout:90000, windowsHide:true});
@@ -14,10 +15,9 @@ function run(command, args) {
     if (result.status !== 0) throw new Error((result.stderr || result.stdout || 'Child process failed').trim());
     return result.stdout;
 }
-function capture(script, name) {
-    run('powershell.exe',['-NoProfile','-ExecutionPolicy','Bypass','-File',path.join(__dirname,'visible-f12-demo.ps1'),'-ScriptPath',script,'-OutputName',name]);
-    const result=JSON.parse(fs.readFileSync(path.join(__dirname,'out',name+'-browser.json'),'utf8'));
-    assert.equal(result.browserMode,'user-visible-f12');
+async function capture(script, name) {
+    const result=await captureCDP({script,outputName:'cdp-'+name});
+    assert.equal(result.browserMode,'user-chrome-cdp');
     const hash=crypto.createHash('sha256').update(fs.readFileSync(path.join(__dirname,script))).digest('hex').toUpperCase();
     assert.equal(result.scriptSHA256,hash,'Browser result must match current test source');
     return result;
@@ -69,17 +69,17 @@ async function main() {
     fs.writeFileSync(path.join(__dirname,'out/local-cases.json'),JSON.stringify(local));
     const report={localCases:Object.keys(local).length,gradientGC:true,demoValues:demo.length,browserVerified:false};
     if(!process.argv.includes('--local')) {
-        const browser=capture('tests/browser-cases.js','compatibility');
+        const browser=await capture('tests/browser-cases.js','compatibility');
         const failures=[];
         for(const name of Object.keys(local)) {
             try{assert.deepEqual(local[name],browser.value[name]);}catch{failures.push(name);}
         }
-        const browserDemo=capture('demo.js','demo');
+        const browserDemo=await capture('demo.js','demo');
         const mismatches=demo.filter((value,index)=>value!==browserDemo.value[index]).length;
         Object.assign(report,{browserMode:browser.browserMode,chromeVersion:browser.chromeVersion,caseRunId:browser.runId,demoRunId:browserDemo.runId,caseFailures:failures,demoMismatches:mismatches,browserVerified:failures.length===0&&mismatches===0&&browserDemo.value.length===demo.length});
-        fs.writeFileSync(path.join(__dirname,'out/verification-result.json'),JSON.stringify(report,null,2)+'\n');
+        fs.writeFileSync(path.join(__dirname,'out/cdp-verification-result.json'),JSON.stringify(report,null,2)+'\n');
         assert.deepEqual(failures,[],'Browser compatibility differences');
-        assert.equal(browserDemo.value.length,demo.length);assert.equal(mismatches,0,'Demo pixels differ from the existing Chrome/F12');
+        assert.equal(browserDemo.value.length,demo.length);assert.equal(mismatches,0,'Demo pixels differ from the existing Chrome over CDP');
     }
     console.log(JSON.stringify(report));
 }

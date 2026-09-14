@@ -1,0 +1,547 @@
+{
+  "tested": 30,
+  "matched": 5,
+  "differing": 25,
+  "browserCapture": {
+    "runId": "b8ba39eb823b4130b0697c6beb73185b",
+    "capturedAt": "2026-09-14T07:16:10.0375721Z",
+    "browserMode": "user-visible-f12",
+    "chromeVersion": "153.0.8010.37",
+    "processId": 3668,
+    "title": "DevTools - chrome://new-tab-page/",
+    "script": "tests/additional-cases.js",
+    "scriptSHA256": "FE4A71513D42E915A220B6CD46E29C164DEC9D1AE78C1B7405945237CEACAE30"
+  },
+  "nodeVersion": "v22.13.1",
+  "nativeSHA256": "5478C15749BC2EC8E493E38B8248D73C0188703A032064FB53F6AF38F414B5DD",
+  "matches": [
+    "negativeFillRect",
+    "negativeClearRect",
+    "gradientCreationTransform",
+    "gradientDrawTransform",
+    "zeroCanvasRead"
+  ],
+  "differences": [
+    {
+      "name": "emptyClip",
+      "local": {
+        "value": [
+          255,
+          0,
+          0,
+          255
+        ]
+      },
+      "browser": {
+        "value": [
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "name": "setTransformObject",
+      "local": {
+        "value": [
+          1,
+          0,
+          0,
+          1,
+          0,
+          0
+        ]
+      },
+      "browser": {
+        "value": [
+          2,
+          0,
+          0,
+          3,
+          4,
+          5
+        ]
+      }
+    },
+    {
+      "name": "setTransformNoArgs",
+      "local": {
+        "value": [
+          1,
+          0,
+          0,
+          1,
+          4,
+          5
+        ]
+      },
+      "browser": {
+        "value": [
+          1,
+          0,
+          0,
+          1,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "name": "invalidLineDash",
+      "local": {
+        "value": [
+          2,
+          2
+        ]
+      },
+      "browser": {
+        "value": [
+          3,
+          4
+        ]
+      }
+    },
+    {
+      "name": "iterableLineDash",
+      "local": {
+        "value": []
+      },
+      "browser": {
+        "value": [
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "name": "numericStringRect",
+      "local": {
+        "value": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "browser": {
+        "value": [
+          255,
+          0,
+          0,
+          255
+        ]
+      }
+    },
+    {
+      "name": "copyFillOutside",
+      "local": {
+        "value": [
+          [
+            0,
+            0,
+            255,
+            255
+          ],
+          [
+            255,
+            0,
+            0,
+            255
+          ]
+        ]
+      },
+      "browser": {
+        "value": [
+          [
+            0,
+            0,
+            255,
+            255
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ]
+        ]
+      }
+    },
+    {
+      "name": "copyImageOutside",
+      "local": {
+        "value": [
+          [
+            255,
+            0,
+            0,
+            255
+          ],
+          [
+            0,
+            0,
+            255,
+            255
+          ]
+        ]
+      },
+      "browser": {
+        "value": [
+          [
+            255,
+            0,
+            0,
+            255
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ]
+        ]
+      }
+    },
+    {
+      "name": "copyClippedOutside",
+      "local": {
+        "value": [
+          [
+            0,
+            0,
+            255,
+            255
+          ],
+          [
+            255,
+            0,
+            0,
+            255
+          ],
+          [
+            255,
+            0,
+            0,
+            255
+          ]
+        ]
+      },
+      "browser": {
+        "value": [
+          [
+            0,
+            0,
+            255,
+            255
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            255,
+            0,
+            0,
+            255
+          ]
+        ]
+      }
+    },
+    {
+      "name": "negativeImageDestination",
+      "local": {
+        "value": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "browser": {
+        "value": [
+          255,
+          0,
+          0,
+          255
+        ]
+      }
+    },
+    {
+      "name": "negativeImageSource",
+      "local": {
+        "value": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "browser": {
+        "value": [
+          255,
+          0,
+          0,
+          255
+        ]
+      }
+    },
+    {
+      "name": "imageSmoothingDefault",
+      "local": {
+        "value": [
+          [
+            255,
+            0,
+            0,
+            255
+          ],
+          [
+            0,
+            0,
+            255,
+            255
+          ]
+        ]
+      },
+      "browser": {
+        "value": [
+          [
+            159,
+            0,
+            96,
+            255
+          ],
+          [
+            96,
+            0,
+            159,
+            255
+          ]
+        ]
+      }
+    },
+    {
+      "name": "imageSmoothingState",
+      "local": {
+        "value": {
+          "before": null,
+          "after": false
+        }
+      },
+      "browser": {
+        "value": {
+          "before": true,
+          "after": true
+        }
+      }
+    },
+    {
+      "name": "opaqueContext",
+      "local": {
+        "value": {
+          "before": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "after": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "attributes": null
+        }
+      },
+      "browser": {
+        "value": {
+          "before": [
+            0,
+            0,
+            0,
+            255
+          ],
+          "after": [
+            0,
+            0,
+            0,
+            255
+          ],
+          "attributes": {
+            "alpha": false,
+            "colorSpace": "srgb",
+            "colorType": "unorm8",
+            "desynchronized": false,
+            "toneMapping": {
+              "mode": "standard"
+            },
+            "willReadFrequently": false
+          }
+        }
+      }
+    },
+    {
+      "name": "negativeCreateImageData",
+      "local": {
+        "value": {
+          "width": 0,
+          "height": 0,
+          "length": 0
+        }
+      },
+      "browser": {
+        "value": {
+          "width": 2,
+          "height": 3,
+          "length": 24
+        }
+      }
+    },
+    {
+      "name": "zeroCreateImageData",
+      "local": {
+        "value": {
+          "width": 0,
+          "height": 2
+        }
+      },
+      "browser": {
+        "error": "IndexSizeError"
+      }
+    },
+    {
+      "name": "putNegativeDirtySize",
+      "local": {
+        "value": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "browser": {
+        "value": [
+          255,
+          0,
+          0,
+          255
+        ]
+      }
+    },
+    {
+      "name": "putFractionalOrigin",
+      "local": {
+        "value": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "browser": {
+        "value": [
+          255,
+          0,
+          0,
+          255
+        ]
+      }
+    },
+    {
+      "name": "emptyTextBounds",
+      "local": {
+        "value": {
+          "width": 0,
+          "left": 0,
+          "right": 0,
+          "ascent": 11.600000381469727,
+          "descent": 2.880000114440918
+        }
+      },
+      "browser": {
+        "value": {
+          "width": 0,
+          "left": 0,
+          "right": 0,
+          "ascent": 0,
+          "descent": 0
+        }
+      }
+    },
+    {
+      "name": "fillTextMaxWidth",
+      "local": {
+        "value": {
+          "pixelsPastMaxWidth": 89
+        }
+      },
+      "browser": {
+        "value": {
+          "pixelsPastMaxWidth": 0
+        }
+      }
+    },
+    {
+      "name": "invalidFont",
+      "local": {
+        "value": "invalid"
+      },
+      "browser": {
+        "value": "12px Arial"
+      }
+    },
+    {
+      "name": "negativeArcTo",
+      "local": {
+        "value": "accepted"
+      },
+      "browser": {
+        "error": "IndexSizeError"
+      }
+    },
+    {
+      "name": "missingScaleArgument",
+      "local": {
+        "value": [
+          2,
+          0,
+          0,
+          2,
+          0,
+          0
+        ]
+      },
+      "browser": {
+        "error": "TypeError"
+      }
+    },
+    {
+      "name": "missingCanvasDimensions",
+      "local": {
+        "value": [
+          300,
+          150
+        ]
+      },
+      "browser": {
+        "error": "TypeError"
+      }
+    },
+    {
+      "name": "undefinedCanvasDimension",
+      "local": {
+        "value": [
+          300,
+          2
+        ]
+      },
+      "browser": {
+        "error": "TypeError"
+      }
+    }
+  ]
+}
