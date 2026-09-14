@@ -1,0 +1,19 @@
+# Local build products, browser captures and editor settings.
+/target/
+/out/
+/.idea/
+/.agents/
+/.codex/
+/node_modules/
+
+# Large upstream checkouts and toolchains are recorded under snapshot/.
+/third_party/
+
+# Local credentials and machine configuration.
+.env
+.env.*
+!.env.example
+*.log
+*.tmp
+
+# Root runtime binaries are intentionally versioned in this baseline.

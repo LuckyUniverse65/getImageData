@@ -1,0 +1,96 @@
+diff --git a/BUILD.gn b/BUILD.gn
+index 77eda2a..c77f735 100644
+--- a/BUILD.gn
++++ b/BUILD.gn
+@@ -975,6 +975,9 @@ optional("gpu") {
+ 
+   if (skia_use_gl) {
+     public_defines += [ "SK_GL" ]
++    if (skia_use_angle) {
++      public_deps += [ "//third_party/angle2" ]
++    }
+     if (is_android) {
+       sources += [
+         "src/gpu/ganesh/gl/egl/GrGLMakeEGLInterface.cpp",
+diff --git a/third_party/dawn/build_dawn.py b/third_party/dawn/build_dawn.py
+index fbe770a..cfbaa2f 100644
+--- a/third_party/dawn/build_dawn.py
++++ b/third_party/dawn/build_dawn.py
+@@ -32,6 +32,7 @@ def gn_bool_to_cmake(s):
+ 
+ 
+ def main():
++  script_dir = os.path.dirname(os.path.realpath(__file__))
+   parser = argparse.ArgumentParser(description="Build Dawn using CMake.")
+   add_common_cmake_args(parser)
+   parser.add_argument(
+@@ -62,6 +63,13 @@ def main():
+     sys.exit(1)
+ 
+   ninja_exe = shutil.which("ninja")
++  if not ninja_exe:
++    bundled_ninja = os.path.abspath(
++        os.path.join(script_dir, "..", "..", "..", "depot_tools", "ninja.exe"))
++    if os.path.isfile(bundled_ninja):
++      ninja_exe = bundled_ninja
++      os.environ["PATH"] = (os.path.dirname(bundled_ninja) + os.pathsep +
++                            os.environ.get("PATH", ""))
+   if not ninja_exe:
+     print("Error: ninja not found in PATH.")
+     sys.exit(1)
+@@ -82,8 +90,6 @@ def main():
+   else:
+     cmake_build_type = args.build_type
+ 
+-  script_dir = os.path.dirname(os.path.realpath(__file__))
+-
+   dawn_dir = os.path.join(script_dir, "..", "externals", "dawn")
+   build_dir = args.build_dir
+ 
+@@ -106,6 +112,8 @@ def main():
+       "-DCMAKE_CXX_STANDARD=20",
+       "-DCMAKE_CXX_STANDARD_REQUIRED=ON",
+       "-DCMAKE_CXX_EXTENSIONS=OFF",
++      "-DCMAKE_CXX_SCAN_FOR_MODULES=OFF",
++      "-DDAWN_SUPPORTS_CXX_MODULES=OFF",
+       "-DDAWN_FORCE_SYSTEM_COMPONENT_LOAD=ON", # https://g-issues.chromium.org/issues/399358291
+       "-DDAWN_ENABLE_INSTALL=OFF",
+       "-DTINT_ENABLE_INSTALL=OFF",
+@@ -179,13 +187,20 @@ def main():
+   # tint and dawn in parallel.
+   env["PYTHONDONTWRITEBYTECODE"] = "1"
+ 
++  # Dawn queries its Git checkout while configuring. Trust only this checkout
++  # for the child processes instead of changing the user's global Git config.
++  git_config_count = int(env.get("GIT_CONFIG_COUNT", "0"))
++  env[f"GIT_CONFIG_KEY_{git_config_count}"] = "safe.directory"
++  env[f"GIT_CONFIG_VALUE_{git_config_count}"] = os.path.abspath(
++      dawn_dir).replace(os.sep, "/")
++  env["GIT_CONFIG_COUNT"] = str(git_config_count + 1)
++
+   if target_os == "Windows":
+     # Set the WINDOWSSDKDIR environment variable to ensure that Dawn's
+     # DetectWindowsSDK function uses the correct, hermetic SDK path.
+     env["WINDOWSSDKDIR"] = args.win_sdk
+ 
+   print(" ".join(configure_cmd))
+-  print("with environment", env)
+   subprocess.run(configure_cmd, check=True, env=env)
+ 
+   build_cmd = [ninja_exe, "-C", build_dir, "-dkeepdepfile"] + build_targets
+diff --git a/third_party/zlib/BUILD.gn b/third_party/zlib/BUILD.gn
+index 7ebdbdb..76248cc 100644
+--- a/third_party/zlib/BUILD.gn
++++ b/third_party/zlib/BUILD.gn
+@@ -306,7 +306,10 @@ config("zlib_config") {
+ 
+ third_party("compression_utils_portable") {
+   visibility = [ "//third_party/externals/angle2:*" ]
+-  public_include_dirs = [ "../externals/zlib/google" ]
++  public_include_dirs = [
++    "../externals/zlib",
++    "../externals/zlib/google",
++  ]
+   sources = [
+     "../externals/zlib/google/compression_utils_portable.cc",
+     "../externals/zlib/google/compression_utils_portable.h",

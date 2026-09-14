@@ -1,0 +1,216 @@
+{
+  "snapshotDate": "2026-09-14",
+  "description": "Baseline before OffscreenCanvas compatibility fixes",
+  "nodeVersion": "v22.13.1",
+  "skiaRemote": "https://skia.googlesource.com/skia.git",
+  "repositories": {
+    "third_party/skia": {
+      "revision": "4f574af2444846ceca4d277a8095c5d4229d175f"
+    },
+    "third_party/gn": {
+      "revision": "f99972118649814cd21b180eab5ae84df3c5fac7"
+    },
+    "third_party/depot_tools": {
+      "revision": "08f3e8c0eb66d6de3a048a757d0ff708dbc8ea34"
+    },
+    "third_party/chromium": {
+      "revision": "79460ebecaa5625e57a5fb679a735659e73dc687"
+    },
+    "third_party/skia/third_party/externals/abseil-cpp": {
+      "revision": "435e7d977fb36fb47854a4c552c0706dad0bd7cf"
+    },
+    "third_party/skia/third_party/externals/angle2": {
+      "revision": "fca5efdfeff5daf430bc4458375c8d6b7e457400"
+    },
+    "third_party/skia/third_party/externals/brotli": {
+      "revision": "6d03dfbedda1615c4cba1211f8d81735575209c8"
+    },
+    "third_party/skia/third_party/externals/d3d12allocator": {
+      "revision": "169895d529dfce00390a20e69c2f516066fe7a3b"
+    },
+    "third_party/skia/third_party/externals/dawn": {
+      "revision": "c4e47b5eddc06f271cb07c3108cfccb1bb4704ec"
+    },
+    "third_party/skia/third_party/externals/delaunator-cpp": {
+      "revision": "98305ef6c4e862f7d48df9cc647b690d796fec68"
+    },
+    "third_party/skia/third_party/externals/dng_sdk": {
+      "revision": "dbe0a676450d9b8c71bf00688bb306409b779e90"
+    },
+    "third_party/skia/third_party/externals/egl-registry": {
+      "revision": "b055c9b483e70ecd57b3cf7204db21f5a06f9ffe"
+    },
+    "third_party/skia/third_party/externals/emsdk": {
+      "revision": "c69d433d8509c5c64564c2f0d054bf102a5cf67e"
+    },
+    "third_party/skia/third_party/externals/expat": {
+      "revision": "6154446fccefbf3ca644894f598969113b0c7bcd"
+    },
+    "third_party/skia/third_party/externals/freetype": {
+      "revision": "264b5fbf5b912b39f98d038bf75d39be0a73f21b"
+    },
+    "third_party/skia/third_party/externals/glslang": {
+      "revision": "1d47ffa8ac4374a19b302021e216a20f22a3de92"
+    },
+    "third_party/skia/third_party/externals/harfbuzz": {
+      "revision": "9cb1fee51069b206effb4736e443b038d230789d"
+    },
+    "third_party/skia/third_party/externals/highway": {
+      "revision": "457c891775a7397bdb0376bb1031e6e027af1c48"
+    },
+    "third_party/skia/third_party/externals/icu": {
+      "revision": "d578f2e8b7bd5938e21cfb6bf15c079e0aa5b738"
+    },
+    "third_party/skia/third_party/externals/icu4x": {
+      "revision": "bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
+    },
+    "third_party/skia/third_party/externals/imgui": {
+      "revision": "55d35d8387c15bf0cfd71861df67af8cfbda7456"
+    },
+    "third_party/skia/third_party/externals/jinja2": {
+      "revision": "c3027d884967773057bf74b957e3fea87e5df4d7"
+    },
+    "third_party/skia/third_party/externals/libavif": {
+      "revision": "55aab4ac0607ab651055d354d64c4615cf3d8000"
+    },
+    "third_party/skia/third_party/externals/libgav1": {
+      "revision": "5cf722e659014ebaf2f573a6dd935116d36eadf1"
+    },
+    "third_party/skia/third_party/externals/libgrapheme": {
+      "revision": "c0cab63c5300fa12284194fbef57aa2ed62a94c0"
+    },
+    "third_party/skia/third_party/externals/libjpeg-turbo": {
+      "revision": "e14cbfaa85529d47f9f55b0f104a579c1061f9ad"
+    },
+    "third_party/skia/third_party/externals/libjxl": {
+      "revision": "332feb17d17311c748445f7ee75c4fb55cc38530"
+    },
+    "third_party/skia/third_party/externals/libpng": {
+      "revision": "d5515b5b8be3901aac04e5bd8bd5c89f287bcd33"
+    },
+    "third_party/skia/third_party/externals/libwebp": {
+      "revision": "845d5476a866141ba35ac133f856fa62f0b7445f"
+    },
+    "third_party/skia/third_party/externals/libyuv": {
+      "revision": "d248929c059ff7629a85333699717d7a677d8d96"
+    },
+    "third_party/skia/third_party/externals/markupsafe": {
+      "revision": "4256084ae14175d38a3ff7d739dca83ae49ccec6"
+    },
+    "third_party/skia/third_party/externals/oboe": {
+      "revision": "b02a12d1dd821118763debec6b83d00a8a0ee419"
+    },
+    "third_party/skia/third_party/externals/opengl-registry": {
+      "revision": "14b80ebeab022b2c78f84a573f01028c96075553"
+    },
+    "third_party/skia/third_party/externals/partition_alloc": {
+      "revision": "03cc513177b4340bee3dbfd46f6dd5fdded43b79"
+    },
+    "third_party/skia/third_party/externals/perfetto": {
+      "revision": "8cacafbf6496da31259e2f3802301d36bbf788a9"
+    },
+    "third_party/skia/third_party/externals/piex": {
+      "revision": "bb217acdca1cc0c16b704669dd6f91a1b509c406"
+    },
+    "third_party/skia/third_party/externals/spirv-cross": {
+      "revision": "b8fcf307f1f347089e3c46eb4451d27f32ebc8d3"
+    },
+    "third_party/skia/third_party/externals/spirv-headers": {
+      "revision": "496543121ce6419f23d6fa5d7194ba66c36212d2"
+    },
+    "third_party/skia/third_party/externals/spirv-tools": {
+      "revision": "685919f35dfbb8c2b50bf61412349a48d9fc6a37"
+    },
+    "third_party/skia/third_party/externals/swiftshader": {
+      "revision": "694585a05946e1ed49b6bd577ca6537cbb57f025"
+    },
+    "third_party/skia/third_party/externals/unicodetools": {
+      "revision": "66a3fa9dbdca3b67053a483d130564eabc5fe095"
+    },
+    "third_party/skia/third_party/externals/vello": {
+      "revision": "3ee3bea02164c5a816fe6c16ef4e3a810edb7620"
+    },
+    "third_party/skia/third_party/externals/vulkan-deps": {
+      "revision": "bd3981c96f0b3c50cf6fb2896cc50c33ccc0bea9"
+    },
+    "third_party/skia/third_party/externals/vulkan-headers": {
+      "revision": "ee2ec5fd83dafce291024683b50dc89219333076"
+    },
+    "third_party/skia/third_party/externals/vulkan-tools": {
+      "revision": "462d9819e5953e064e1dcdc04d3edc5fc6bc9431"
+    },
+    "third_party/skia/third_party/externals/vulkan-utility-libraries": {
+      "revision": "2176ec8c5f5d2272161277ab96fe5b8f7633113e"
+    },
+    "third_party/skia/third_party/externals/vulkanmemoryallocator": {
+      "revision": "eb744ea7a2b17040121b4bbb4d6f9e8a77e3cae7"
+    },
+    "third_party/skia/third_party/externals/webgpu-headers": {
+      "revision": "706853a9da45b8e89b7ea005aa267294d115f8ce"
+    },
+    "third_party/skia/third_party/externals/wuffs": {
+      "revision": "e3f919ccfe3ef542cfc983a82146070258fb57f8"
+    },
+    "third_party/skia/third_party/externals/zlib": {
+      "revision": "646b7f569718921d7d4b5b8e22572ff6c76f2596"
+    }
+  },
+  "files": {
+    "build.rs": {
+      "bytes": 3165,
+      "sha256": "026817cabd6d2223145169ec824c5bd03290eda23ef6f7990f4cb307344cde8f"
+    },
+    "Cargo.toml": {
+      "bytes": 240,
+      "sha256": "4c312809992caa50d670def0187f965813dd0186d25814d811023bf7869bf969"
+    },
+    "Cargo.lock": {
+      "bytes": 174,
+      "sha256": "b3e9d97597e278823c41aba8a7f0369b864d062aa444e58a52a1251fe0c8ead3"
+    },
+    "index.js": {
+      "bytes": 4734,
+      "sha256": "868fbfc26b42fcc4e9470273032f73561f18b53b83fd0a767494acfc212422d4"
+    },
+    "demo.js": {
+      "bytes": 27896,
+      "sha256": "fea443544eefdb59c29593eaec43bba59cecadcf104a69b99b189b6206f9300e"
+    },
+    "data.js": {
+      "bytes": 37,
+      "sha256": "0afdb7e7104d7af7d20f22aba363a5eaf40f5bb3a406ef516882d93d45f3cf48"
+    },
+    "test.js": {
+      "bytes": 13508,
+      "sha256": "799481f5edaa81a03ff937d84b1ee3c35fce02e95c2971ee15cf439923de82ab"
+    },
+    "test.html": {
+      "bytes": 286,
+      "sha256": "773996b4d613d917d632cca2bc47b9244e3cae525dae55390ee6b210e0a51199"
+    },
+    "visible-f12-demo.ps1": {
+      "bytes": 18442,
+      "sha256": "8c82509ea0564f14e8eb9c10ebed1d6045e9204f9361a53c9b1c43056bfbad11"
+    },
+    "src/webgl_native.rs": {
+      "bytes": 92449,
+      "sha256": "eb90927be2a555611253df65351c2a8e1e017d1376d04388ed01f74d82a65f0b"
+    },
+    "src/skia_backend.cpp": {
+      "bytes": 58483,
+      "sha256": "a502463f7f8eb9b1643f756a600e679bbdbf60d90a0e3d82f54b40632b096e4f"
+    },
+    "webgl.node": {
+      "bytes": 13844992,
+      "sha256": "f09c34ca8283a4c859a986962890aacdd76bec7d50bcc6b2569c7f9dfd175a8b"
+    },
+    "libEGL.dll": {
+      "bytes": 184832,
+      "sha256": "fc2ee388f9d5868392ae8c38bbf149cfce716f7d22eb0daf2568cee59f7a87e8"
+    },
+    "libGLESv2.dll": {
+      "bytes": 6079488,
+      "sha256": "21b25f2182841e3f56464720abbdfd46e8aac0137e3b42030a30573ca0bea1b5"
+    }
+  }
+}

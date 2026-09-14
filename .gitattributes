@@ -1,0 +1,4 @@
+# Preserve the exact bytes of this baseline, including original line endings.
+* -text
+# Unified diff context lines legitimately contain a single space.
+snapshot/*.patch -whitespace
