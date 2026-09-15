@@ -2,6 +2,8 @@
 
 Windows 上的 Node.js `OffscreenCanvas` 兼容层。JavaScript 提供 Canvas 外壳，Rust 通过 Node-API 分派接口，C++ 调用 Skia Graphite / Dawn D3D11 绘制和读取像素。
 
+2026-09-15 第六轮继续检测：新增 **36 项中 15 项一致、21 项存在差异，尚未修复**，涉及尺寸赋值重入、原型访问器、字体/颜色解析及 Blob 参数和状态校验。两次现有 Chrome 采集结果一致；原有 274 项回归仍全部通过，demo 零差异。本轮仅增加诊断用例与证据，详见[第六轮检测报告](docs/2026-09-15_sixth-round-review-report.md)。
+
 2026-09-15 完成第五轮修复与实时验收：此前 27 个失败用例已修复，补充 12 项相关边界后，共 **274 项**与用户手动打开的 Chrome 153.0.8010.37 一致；demo 的 9216 个 RGBA 值零差异，渐变 GC 检查通过。所有采集复用同一条持久 CDP 连接。详见[第五轮修复报告](docs/2026-09-15_fifth-round-fixes-report.md)。
 
 [第五轮检测报告](docs/2026-09-15_fifth-round-review-report.md)保留修复前 46 项中 27 项差异的历史证据；[第四轮验收报告](docs/2026-09-15_fourth-round-verification-report.md)保留此前 216 项的实时结果。
@@ -105,6 +107,7 @@ Blob 导出支持 PNG；其他 MIME 请求回退为 PNG。位图是本地兼容�
 | [test.js](test.js)、[capture-cdp.cjs](capture-cdp.cjs) | 本地断言、现有 Chrome CDP 采集与比较。 |
 | [tests/fourth-round-cases.js](tests/fourth-round-cases.js)、[docs/2026-09-15_fourth-round-verification-report.md](docs/2026-09-15_fourth-round-verification-report.md) | 第四轮 58 项、修复及 216 项最终实时验收。 |
 | [tests/compare-fifth-round.cjs](tests/compare-fifth-round.cjs)、[docs/2026-09-15_fifth-round-fixes-report.md](docs/2026-09-15_fifth-round-fixes-report.md) | 第五轮 58 项，已纳入 274 项主回归；修复及最终实测证据。 |
+| [tests/compare-sixth-round.cjs](tests/compare-sixth-round.cjs)、[docs/sixth-round-review.json](docs/sixth-round-review.json) | 第六轮 36 项独立诊断、21 项待修复差异及重复采集证据；用例共用第四轮入口。 |
 | [visible-f12-demo.ps1](visible-f12-demo.ps1)、[tests/VisibleDevTools.cs](tests/VisibleDevTools.cs) | 历史桌面 F12 采集工具，默认验证不再调用。 |
 | [canvas-task.ps1](canvas-task.ps1) | Build、Test、CDP Capture，以及历史窗口 Inspect 入口。 |
 | [docs/offscreen-compatibility.md](docs/offscreen-compatibility.md) | 本次六类问题的修复与证据。 |

@@ -125,6 +125,52 @@
         add('imageSettingsAfterCoordinates',()=>{const g=fresh(),log=[];const failure=attempt(()=>g.getImageData({valueOf(){log.push('x');return Infinity;}},0,1,1,{get colorSpace(){log.push('settings');return 'srgb';}}));return {failure,log};});
         return results;
     }
-    if(typeof module!=='undefined'&&module.exports){module.exports=runFourthRoundCases;module.exports.runFifthRoundCases=runFifthRoundCases;}
-    else globalThis.__canvasResult={fourthRound:runFourthRoundCases(OffscreenCanvas),fifthRound:runFifthRoundCases(OffscreenCanvas)};
+    async function runSixthRoundCases(Canvas) {
+        const results={},fresh=()=>new Canvas(24,24).getContext('2d');
+        const initializedCanvas=(width=2,height=2)=>{const c=new Canvas(width,height);c.getContext('2d');return c;};
+        const attempt=async fn=>{try{const value=await fn();return {value:value===undefined?'<undefined>':value};}catch(e){return {error:e.name};}};
+        const add=async(name,fn)=>{results[name]=await attempt(fn);};
+        const pixel=g=>Array.from(g.getImageData(0,0,1,1).data);
+        const blobInfo=async promise=>{const b=await promise;return {type:b.type,nonempty:b.size>0};};
+        await add('heightConversionChangesWidth',()=>{const c=new Canvas(4,4);c.getContext('2d');c.height={valueOf(){c.width=8;return 6;}};return [c.width,c.height];});
+        await add('widthConversionChangesHeight',()=>{const c=new Canvas(4,4);c.getContext('2d');c.width={valueOf(){c.height=8;return 6;}};return [c.width,c.height];});
+        await add('sizeConversionThrowsAfterMutation',async()=>{const c=new Canvas(4,4);const failure=await attempt(()=>{c.width={valueOf(){c.height=8;throw new RangeError('sentinel');}};});return {failure,size:[c.width,c.height]};});
+        await add('contextOptionsResize',()=>{const c=new Canvas(4,4);const g=c.getContext('2d',{get alpha(){c.width=8;return true;}});return [g.canvas.width,g.canvas.height];});
+        await add('contextInheritedOptions',()=>{let calls=0;const g=new Canvas(2,2).getContext('2d',Object.create({get alpha(){calls++;return false;}}));return {calls,alpha:g.getContextAttributes().alpha};});
+        await add('contextPrototypeGetter',()=>{
+            const before=Object.getOwnPropertyDescriptor(Object.prototype,'alpha');let calls=0;
+            Object.defineProperty(Object.prototype,'alpha',{configurable:true,get(){calls++;return false;}});
+            try{const g=new Canvas(2,2).getContext('2d',{});return {calls,alpha:g.getContextAttributes().alpha};}
+            finally{if(before)Object.defineProperty(Object.prototype,'alpha',before);else delete Object.prototype.alpha;}
+        });
+        await add('contextExplicitUndefinedOption',()=>{let calls=0;const c=new Canvas(2,2);const g=c.getContext('2d',{get alpha(){calls++;return undefined;}});return {calls,alpha:g.getContextAttributes().alpha};});
+        await add('imageSettingsReentrantResize',()=>{const g=fresh();const d=g.getImageData(0,0,1,1,{get colorSpace(){g.canvas.width=8;return 'srgb';}});return {width:g.canvas.width,pixel:Array.from(d.data)};});
+        await add('imageSettingsPrimitive',()=>{fresh().getImageData(0,0,1,1,3);return 'accepted';});
+        await add('cloneImageDataExtraUndefined',()=>{const g=fresh();g.createImageData(g.createImageData(1,1),undefined);return 'accepted';});
+        for(const [name,font] of [['trailingDot','12.px Arial'],['bareHyphen','12px -'],['nullFamily','12px "A\0B"'],['exponent','1.2e1px Arial']]){
+            await add('fontGrammar_'+name,()=>{const g=fresh();g.font='14px Arial';g.font=font;return g.font;});
+        }
+        await add('fontWeight950',()=>{const g=fresh();g.font='950 12px Arial';return {font:g.font,width:g.measureText('iiiiWW').width};});
+        await add('fontWeight900Control',()=>{const g=fresh();g.font='900 12px Arial';return {font:g.font,width:g.measureText('iiiiWW').width};});
+        await add('fontSmallCaps',()=>{const g=fresh();g.font='small-caps 16px Arial';return {font:g.font,width:g.measureText('abc').width};});
+        for(const [name,color] of [['trailingDot','rgb(255.,0,0)'],['comments','rgb(255/**/ 0 0)'],['modernMixed','rgb(100% 0 0)'],['alphaTrailingDot','rgba(255,0,0,1.)'],['hslNumber','hsl(0 100 50)'],['hugeHue','hsl(1e30deg 100% 50%)']]){
+            await add('colorGrammar_'+name,()=>{const g=fresh();g.fillStyle='blue';g.fillStyle=color;g.fillRect(0,0,1,1);return {style:g.fillStyle,pixel:pixel(g)};});
+        }
+        await add('fillStyleAlphaPrecision',()=>{const g=fresh();g.fillStyle='rgb(255 0 0 / 0.123456789)';return g.fillStyle;});
+        await add('shadowAlphaPrecision',()=>{const g=fresh();g.shadowColor='rgb(255 0 0 / 0.123456789)';return g.shadowColor;});
+        await add('blobOptionsOrder',async()=>{const log=[];const result=await blobInfo(initializedCanvas().convertToBlob({get quality(){log.push('quality');return 0.5;},get type(){log.push('type');return 'image/png';}}));return {log,result};});
+        await add('blobTypeThrows',()=>blobInfo(initializedCanvas().convertToBlob({get type(){throw new RangeError('sentinel');}})));
+        await add('blobQualityThrows',()=>blobInfo(initializedCanvas().convertToBlob({get quality(){throw new RangeError('sentinel');}})));
+        await add('blobQualitySymbol',()=>blobInfo(initializedCanvas().convertToBlob({quality:Symbol()})));
+        await add('blobTypeSymbol',()=>blobInfo(initializedCanvas().convertToBlob({type:Symbol()})));
+        await add('blobPrimitiveOptions',()=>blobInfo(initializedCanvas().convertToBlob(3)));
+        await add('blobNullOptions',()=>blobInfo(initializedCanvas().convertToBlob(null)));
+        await add('blobZeroOptionsOrder',async()=>{const log=[];const failure=await attempt(()=>initializedCanvas(0,0).convertToBlob({get type(){log.push('type');return 'image/png';}}));return {failure,log};});
+        await add('blobOptionResizesCanvas',()=>{const c=initializedCanvas();return blobInfo(c.convertToBlob({get type(){c.width=0;return 'image/png';}}));});
+        await add('blobMissingContextControl',()=>blobInfo(new Canvas(2,2).convertToBlob()));
+        await add('blobSnapshotsPixels',async()=>{const g=fresh();g.fillStyle='red';g.fillRect(0,0,24,24);const first=g.canvas.convertToBlob();g.fillStyle='blue';g.fillRect(0,0,24,24);const second=g.canvas.convertToBlob();const a=new Uint8Array(await (await first).arrayBuffer()),b=new Uint8Array(await (await second).arrayBuffer());return {same:a.length===b.length&&a.every((v,i)=>v===b[i]),types:[(await first).type,(await second).type]};});
+        return results;
+    }
+    if(typeof module!=='undefined'&&module.exports){module.exports=runFourthRoundCases;module.exports.runFifthRoundCases=runFifthRoundCases;module.exports.runSixthRoundCases=runSixthRoundCases;}
+    else globalThis.__canvasResult=(async()=>({fourthRound:runFourthRoundCases(OffscreenCanvas),fifthRound:runFifthRoundCases(OffscreenCanvas),sixthRound:await runSixthRoundCases(OffscreenCanvas)}))();
 })();
