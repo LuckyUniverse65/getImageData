@@ -23,6 +23,8 @@ async function capture(script, name) {
     assert.equal(result.browserMode,'user-chrome-cdp');
     const hash=crypto.createHash('sha256').update(fs.readFileSync(path.join(__dirname,script))).digest('hex').toUpperCase();
     assert.equal(result.scriptSHA256,hash,'Browser result must match current test source');
+    // The shared entrypoint also captures a separately reported review suite.
+    if(script==='tests/fourth-round-cases.js')result.value=result.value.fourthRound;
     return result;
 }
 async function main() {

@@ -4,6 +4,8 @@ Windows 上的 Node.js `OffscreenCanvas` 兼容层。JavaScript 提供 Canvas �
 
 2026-09-15 完成第四轮实时验收：此前 29 个失败用例和新增 12 项边界检查均已通过，共 **216 项**与用户手动打开的 Chrome 153.0.8010.37 一致；demo 的 9216 个 RGBA 值零差异，渐变 GC 检查通过。所有采集复用同一条持久 CDP 连接。详见[最终验收报告](docs/2026-09-15_fourth-round-verification-report.md)。
 
+第五轮新增检测发现 **46 项中有 27 项差异**，涉及其他 TextMetrics、RTL 对齐与状态、shadowColor 返回格式、访问器校验及参数转换顺序。这些新增边界尚未修复；原有 216 项仍通过，详见[第五轮检测报告](docs/2026-09-15_fifth-round-review-report.md)。
+
 [第二轮修复记录](docs/2026-09-14_offscreen-fixes-report.md)和[第三轮修复前检测](docs/2026-09-14_third-round-review-report.md)保留了历史结果及证据。
 
 [第四轮修复前检测](docs/2026-09-14_fourth-round-review-report.md)保留原 46 项中 29 项差异的历史证据；[第三轮修复记录](docs/2026-09-14_third-round-fixes-report.md)保留此前 158 项的浏览器验收。
@@ -101,6 +103,7 @@ Blob 导出支持 PNG；其他 MIME 请求回退为 PNG。位图是本地兼容�
 | [tests/png-reader.js](tests/png-reader.js) | 本地独立 PNG 解码；浏览器侧使用 createImageBitmap。 |
 | [test.js](test.js)、[capture-cdp.cjs](capture-cdp.cjs) | 本地断言、现有 Chrome CDP 采集与比较。 |
 | [tests/fourth-round-cases.js](tests/fourth-round-cases.js)、[docs/2026-09-15_fourth-round-verification-report.md](docs/2026-09-15_fourth-round-verification-report.md) | 第四轮 58 项、修复及 216 项最终实时验收。 |
+| [tests/compare-fifth-round.cjs](tests/compare-fifth-round.cjs)、[docs/2026-09-15_fifth-round-review-report.md](docs/2026-09-15_fifth-round-review-report.md) | 第五轮 46 项，通过既有入口独立采集和比较，尚未计入主回归通过数。 |
 | [visible-f12-demo.ps1](visible-f12-demo.ps1)、[tests/VisibleDevTools.cs](tests/VisibleDevTools.cs) | 历史桌面 F12 采集工具，默认验证不再调用。 |
 | [canvas-task.ps1](canvas-task.ps1) | Build、Test、CDP Capture，以及历史窗口 Inspect 入口。 |
 | [docs/offscreen-compatibility.md](docs/offscreen-compatibility.md) | 本次六类问题的修复与证据。 |

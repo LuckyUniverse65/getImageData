@@ -65,6 +65,54 @@
         add('sequenceNextLookup',()=>{const g=fresh();let reads=0,i=0;g.setLineDash({[Symbol.iterator](){return {get next(){reads++;return ()=>i++<2?{value:2,done:false}:{done:true};}};}});return {reads,dash:g.getLineDash()};});
         return results;
     }
-    if(typeof module!=='undefined'&&module.exports)module.exports=runFourthRoundCases;
-    else globalThis.__canvasResult=runFourthRoundCases(OffscreenCanvas);
+    // Keep further review cases in the existing capture entrypoint so an
+    // already-authorized persistent service does not need to reconnect.
+    function runFifthRoundCases(Canvas) {
+        const results={},fresh=()=>new Canvas(24,24).getContext('2d');
+        const attempt=fn=>{try{const value=fn();return {value:value===undefined?'<undefined>':value};}catch(e){return {error:e.name};}};
+        const add=(name,fn)=>results[name]=attempt(fn);
+        const pixel=g=>Array.from(g.getImageData(0,0,1,1).data);
+        const descriptor=(o,key)=>{for(;o;o=Object.getPrototypeOf(o)){const d=Object.getOwnPropertyDescriptor(o,key);if(d)return d;}};
+        const source=()=>{const g=fresh();g.fillStyle='red';g.fillRect(0,0,4,4);return g.canvas;};
+        for(const baseline of ['alphabetic','top','middle','bottom','hanging','ideographic'])add('fontMetrics_'+baseline,()=>{
+            const g=fresh();g.font='12px Arial';g.textBaseline=baseline;const m=g.measureText('Mg');
+            return Object.fromEntries(['actualBoundingBoxAscent','actualBoundingBoxDescent','fontBoundingBoxAscent','fontBoundingBoxDescent','emHeightAscent','emHeightDescent','hangingBaseline','alphabeticBaseline','ideographicBaseline'].map(k=>[k,m[k]===undefined?'<undefined>':m[k]]));
+        });
+        add('textMetricsZeroFont',()=>{const g=fresh();g.font='0px Arial';const m=g.measureText('Mg');return {font:g.font,width:m.width,ascent:m.actualBoundingBoxAscent,descent:m.actualBoundingBoxDescent};});
+        add('textRTLStartBounds',()=>{const g=fresh();g.font='12px Arial';g.direction='rtl';g.textAlign='start';const m=g.measureText('MM');return {width:m.width,left:m.actualBoundingBoxLeft,right:m.actualBoundingBoxRight};});
+        add('textRTLEndBounds',()=>{const g=fresh();g.font='12px Arial';g.direction='rtl';g.textAlign='end';const m=g.measureText('MM');return {width:m.width,left:m.actualBoundingBoxLeft,right:m.actualBoundingBoxRight};});
+        add('textDirectionSaveRestore',()=>{const g=fresh();g.direction='rtl';g.save();g.direction='ltr';g.restore();return g.direction;});
+        for(const [name,value] of [['default',null],['opaque','red'],['alpha','rgba(255,0,0,0.5)']])add('shadowColor_'+name,()=>{const g=fresh();if(value!==null)g.shadowColor=value;return g.shadowColor;});
+        add('shadowColorInvalidPreserves',()=>{const g=fresh();g.shadowColor='red';g.shadowColor='invalid';return g.shadowColor;});
+        add('fillStyleSymbol',()=>{const g=fresh();g.fillStyle=Symbol();});
+        add('fillStyleReentrant',()=>{const g=fresh();let calls=0;g.fillStyle={toString(){calls++;g.fillStyle='blue';return 'red';}};return {calls,style:g.fillStyle};});
+        add('fillStyleConversionThrows',()=>{const g=fresh();g.fillStyle='blue';const failure=attempt(()=>{g.fillStyle={toString(){throw new RangeError('sentinel');}};});return {failure,style:g.fillStyle};});
+        add('setterInvalidReceiverOrder',()=>{const g=fresh();let calls=0;const failure=attempt(()=>descriptor(g,'fillStyle').set.call({}, {toString(){calls++;return 'red';}}));return {failure,calls};});
+        add('getterInvalidReceiver',()=>descriptor(fresh(),'fillStyle').get.call({}));
+        for(const name of ['lineWidth','shadowBlur','miterLimit','lineDashOffset'])add('numericProperty_'+name,()=>{const g=fresh();let calls=0;g[name]={valueOf(){calls++;return 2.5;}};return {calls,value:g[name]};});
+        add('globalAlphaReentrant',()=>{const g=fresh();g.globalAlpha={valueOf(){g.globalAlpha=0.25;return 0.5;}};return g.globalAlpha;});
+        for(const offset of [2,NaN])add('gradientConversionOrder_'+String(offset),()=>{const gr=fresh().createLinearGradient(0,0,4,0),log=[];const failure=attempt(()=>gr.addColorStop({valueOf(){log.push('offset');return offset;}},{toString(){log.push('color');return 'red';}}));return {failure,log};});
+        add('gradientColorThrowBeforeRange',()=>{const gr=fresh().createLinearGradient(0,0,4,0);return gr.addColorStop(2,{toString(){throw new RangeError('sentinel');}});});
+        add('gradientReentrant',()=>{const g=fresh(),gr=g.createLinearGradient(0,0,4,0);gr.addColorStop(0,{toString(){gr.addColorStop(1,'red');return 'red';}});g.fillStyle=gr;g.fillRect(0,0,2,2);return pixel(g);});
+        add('strokeExplicitUndefined',()=>{const g=fresh();g.rect(0,0,8,8);return g.stroke(undefined);});
+        add('strokeExplicitNull',()=>fresh().stroke(null));
+        add('contextOptionsReadOrder',()=>{const log=[];new Canvas(2,2).getContext('2d',new Proxy({}, {get(o,k){log.push(k);return undefined;}}));return log;});
+        add('contextRepeatedOptions',()=>{const c=new Canvas(2,2),g=c.getContext('2d');let calls=0;const same=c.getContext('2d',{get alpha(){calls++;return false;}})===g;return {same,calls,alpha:g.getContextAttributes().alpha};});
+        add('contextRepeatedOptionsThrow',()=>{const c=new Canvas(2,2);c.getContext('2d');return !!c.getContext('2d',{get alpha(){throw new RangeError('sentinel');}});});
+        for(const key of ['colorSpace','colorType'])add('contextInvalid_'+key,()=>!!new Canvas(2,2).getContext('2d',{[key]:'invalid'}));
+        add('contextOptionErrorThenRetry',()=>{const c=new Canvas(2,2);const failure=attempt(()=>c.getContext('2d',{colorSpace:'invalid'}));return {failure:failure.error||'accepted',retry:!!c.getContext('2d')};});
+        add('imageDataInvalidColorSpace',()=>fresh().getImageData(0,0,1,1,{colorSpace:'invalid'}));
+        add('imageDataInvalidPixelFormat',()=>fresh().getImageData(0,0,1,1,{pixelFormat:'invalid'}));
+        add('imageDataSettingsReadOrder',()=>{const log=[];fresh().getImageData(0,0,1,1,new Proxy({}, {get(o,k){log.push(k);return undefined;}}));return log;});
+        add('createImageDataInvalidSettings',()=>fresh().createImageData(1,1,{colorSpace:'invalid'}));
+        add('imageDataFractionalZero',()=>fresh().createImageData(0.9,1));
+        add('patternCloseDuringConversion',()=>{const b=source().transferToImageBitmap();return fresh().createPattern(b,{toString(){b.close();return 'repeat';}});});
+        add('drawImageCloseDuringConversion',()=>{const b=source().transferToImageBitmap();return fresh().drawImage(b,{valueOf(){b.close();return 0;}},0);});
+        add('roundRectNullRadius',()=>{const g=fresh();g.roundRect(0,0,8,8,null);return g.isPointInPath(1,1);});
+        add('roundRectBadIterator',()=>fresh().roundRect(0,0,8,8,{[Symbol.iterator]:2}));
+        add('dashBadIteratorResult',()=>fresh().setLineDash({[Symbol.iterator](){return {next(){return 2;}};}}));
+        return results;
+    }
+    if(typeof module!=='undefined'&&module.exports){module.exports=runFourthRoundCases;module.exports.runFifthRoundCases=runFifthRoundCases;}
+    else globalThis.__canvasResult={fourthRound:runFourthRoundCases(OffscreenCanvas),fifthRound:runFifthRoundCases(OffscreenCanvas)};
 })();

@@ -1,0 +1,1856 @@
+{
+  "date": "2026-09-15",
+  "implementationCommit": "16fe74bd5cbf572c61eba68595141a5ddb026870",
+  "productionModified": false,
+  "comparison": {
+    "tested": 46,
+    "matched": 19,
+    "differing": 27,
+    "localExitCode": 0,
+    "capture": {
+      "runId": "74e8c4af0cb74b51b9f96ae4a93f8a96",
+      "capturedAt": "2026-09-15T02:43:26.823Z",
+      "browserMode": "user-chrome-cdp",
+      "chromeVersion": "153.0.8010.37",
+      "browserRevision": "@b75a5a95ea1a1b55bdbfd6d9f42d47be7507fb8b",
+      "debuggingPort": 9222,
+      "connectionId": "f823af05-4dbf-4e1f-b5f5-31251732a225",
+      "targetId": "FEDD3248DB96E3727E9BA326AA9DF405",
+      "backgroundTarget": true,
+      "script": "tests/fourth-round-cases.js",
+      "scriptSHA256": "B2173CF5E98DFFA4DD7E1481A850CAC552F352321AE0DB246B8BCBDAB3425D54"
+    },
+    "sha256": {
+      "index.js": "0CC1A90B6F59025DEBB6BFE21A2323563D6CFD242215F4F6C680D4F723140A26",
+      "src/webgl_native.rs": "055DC5F4087C6363B8D195D97633264F9CD68A25313D13F784D16BAA8AC0AC10",
+      "src/canvas_css.rs": "1D6E43126CC1E05934FD07FBB5215B62D00E4EF94B3A885BF87D579EEEE92F58",
+      "src/skia_backend.cpp": "FE24EBB72E85587E0E4693846DD19AB1E6308FDE271AB5B30A0DF4FB6A582B64",
+      "webgl.node": "DFEDC462D4F60C8D4D8E180C7AF63D7DB2BED40857F2AC2BCC931D15138C46BF",
+      "tests/fourth-round-cases.js": "B2173CF5E98DFFA4DD7E1481A850CAC552F352321AE0DB246B8BCBDAB3425D54"
+    },
+    "matches": [
+      "textMetricsZeroFont",
+      "fillStyleSymbol",
+      "fillStyleReentrant",
+      "fillStyleConversionThrows",
+      "numericProperty_lineWidth",
+      "numericProperty_shadowBlur",
+      "numericProperty_miterLimit",
+      "numericProperty_lineDashOffset",
+      "globalAlphaReentrant",
+      "gradientConversionOrder_NaN",
+      "gradientReentrant",
+      "strokeExplicitUndefined",
+      "strokeExplicitNull",
+      "imageDataFractionalZero",
+      "patternCloseDuringConversion",
+      "drawImageCloseDuringConversion",
+      "roundRectNullRadius",
+      "roundRectBadIterator",
+      "dashBadIteratorResult"
+    ],
+    "differences": [
+      {
+        "name": "fontMetrics_alphabetic",
+        "local": {
+          "value": {
+            "actualBoundingBoxAscent": 9,
+            "actualBoundingBoxDescent": 2,
+            "fontBoundingBoxAscent": 10.86328125,
+            "fontBoundingBoxDescent": 2.54296875,
+            "emHeightAscent": 10.86328125,
+            "emHeightDescent": 2.54296875,
+            "hangingBaseline": 0,
+            "alphabeticBaseline": 0,
+            "ideographicBaseline": 2.54296875
+          }
+        },
+        "browser": {
+          "value": {
+            "actualBoundingBoxAscent": 9,
+            "actualBoundingBoxDescent": 2,
+            "fontBoundingBoxAscent": 11,
+            "fontBoundingBoxDescent": 3,
+            "emHeightAscent": "<undefined>",
+            "emHeightDescent": "<undefined>",
+            "hangingBaseline": 8.800000190734863,
+            "alphabeticBaseline": 0,
+            "ideographicBaseline": -3
+          }
+        }
+      },
+      {
+        "name": "fontMetrics_top",
+        "local": {
+          "value": {
+            "actualBoundingBoxAscent": -0.3125,
+            "actualBoundingBoxDescent": 11.3125,
+            "fontBoundingBoxAscent": 10.86328125,
+            "fontBoundingBoxDescent": 2.54296875,
+            "emHeightAscent": 10.86328125,
+            "emHeightDescent": 2.54296875,
+            "hangingBaseline": 0,
+            "alphabeticBaseline": 0,
+            "ideographicBaseline": 2.54296875
+          }
+        },
+        "browser": {
+          "value": {
+            "actualBoundingBoxAscent": -0.3125,
+            "actualBoundingBoxDescent": 11.3125,
+            "fontBoundingBoxAscent": 1.6875,
+            "fontBoundingBoxDescent": 12.3125,
+            "emHeightAscent": "<undefined>",
+            "emHeightDescent": "<undefined>",
+            "hangingBaseline": -0.5124998092651367,
+            "alphabeticBaseline": -9.3125,
+            "ideographicBaseline": -12.3125
+          }
+        }
+      },
+      {
+        "name": "fontMetrics_middle",
+        "local": {
+          "value": {
+            "actualBoundingBoxAscent": 5.6875,
+            "actualBoundingBoxDescent": 5.3125,
+            "fontBoundingBoxAscent": 10.86328125,
+            "fontBoundingBoxDescent": 2.54296875,
+            "emHeightAscent": 10.86328125,
+            "emHeightDescent": 2.54296875,
+            "hangingBaseline": 0,
+            "alphabeticBaseline": 0,
+            "ideographicBaseline": 2.54296875
+          }
+        },
+        "browser": {
+          "value": {
+            "actualBoundingBoxAscent": 5.6875,
+            "actualBoundingBoxDescent": 5.3125,
+            "fontBoundingBoxAscent": 7.6875,
+            "fontBoundingBoxDescent": 6.3125,
+            "emHeightAscent": "<undefined>",
+            "emHeightDescent": "<undefined>",
+            "hangingBaseline": 5.487500190734863,
+            "alphabeticBaseline": -3.3125,
+            "ideographicBaseline": -6.3125
+          }
+        }
+      },
+      {
+        "name": "fontMetrics_bottom",
+        "local": {
+          "value": {
+            "actualBoundingBoxAscent": 11.6875,
+            "actualBoundingBoxDescent": -0.6875,
+            "fontBoundingBoxAscent": 10.86328125,
+            "fontBoundingBoxDescent": 2.54296875,
+            "emHeightAscent": 10.86328125,
+            "emHeightDescent": 2.54296875,
+            "hangingBaseline": 0,
+            "alphabeticBaseline": 0,
+            "ideographicBaseline": 2.54296875
+          }
+        },
+        "browser": {
+          "value": {
+            "actualBoundingBoxAscent": 11.6875,
+            "actualBoundingBoxDescent": -0.6875,
+            "fontBoundingBoxAscent": 13.6875,
+            "fontBoundingBoxDescent": 0.3125,
+            "emHeightAscent": "<undefined>",
+            "emHeightDescent": "<undefined>",
+            "hangingBaseline": 11.487500190734863,
+            "alphabeticBaseline": 2.6875,
+            "ideographicBaseline": -0.3125
+          }
+        }
+      },
+      {
+        "name": "fontMetrics_hanging",
+        "local": {
+          "value": {
+            "actualBoundingBoxAscent": 0.3093749999999993,
+            "actualBoundingBoxDescent": 10.690625,
+            "fontBoundingBoxAscent": 10.86328125,
+            "fontBoundingBoxDescent": 2.54296875,
+            "emHeightAscent": 10.86328125,
+            "emHeightDescent": 2.54296875,
+            "hangingBaseline": 0,
+            "alphabeticBaseline": 0,
+            "ideographicBaseline": 2.54296875
+          }
+        },
+        "browser": {
+          "value": {
+            "actualBoundingBoxAscent": 0.19999980926513672,
+            "actualBoundingBoxDescent": 10.800000190734863,
+            "fontBoundingBoxAscent": 2.1999998092651367,
+            "fontBoundingBoxDescent": 11.800000190734863,
+            "emHeightAscent": "<undefined>",
+            "emHeightDescent": "<undefined>",
+            "hangingBaseline": 0,
+            "alphabeticBaseline": -8.800000190734863,
+            "ideographicBaseline": -11.800000190734863
+          }
+        }
+      },
+      {
+        "name": "fontMetrics_ideographic",
+        "local": {
+          "value": {
+            "actualBoundingBoxAscent": 11.54296875,
+            "actualBoundingBoxDescent": -0.54296875,
+            "fontBoundingBoxAscent": 10.86328125,
+            "fontBoundingBoxDescent": 2.54296875,
+            "emHeightAscent": 10.86328125,
+            "emHeightDescent": 2.54296875,
+            "hangingBaseline": 0,
+            "alphabeticBaseline": 0,
+            "ideographicBaseline": 2.54296875
+          }
+        },
+        "browser": {
+          "value": {
+            "actualBoundingBoxAscent": 12,
+            "actualBoundingBoxDescent": -1,
+            "fontBoundingBoxAscent": 14,
+            "fontBoundingBoxDescent": 0,
+            "emHeightAscent": "<undefined>",
+            "emHeightDescent": "<undefined>",
+            "hangingBaseline": 11.800000190734863,
+            "alphabeticBaseline": 3,
+            "ideographicBaseline": 0
+          }
+        }
+      },
+      {
+        "name": "textRTLStartBounds",
+        "local": {
+          "value": {
+            "width": 19.9921875,
+            "left": 0,
+            "right": 19.99609375
+          }
+        },
+        "browser": {
+          "value": {
+            "width": 19.9921875,
+            "left": 19.9921875,
+            "right": 0.00390625
+          }
+        }
+      },
+      {
+        "name": "textRTLEndBounds",
+        "local": {
+          "value": {
+            "width": 19.9921875,
+            "left": 19.9921875,
+            "right": 0.00390625
+          }
+        },
+        "browser": {
+          "value": {
+            "width": 19.9921875,
+            "left": 0,
+            "right": 19.99609375
+          }
+        }
+      },
+      {
+        "name": "textDirectionSaveRestore",
+        "local": {
+          "value": "ltr"
+        },
+        "browser": {
+          "value": "rtl"
+        }
+      },
+      {
+        "name": "shadowColor_default",
+        "local": {
+          "value": "#00000000"
+        },
+        "browser": {
+          "value": "rgba(0, 0, 0, 0)"
+        }
+      },
+      {
+        "name": "shadowColor_opaque",
+        "local": {
+          "value": "#ff0000ff"
+        },
+        "browser": {
+          "value": "#ff0000"
+        }
+      },
+      {
+        "name": "shadowColor_alpha",
+        "local": {
+          "value": "#ff000080"
+        },
+        "browser": {
+          "value": "rgba(255, 0, 0, 0.5)"
+        }
+      },
+      {
+        "name": "shadowColorInvalidPreserves",
+        "local": {
+          "value": "#ff0000ff"
+        },
+        "browser": {
+          "value": "#ff0000"
+        }
+      },
+      {
+        "name": "setterInvalidReceiverOrder",
+        "local": {
+          "value": {
+            "failure": {
+              "error": "TypeError"
+            },
+            "calls": 1
+          }
+        },
+        "browser": {
+          "value": {
+            "failure": {
+              "error": "TypeError"
+            },
+            "calls": 0
+          }
+        }
+      },
+      {
+        "name": "getterInvalidReceiver",
+        "local": {
+          "value": "<undefined>"
+        },
+        "browser": {
+          "error": "TypeError"
+        }
+      },
+      {
+        "name": "gradientConversionOrder_2",
+        "local": {
+          "value": {
+            "failure": {
+              "error": "IndexSizeError"
+            },
+            "log": [
+              "offset"
+            ]
+          }
+        },
+        "browser": {
+          "value": {
+            "failure": {
+              "error": "IndexSizeError"
+            },
+            "log": [
+              "offset",
+              "color"
+            ]
+          }
+        }
+      },
+      {
+        "name": "gradientColorThrowBeforeRange",
+        "local": {
+          "error": "IndexSizeError"
+        },
+        "browser": {
+          "error": "RangeError"
+        }
+      },
+      {
+        "name": "contextOptionsReadOrder",
+        "local": {
+          "value": [
+            "alpha",
+            "desynchronized",
+            "willReadFrequently"
+          ]
+        },
+        "browser": {
+          "value": [
+            "alpha",
+            "antialias",
+            "colorSpace",
+            "colorType",
+            "depth",
+            "desynchronized",
+            "failIfMajorPerformanceCaveat",
+            "powerPreference",
+            "premultipliedAlpha",
+            "preserveDrawingBuffer",
+            "stencil",
+            "willReadFrequently",
+            "xrCompatible"
+          ]
+        }
+      },
+      {
+        "name": "contextRepeatedOptions",
+        "local": {
+          "value": {
+            "same": true,
+            "calls": 0,
+            "alpha": true
+          }
+        },
+        "browser": {
+          "value": {
+            "same": true,
+            "calls": 1,
+            "alpha": true
+          }
+        }
+      },
+      {
+        "name": "contextRepeatedOptionsThrow",
+        "local": {
+          "value": true
+        },
+        "browser": {
+          "error": "RangeError"
+        }
+      },
+      {
+        "name": "contextInvalid_colorSpace",
+        "local": {
+          "value": true
+        },
+        "browser": {
+          "error": "TypeError"
+        }
+      },
+      {
+        "name": "contextInvalid_colorType",
+        "local": {
+          "value": true
+        },
+        "browser": {
+          "error": "TypeError"
+        }
+      },
+      {
+        "name": "contextOptionErrorThenRetry",
+        "local": {
+          "value": {
+            "failure": "accepted",
+            "retry": true
+          }
+        },
+        "browser": {
+          "value": {
+            "failure": "TypeError",
+            "retry": true
+          }
+        }
+      },
+      {
+        "name": "imageDataInvalidColorSpace",
+        "local": {
+          "value": {
+            "data": {
+              "0": 0,
+              "1": 0,
+              "2": 0,
+              "3": 0
+            },
+            "width": 1,
+            "height": 1
+          }
+        },
+        "browser": {
+          "error": "TypeError"
+        }
+      },
+      {
+        "name": "imageDataInvalidPixelFormat",
+        "local": {
+          "value": {
+            "data": {
+              "0": 0,
+              "1": 0,
+              "2": 0,
+              "3": 0
+            },
+            "width": 1,
+            "height": 1
+          }
+        },
+        "browser": {
+          "error": "TypeError"
+        }
+      },
+      {
+        "name": "imageDataSettingsReadOrder",
+        "local": {
+          "value": []
+        },
+        "browser": {
+          "value": [
+            "colorSpace",
+            "pixelFormat"
+          ]
+        }
+      },
+      {
+        "name": "createImageDataInvalidSettings",
+        "local": {
+          "value": {
+            "data": {
+              "0": 0,
+              "1": 0,
+              "2": 0,
+              "3": 0
+            },
+            "width": 1,
+            "height": 1
+          }
+        },
+        "browser": {
+          "error": "TypeError"
+        }
+      }
+    ]
+  },
+  "browser": {
+    "runId": "74e8c4af0cb74b51b9f96ae4a93f8a96",
+    "capturedAt": "2026-09-15T02:43:26.823Z",
+    "browserMode": "user-chrome-cdp",
+    "chromeVersion": "153.0.8010.37",
+    "browserRevision": "@b75a5a95ea1a1b55bdbfd6d9f42d47be7507fb8b",
+    "debuggingPort": 9222,
+    "connectionId": "f823af05-4dbf-4e1f-b5f5-31251732a225",
+    "targetId": "FEDD3248DB96E3727E9BA326AA9DF405",
+    "backgroundTarget": true,
+    "script": "tests/fourth-round-cases.js",
+    "scriptSHA256": "B2173CF5E98DFFA4DD7E1481A850CAC552F352321AE0DB246B8BCBDAB3425D54",
+    "value": {
+      "fourthRound": {
+        "imageDataReadonlyWidth": {
+          "value": {
+            "accepted": false,
+            "width": 1
+          }
+        },
+        "imageDataReadonlyData": {
+          "value": {
+            "accepted": false,
+            "same": true
+          }
+        },
+        "detachedImageData": {
+          "error": "InvalidStateError"
+        },
+        "imageDataCloneDetached": {
+          "value": {
+            "width": 1,
+            "height": 1,
+            "length": 4
+          }
+        },
+        "putImageDataCoordinateOverflow": {
+          "error": "TypeError"
+        },
+        "getImageDataCoordinateOverflow": {
+          "error": "TypeError"
+        },
+        "createImageDataWrappedSize": {
+          "error": "TypeError"
+        },
+        "createImageDataNaN": {
+          "error": "TypeError"
+        },
+        "putImageDataUndefinedCoordinate": {
+          "error": "TypeError"
+        },
+        "putImageDataConversionOrder": {
+          "value": {
+            "log": [
+              "x",
+              "y",
+              "dirtyX",
+              "dirtyY",
+              "width",
+              "height"
+            ],
+            "pixel": [
+              255,
+              0,
+              0,
+              255
+            ]
+          }
+        },
+        "bitmapCloseIdempotent": {
+          "value": [
+            0,
+            0
+          ]
+        },
+        "transferCanvasWithoutContext": {
+          "error": "InvalidStateError"
+        },
+        "bitmapRemainsAfterResize": {
+          "value": [
+            255,
+            0,
+            0,
+            255
+          ]
+        },
+        "dashIteratorLookup": {
+          "value": {
+            "reads": 1,
+            "dash": [
+              2,
+              3
+            ]
+          }
+        },
+        "dashStringSequence": {
+          "error": "TypeError"
+        },
+        "dashIteratorClose": {
+          "value": {
+            "failure": {
+              "error": "TypeError"
+            },
+            "closed": false
+          }
+        },
+        "roundRectIteratorConversionOrder": {
+          "value": [
+            "next0",
+            "x0",
+            "y0",
+            "next1",
+            "x1",
+            "y1",
+            "done"
+          ]
+        },
+        "roundRectPointConversionOrder": {
+          "value": [
+            "getX",
+            "convertX",
+            "getY"
+          ]
+        },
+        "roundRectNonfiniteAndNegative": {
+          "value": false
+        },
+        "roundRectNegativeNonfiniteCoordinate": {
+          "value": "<undefined>"
+        },
+        "gradientStopObjectString": {
+          "value": {
+            "calls": 1,
+            "pixel": [
+              255,
+              0,
+              0,
+              255
+            ]
+          }
+        },
+        "fillStyleObjectString": {
+          "value": {
+            "calls": 1,
+            "style": "#ff0000",
+            "pixel": [
+              255,
+              0,
+              0,
+              255
+            ]
+          }
+        },
+        "fontObjectString": {
+          "value": {
+            "calls": 1,
+            "font": "12px Arial"
+          }
+        },
+        "modernAlphaDecimal": {
+          "value": {
+            "style": "rgba(255, 0, 0, 0.5)",
+            "pixel": [
+              255,
+              0,
+              0,
+              128
+            ]
+          }
+        },
+        "modernAlphaPercent25": {
+          "value": {
+            "style": "rgba(255, 0, 0, 0.25)",
+            "pixel": [
+              255,
+              0,
+              0,
+              64
+            ]
+          }
+        },
+        "legacyAlphaSerialization": {
+          "value": {
+            "style": "rgba(255, 0, 0, 0.5)",
+            "pixel": [
+              255,
+              0,
+              0,
+              128
+            ]
+          }
+        },
+        "legacyMixedPercent": {
+          "value": {
+            "style": "#0000ff",
+            "pixel": [
+              0,
+              0,
+              255,
+              255
+            ]
+          }
+        },
+        "legacyNaN": {
+          "value": {
+            "style": "#0000ff",
+            "pixel": [
+              0,
+              0,
+              255,
+              255
+            ]
+          }
+        },
+        "legacyInfinity": {
+          "value": {
+            "style": "#0000ff",
+            "pixel": [
+              0,
+              0,
+              255,
+              255
+            ]
+          }
+        },
+        "hslNegativeHue": {
+          "value": {
+            "style": "#00ff00",
+            "pixel": [
+              0,
+              255,
+              0,
+              255
+            ]
+          }
+        },
+        "hslHueTurn": {
+          "value": {
+            "style": "#00ffff",
+            "pixel": [
+              0,
+              255,
+              255,
+              255
+            ]
+          }
+        },
+        "transparentHexSerialization": {
+          "value": {
+            "style": "rgba(255, 0, 0, 0.5)",
+            "pixel": [
+              255,
+              0,
+              0,
+              128
+            ]
+          }
+        },
+        "namedColorYellow": {
+          "value": {
+            "style": "#ffff00",
+            "pixel": [
+              255,
+              255,
+              0,
+              255
+            ]
+          }
+        },
+        "fontSeparatedLineHeight": {
+          "value": "12px Arial"
+        },
+        "fontInvalidLineHeightUnit": {
+          "value": "14px Arial"
+        },
+        "fontRepeatedNormal": {
+          "value": "14px Arial"
+        },
+        "fontFamilyTwoQuotedNames": {
+          "value": "14px Arial"
+        },
+        "fontDecimalWeight": {
+          "value": "450 12px Arial"
+        },
+        "fontUnitCase": {
+          "value": "12px Arial"
+        },
+        "fontFallbackList": {
+          "value": {
+            "candidate": 39.984375,
+            "reference": 39.984375
+          }
+        },
+        "emptyTextTopBaseline": {
+          "value": {
+            "ascent": -9.3125,
+            "descent": 9.3125
+          }
+        },
+        "textSpaceBounds": {
+          "value": {
+            "width": 3.333984375,
+            "left": 0,
+            "right": 0,
+            "ascent": 0,
+            "descent": 0
+          }
+        },
+        "textTabsDrawing": {
+          "value": true
+        },
+        "strokeInvalidArgument": {
+          "error": "TypeError"
+        },
+        "fillMissingReceiver": {
+          "error": "TypeError"
+        },
+        "isPointNonfinite": {
+          "value": [
+            false,
+            false
+          ]
+        },
+        "imageDataReadonlyHeight": {
+          "value": {
+            "accepted": false,
+            "height": 2
+          }
+        },
+        "imageDataPixelsMutable": {
+          "value": [
+            0,
+            0,
+            255,
+            255
+          ]
+        },
+        "imageDataDetachedDuringConversion": {
+          "error": "InvalidStateError"
+        },
+        "alphaPercentSweep": {
+          "value": [
+            {
+              "style": "rgba(255, 0, 0, 0)",
+              "pixel": [
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "style": "rgba(255, 0, 0, 0.1)",
+              "pixel": [
+                255,
+                0,
+                0,
+                25
+              ]
+            },
+            {
+              "style": "rgba(255, 0, 0, 0.25)",
+              "pixel": [
+                255,
+                0,
+                0,
+                64
+              ]
+            },
+            {
+              "style": "rgba(255, 0, 0, 0.5)",
+              "pixel": [
+                255,
+                0,
+                0,
+                127
+              ]
+            },
+            {
+              "style": "rgba(255, 0, 0, 0.75)",
+              "pixel": [
+                255,
+                0,
+                0,
+                191
+              ]
+            },
+            {
+              "style": "rgba(255, 0, 0, 0.9)",
+              "pixel": [
+                255,
+                0,
+                0,
+                229
+              ]
+            },
+            {
+              "style": "#ff0000",
+              "pixel": [
+                255,
+                0,
+                0,
+                255
+              ]
+            }
+          ]
+        },
+        "alphaLegacySweep": {
+          "value": [
+            {
+              "style": "rgba(255, 0, 0, 0)",
+              "pixel": [
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "style": "rgba(255, 0, 0, 0.1)",
+              "pixel": [
+                255,
+                0,
+                0,
+                26
+              ]
+            },
+            {
+              "style": "rgba(255, 0, 0, 0.25)",
+              "pixel": [
+                255,
+                0,
+                0,
+                64
+              ]
+            },
+            {
+              "style": "rgba(255, 0, 0, 0.5)",
+              "pixel": [
+                255,
+                0,
+                0,
+                128
+              ]
+            },
+            {
+              "style": "rgba(255, 0, 0, 0.75)",
+              "pixel": [
+                255,
+                0,
+                0,
+                191
+              ]
+            },
+            {
+              "style": "rgba(255, 0, 0, 0.9)",
+              "pixel": [
+                255,
+                0,
+                0,
+                230
+              ]
+            },
+            {
+              "style": "#ff0000",
+              "pixel": [
+                255,
+                0,
+                0,
+                255
+              ]
+            }
+          ]
+        },
+        "fontMultipleFallbacks": {
+          "value": {
+            "candidate": 39.984375,
+            "reference": 39.984375
+          }
+        },
+        "textEmBaselinesArial": {
+          "value": [
+            [
+              [
+                -9.3125,
+                9.3125
+              ],
+              [
+                -0.3125,
+                11.3125
+              ]
+            ],
+            [
+              [
+                -3.3125,
+                3.3125
+              ],
+              [
+                5.6875,
+                5.3125
+              ]
+            ],
+            [
+              [
+                2.6875,
+                -2.6875
+              ],
+              [
+                11.6875,
+                -0.6875
+              ]
+            ]
+          ]
+        },
+        "textEmBaselinesFractionalArial": {
+          "value": [
+            [
+              [
+                -13.40625,
+                13.40625
+              ],
+              [
+                -1.40625,
+                16.40625
+              ]
+            ],
+            [
+              [
+                -4.7578125,
+                4.7578125
+              ],
+              [
+                7.2421875,
+                7.7578125
+              ]
+            ],
+            [
+              [
+                3.890625,
+                -3.890625
+              ],
+              [
+                15.890625,
+                -0.890625
+              ]
+            ]
+          ]
+        },
+        "textEmBaselinesTimes": {
+          "value": [
+            [
+              [
+                -15.25,
+                15.25
+              ],
+              [
+                -2.25,
+                19.25
+              ]
+            ],
+            [
+              [
+                -5.25,
+                5.25
+              ],
+              [
+                7.75,
+                9.25
+              ]
+            ],
+            [
+              [
+                4.75,
+                -4.75
+              ],
+              [
+                17.75,
+                -0.75
+              ]
+            ]
+          ]
+        },
+        "textEmBaselinesCourier": {
+          "value": [
+            [
+              [
+                -11.46875,
+                11.46875
+              ],
+              [
+                -3.46875,
+                14.46875
+              ]
+            ],
+            [
+              [
+                -3.96875,
+                3.96875
+              ],
+              [
+                4.03125,
+                6.96875
+              ]
+            ],
+            [
+              [
+                3.53125,
+                -3.53125
+              ],
+              [
+                11.53125,
+                -0.53125
+              ]
+            ]
+          ]
+        },
+        "invalidReceiverBeforeConversion": {
+          "value": {
+            "failure": {
+              "error": "TypeError"
+            },
+            "calls": 0
+          }
+        },
+        "sequenceNextLookup": {
+          "value": {
+            "reads": 1,
+            "dash": [
+              2,
+              2
+            ]
+          }
+        }
+      },
+      "fifthRound": {
+        "fontMetrics_alphabetic": {
+          "value": {
+            "actualBoundingBoxAscent": 9,
+            "actualBoundingBoxDescent": 2,
+            "fontBoundingBoxAscent": 11,
+            "fontBoundingBoxDescent": 3,
+            "emHeightAscent": "<undefined>",
+            "emHeightDescent": "<undefined>",
+            "hangingBaseline": 8.800000190734863,
+            "alphabeticBaseline": 0,
+            "ideographicBaseline": -3
+          }
+        },
+        "fontMetrics_top": {
+          "value": {
+            "actualBoundingBoxAscent": -0.3125,
+            "actualBoundingBoxDescent": 11.3125,
+            "fontBoundingBoxAscent": 1.6875,
+            "fontBoundingBoxDescent": 12.3125,
+            "emHeightAscent": "<undefined>",
+            "emHeightDescent": "<undefined>",
+            "hangingBaseline": -0.5124998092651367,
+            "alphabeticBaseline": -9.3125,
+            "ideographicBaseline": -12.3125
+          }
+        },
+        "fontMetrics_middle": {
+          "value": {
+            "actualBoundingBoxAscent": 5.6875,
+            "actualBoundingBoxDescent": 5.3125,
+            "fontBoundingBoxAscent": 7.6875,
+            "fontBoundingBoxDescent": 6.3125,
+            "emHeightAscent": "<undefined>",
+            "emHeightDescent": "<undefined>",
+            "hangingBaseline": 5.487500190734863,
+            "alphabeticBaseline": -3.3125,
+            "ideographicBaseline": -6.3125
+          }
+        },
+        "fontMetrics_bottom": {
+          "value": {
+            "actualBoundingBoxAscent": 11.6875,
+            "actualBoundingBoxDescent": -0.6875,
+            "fontBoundingBoxAscent": 13.6875,
+            "fontBoundingBoxDescent": 0.3125,
+            "emHeightAscent": "<undefined>",
+            "emHeightDescent": "<undefined>",
+            "hangingBaseline": 11.487500190734863,
+            "alphabeticBaseline": 2.6875,
+            "ideographicBaseline": -0.3125
+          }
+        },
+        "fontMetrics_hanging": {
+          "value": {
+            "actualBoundingBoxAscent": 0.19999980926513672,
+            "actualBoundingBoxDescent": 10.800000190734863,
+            "fontBoundingBoxAscent": 2.1999998092651367,
+            "fontBoundingBoxDescent": 11.800000190734863,
+            "emHeightAscent": "<undefined>",
+            "emHeightDescent": "<undefined>",
+            "hangingBaseline": 0,
+            "alphabeticBaseline": -8.800000190734863,
+            "ideographicBaseline": -11.800000190734863
+          }
+        },
+        "fontMetrics_ideographic": {
+          "value": {
+            "actualBoundingBoxAscent": 12,
+            "actualBoundingBoxDescent": -1,
+            "fontBoundingBoxAscent": 14,
+            "fontBoundingBoxDescent": 0,
+            "emHeightAscent": "<undefined>",
+            "emHeightDescent": "<undefined>",
+            "hangingBaseline": 11.800000190734863,
+            "alphabeticBaseline": 3,
+            "ideographicBaseline": 0
+          }
+        },
+        "textMetricsZeroFont": {
+          "value": {
+            "font": "0px Arial",
+            "width": 0,
+            "ascent": 0,
+            "descent": 0
+          }
+        },
+        "textRTLStartBounds": {
+          "value": {
+            "width": 19.9921875,
+            "left": 19.9921875,
+            "right": 0.00390625
+          }
+        },
+        "textRTLEndBounds": {
+          "value": {
+            "width": 19.9921875,
+            "left": 0,
+            "right": 19.99609375
+          }
+        },
+        "textDirectionSaveRestore": {
+          "value": "rtl"
+        },
+        "shadowColor_default": {
+          "value": "rgba(0, 0, 0, 0)"
+        },
+        "shadowColor_opaque": {
+          "value": "#ff0000"
+        },
+        "shadowColor_alpha": {
+          "value": "rgba(255, 0, 0, 0.5)"
+        },
+        "shadowColorInvalidPreserves": {
+          "value": "#ff0000"
+        },
+        "fillStyleSymbol": {
+          "error": "TypeError"
+        },
+        "fillStyleReentrant": {
+          "value": {
+            "calls": 1,
+            "style": "#ff0000"
+          }
+        },
+        "fillStyleConversionThrows": {
+          "value": {
+            "failure": {
+              "error": "RangeError"
+            },
+            "style": "#0000ff"
+          }
+        },
+        "setterInvalidReceiverOrder": {
+          "value": {
+            "failure": {
+              "error": "TypeError"
+            },
+            "calls": 0
+          }
+        },
+        "getterInvalidReceiver": {
+          "error": "TypeError"
+        },
+        "numericProperty_lineWidth": {
+          "value": {
+            "calls": 1,
+            "value": 2.5
+          }
+        },
+        "numericProperty_shadowBlur": {
+          "value": {
+            "calls": 1,
+            "value": 2.5
+          }
+        },
+        "numericProperty_miterLimit": {
+          "value": {
+            "calls": 1,
+            "value": 2.5
+          }
+        },
+        "numericProperty_lineDashOffset": {
+          "value": {
+            "calls": 1,
+            "value": 2.5
+          }
+        },
+        "globalAlphaReentrant": {
+          "value": 0.5
+        },
+        "gradientConversionOrder_2": {
+          "value": {
+            "failure": {
+              "error": "IndexSizeError"
+            },
+            "log": [
+              "offset",
+              "color"
+            ]
+          }
+        },
+        "gradientConversionOrder_NaN": {
+          "value": {
+            "failure": {
+              "error": "TypeError"
+            },
+            "log": [
+              "offset"
+            ]
+          }
+        },
+        "gradientColorThrowBeforeRange": {
+          "error": "RangeError"
+        },
+        "gradientReentrant": {
+          "value": [
+            255,
+            0,
+            0,
+            255
+          ]
+        },
+        "strokeExplicitUndefined": {
+          "error": "TypeError"
+        },
+        "strokeExplicitNull": {
+          "error": "TypeError"
+        },
+        "contextOptionsReadOrder": {
+          "value": [
+            "alpha",
+            "antialias",
+            "colorSpace",
+            "colorType",
+            "depth",
+            "desynchronized",
+            "failIfMajorPerformanceCaveat",
+            "powerPreference",
+            "premultipliedAlpha",
+            "preserveDrawingBuffer",
+            "stencil",
+            "willReadFrequently",
+            "xrCompatible"
+          ]
+        },
+        "contextRepeatedOptions": {
+          "value": {
+            "same": true,
+            "calls": 1,
+            "alpha": true
+          }
+        },
+        "contextRepeatedOptionsThrow": {
+          "error": "RangeError"
+        },
+        "contextInvalid_colorSpace": {
+          "error": "TypeError"
+        },
+        "contextInvalid_colorType": {
+          "error": "TypeError"
+        },
+        "contextOptionErrorThenRetry": {
+          "value": {
+            "failure": "TypeError",
+            "retry": true
+          }
+        },
+        "imageDataInvalidColorSpace": {
+          "error": "TypeError"
+        },
+        "imageDataInvalidPixelFormat": {
+          "error": "TypeError"
+        },
+        "imageDataSettingsReadOrder": {
+          "value": [
+            "colorSpace",
+            "pixelFormat"
+          ]
+        },
+        "createImageDataInvalidSettings": {
+          "error": "TypeError"
+        },
+        "imageDataFractionalZero": {
+          "error": "IndexSizeError"
+        },
+        "patternCloseDuringConversion": {
+          "error": "InvalidStateError"
+        },
+        "drawImageCloseDuringConversion": {
+          "error": "InvalidStateError"
+        },
+        "roundRectNullRadius": {
+          "value": true
+        },
+        "roundRectBadIterator": {
+          "error": "TypeError"
+        },
+        "dashBadIteratorResult": {
+          "error": "TypeError"
+        }
+      }
+    }
+  },
+  "local": {
+    "fontMetrics_alphabetic": {
+      "value": {
+        "actualBoundingBoxAscent": 9,
+        "actualBoundingBoxDescent": 2,
+        "fontBoundingBoxAscent": 10.86328125,
+        "fontBoundingBoxDescent": 2.54296875,
+        "emHeightAscent": 10.86328125,
+        "emHeightDescent": 2.54296875,
+        "hangingBaseline": 0,
+        "alphabeticBaseline": 0,
+        "ideographicBaseline": 2.54296875
+      }
+    },
+    "fontMetrics_top": {
+      "value": {
+        "actualBoundingBoxAscent": -0.3125,
+        "actualBoundingBoxDescent": 11.3125,
+        "fontBoundingBoxAscent": 10.86328125,
+        "fontBoundingBoxDescent": 2.54296875,
+        "emHeightAscent": 10.86328125,
+        "emHeightDescent": 2.54296875,
+        "hangingBaseline": 0,
+        "alphabeticBaseline": 0,
+        "ideographicBaseline": 2.54296875
+      }
+    },
+    "fontMetrics_middle": {
+      "value": {
+        "actualBoundingBoxAscent": 5.6875,
+        "actualBoundingBoxDescent": 5.3125,
+        "fontBoundingBoxAscent": 10.86328125,
+        "fontBoundingBoxDescent": 2.54296875,
+        "emHeightAscent": 10.86328125,
+        "emHeightDescent": 2.54296875,
+        "hangingBaseline": 0,
+        "alphabeticBaseline": 0,
+        "ideographicBaseline": 2.54296875
+      }
+    },
+    "fontMetrics_bottom": {
+      "value": {
+        "actualBoundingBoxAscent": 11.6875,
+        "actualBoundingBoxDescent": -0.6875,
+        "fontBoundingBoxAscent": 10.86328125,
+        "fontBoundingBoxDescent": 2.54296875,
+        "emHeightAscent": 10.86328125,
+        "emHeightDescent": 2.54296875,
+        "hangingBaseline": 0,
+        "alphabeticBaseline": 0,
+        "ideographicBaseline": 2.54296875
+      }
+    },
+    "fontMetrics_hanging": {
+      "value": {
+        "actualBoundingBoxAscent": 0.3093749999999993,
+        "actualBoundingBoxDescent": 10.690625,
+        "fontBoundingBoxAscent": 10.86328125,
+        "fontBoundingBoxDescent": 2.54296875,
+        "emHeightAscent": 10.86328125,
+        "emHeightDescent": 2.54296875,
+        "hangingBaseline": 0,
+        "alphabeticBaseline": 0,
+        "ideographicBaseline": 2.54296875
+      }
+    },
+    "fontMetrics_ideographic": {
+      "value": {
+        "actualBoundingBoxAscent": 11.54296875,
+        "actualBoundingBoxDescent": -0.54296875,
+        "fontBoundingBoxAscent": 10.86328125,
+        "fontBoundingBoxDescent": 2.54296875,
+        "emHeightAscent": 10.86328125,
+        "emHeightDescent": 2.54296875,
+        "hangingBaseline": 0,
+        "alphabeticBaseline": 0,
+        "ideographicBaseline": 2.54296875
+      }
+    },
+    "textMetricsZeroFont": {
+      "value": {
+        "font": "0px Arial",
+        "width": 0,
+        "ascent": 0,
+        "descent": 0
+      }
+    },
+    "textRTLStartBounds": {
+      "value": {
+        "width": 19.9921875,
+        "left": 0,
+        "right": 19.99609375
+      }
+    },
+    "textRTLEndBounds": {
+      "value": {
+        "width": 19.9921875,
+        "left": 19.9921875,
+        "right": 0.00390625
+      }
+    },
+    "textDirectionSaveRestore": {
+      "value": "ltr"
+    },
+    "shadowColor_default": {
+      "value": "#00000000"
+    },
+    "shadowColor_opaque": {
+      "value": "#ff0000ff"
+    },
+    "shadowColor_alpha": {
+      "value": "#ff000080"
+    },
+    "shadowColorInvalidPreserves": {
+      "value": "#ff0000ff"
+    },
+    "fillStyleSymbol": {
+      "error": "TypeError"
+    },
+    "fillStyleReentrant": {
+      "value": {
+        "calls": 1,
+        "style": "#ff0000"
+      }
+    },
+    "fillStyleConversionThrows": {
+      "value": {
+        "failure": {
+          "error": "RangeError"
+        },
+        "style": "#0000ff"
+      }
+    },
+    "setterInvalidReceiverOrder": {
+      "value": {
+        "failure": {
+          "error": "TypeError"
+        },
+        "calls": 1
+      }
+    },
+    "getterInvalidReceiver": {
+      "value": "<undefined>"
+    },
+    "numericProperty_lineWidth": {
+      "value": {
+        "calls": 1,
+        "value": 2.5
+      }
+    },
+    "numericProperty_shadowBlur": {
+      "value": {
+        "calls": 1,
+        "value": 2.5
+      }
+    },
+    "numericProperty_miterLimit": {
+      "value": {
+        "calls": 1,
+        "value": 2.5
+      }
+    },
+    "numericProperty_lineDashOffset": {
+      "value": {
+        "calls": 1,
+        "value": 2.5
+      }
+    },
+    "globalAlphaReentrant": {
+      "value": 0.5
+    },
+    "gradientConversionOrder_2": {
+      "value": {
+        "failure": {
+          "error": "IndexSizeError"
+        },
+        "log": [
+          "offset"
+        ]
+      }
+    },
+    "gradientConversionOrder_NaN": {
+      "value": {
+        "failure": {
+          "error": "TypeError"
+        },
+        "log": [
+          "offset"
+        ]
+      }
+    },
+    "gradientColorThrowBeforeRange": {
+      "error": "IndexSizeError"
+    },
+    "gradientReentrant": {
+      "value": [
+        255,
+        0,
+        0,
+        255
+      ]
+    },
+    "strokeExplicitUndefined": {
+      "error": "TypeError"
+    },
+    "strokeExplicitNull": {
+      "error": "TypeError"
+    },
+    "contextOptionsReadOrder": {
+      "value": [
+        "alpha",
+        "desynchronized",
+        "willReadFrequently"
+      ]
+    },
+    "contextRepeatedOptions": {
+      "value": {
+        "same": true,
+        "calls": 0,
+        "alpha": true
+      }
+    },
+    "contextRepeatedOptionsThrow": {
+      "value": true
+    },
+    "contextInvalid_colorSpace": {
+      "value": true
+    },
+    "contextInvalid_colorType": {
+      "value": true
+    },
+    "contextOptionErrorThenRetry": {
+      "value": {
+        "failure": "accepted",
+        "retry": true
+      }
+    },
+    "imageDataInvalidColorSpace": {
+      "value": {
+        "data": {
+          "0": 0,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "width": 1,
+        "height": 1
+      }
+    },
+    "imageDataInvalidPixelFormat": {
+      "value": {
+        "data": {
+          "0": 0,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "width": 1,
+        "height": 1
+      }
+    },
+    "imageDataSettingsReadOrder": {
+      "value": []
+    },
+    "createImageDataInvalidSettings": {
+      "value": {
+        "data": {
+          "0": 0,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "width": 1,
+        "height": 1
+      }
+    },
+    "imageDataFractionalZero": {
+      "error": "IndexSizeError"
+    },
+    "patternCloseDuringConversion": {
+      "error": "InvalidStateError"
+    },
+    "drawImageCloseDuringConversion": {
+      "error": "InvalidStateError"
+    },
+    "roundRectNullRadius": {
+      "value": true
+    },
+    "roundRectBadIterator": {
+      "error": "TypeError"
+    },
+    "dashBadIteratorResult": {
+      "error": "TypeError"
+    }
+  },
+  "repeatCapture": {
+    "runId": "46496e08973f41999260e44b5af6ec9d",
+    "capturedAt": "2026-09-15T02:43:50.757Z",
+    "identicalFifthRoundResults": true
+  },
+  "regression": {
+    "localCases": 47,
+    "additionalCases": 45,
+    "thirdRoundCases": 65,
+    "unicodeColor": true,
+    "totalCases": 216,
+    "gradientGC": true,
+    "demoValues": 9216,
+    "browserVerified": true,
+    "fourthRoundCases": 58,
+    "browserMode": "user-chrome-cdp",
+    "chromeVersion": "153.0.8010.37",
+    "caseRunId": "cbb73052dea34c5886755e4793b99a2a",
+    "additionalRunId": "e0051b76ee6d4cbdafad5ea89f44045c",
+    "demoRunId": "c7bfc565ac0a4ae498705ae81d2ac962",
+    "caseFailures": [],
+    "additionalFailures": [],
+    "demoMismatches": 0,
+    "thirdRoundRunId": "0fc7a7f7807b4923b4401ab76f676b88",
+    "unicodeColorRunId": "733614e010e34999b57ba44f98d04620",
+    "thirdRoundFailures": [],
+    "unicodeColorMatches": true,
+    "fourthRoundRunId": "46496e08973f41999260e44b5af6ec9d",
+    "fourthRoundFailures": []
+  },
+  "regressionCaptures": [
+    {
+      "runId": "cbb73052dea34c5886755e4793b99a2a",
+      "capturedAt": "2026-09-15T02:43:50.344Z",
+      "browserMode": "user-chrome-cdp",
+      "chromeVersion": "153.0.8010.37",
+      "browserRevision": "@b75a5a95ea1a1b55bdbfd6d9f42d47be7507fb8b",
+      "debuggingPort": 9222,
+      "connectionId": "f823af05-4dbf-4e1f-b5f5-31251732a225",
+      "targetId": "17851E17693E35D4077FAEE28283F824",
+      "backgroundTarget": true,
+      "script": "tests/browser-cases.js",
+      "scriptSHA256": "56027520C8C6212BFCE2BC71965F5713913177434C6CBF1EB6E4EBDAF8C0B1AE"
+    },
+    {
+      "runId": "e0051b76ee6d4cbdafad5ea89f44045c",
+      "capturedAt": "2026-09-15T02:43:50.466Z",
+      "browserMode": "user-chrome-cdp",
+      "chromeVersion": "153.0.8010.37",
+      "browserRevision": "@b75a5a95ea1a1b55bdbfd6d9f42d47be7507fb8b",
+      "debuggingPort": 9222,
+      "connectionId": "f823af05-4dbf-4e1f-b5f5-31251732a225",
+      "targetId": "9AAABDC7C7550504B899D9A4B39953E3",
+      "backgroundTarget": true,
+      "script": "tests/additional-cases.js",
+      "scriptSHA256": "C9926B79F2AE207BB8771B5D48923EAAAD306C3E26CD12CE43FFB8E5C82A30E3"
+    },
+    {
+      "runId": "0fc7a7f7807b4923b4401ab76f676b88",
+      "capturedAt": "2026-09-15T02:43:50.579Z",
+      "browserMode": "user-chrome-cdp",
+      "chromeVersion": "153.0.8010.37",
+      "browserRevision": "@b75a5a95ea1a1b55bdbfd6d9f42d47be7507fb8b",
+      "debuggingPort": 9222,
+      "connectionId": "f823af05-4dbf-4e1f-b5f5-31251732a225",
+      "targetId": "900ECE713336D12D699DD0F7B837105E",
+      "backgroundTarget": true,
+      "script": "tests/third-round-cases.js",
+      "scriptSHA256": "8782A98869BD0C3B546A45B2771C0C923D2102DC5E8CE7AAC30CEFB4CC396677"
+    },
+    {
+      "runId": "733614e010e34999b57ba44f98d04620",
+      "capturedAt": "2026-09-15T02:43:50.649Z",
+      "browserMode": "user-chrome-cdp",
+      "chromeVersion": "153.0.8010.37",
+      "browserRevision": "@b75a5a95ea1a1b55bdbfd6d9f42d47be7507fb8b",
+      "debuggingPort": 9222,
+      "connectionId": "f823af05-4dbf-4e1f-b5f5-31251732a225",
+      "targetId": "CD14A98C1B39483B04B22000D944C9BB",
+      "backgroundTarget": true,
+      "script": "tests/unicode-color-case.js",
+      "scriptSHA256": "CC9E5C88F5B060BD261063F77999C659450D8B6A0FEED80CD834BEC4B81381C2"
+    },
+    {
+      "runId": "46496e08973f41999260e44b5af6ec9d",
+      "capturedAt": "2026-09-15T02:43:50.757Z",
+      "browserMode": "user-chrome-cdp",
+      "chromeVersion": "153.0.8010.37",
+      "browserRevision": "@b75a5a95ea1a1b55bdbfd6d9f42d47be7507fb8b",
+      "debuggingPort": 9222,
+      "connectionId": "f823af05-4dbf-4e1f-b5f5-31251732a225",
+      "targetId": "663040156DD79A0EA76266559C4AE4F2",
+      "backgroundTarget": true,
+      "script": "tests/fourth-round-cases.js",
+      "scriptSHA256": "B2173CF5E98DFFA4DD7E1481A850CAC552F352321AE0DB246B8BCBDAB3425D54"
+    },
+    {
+      "runId": "c7bfc565ac0a4ae498705ae81d2ac962",
+      "capturedAt": "2026-09-15T02:43:50.857Z",
+      "browserMode": "user-chrome-cdp",
+      "chromeVersion": "153.0.8010.37",
+      "browserRevision": "@b75a5a95ea1a1b55bdbfd6d9f42d47be7507fb8b",
+      "debuggingPort": 9222,
+      "connectionId": "f823af05-4dbf-4e1f-b5f5-31251732a225",
+      "targetId": "EDCD1F009ECE700BF287A03FCC00D6FE",
+      "backgroundTarget": true,
+      "script": "demo.js",
+      "scriptSHA256": "FEA443544EEFDB59C29593EAEC43BBA59CECADCF104A69B99B189B6206F9300E"
+    }
+  ],
+  "sha256": {
+    "index.js": "0CC1A90B6F59025DEBB6BFE21A2323563D6CFD242215F4F6C680D4F723140A26",
+    "src/webgl_native.rs": "055DC5F4087C6363B8D195D97633264F9CD68A25313D13F784D16BAA8AC0AC10",
+    "src/canvas_css.rs": "1D6E43126CC1E05934FD07FBB5215B62D00E4EF94B3A885BF87D579EEEE92F58",
+    "src/skia_backend.cpp": "FE24EBB72E85587E0E4693846DD19AB1E6308FDE271AB5B30A0DF4FB6A582B64",
+    "webgl.node": "DFEDC462D4F60C8D4D8E180C7AF63D7DB2BED40857F2AC2BCC931D15138C46BF",
+    "demo.js": "FEA443544EEFDB59C29593EAEC43BBA59CECADCF104A69B99B189B6206F9300E",
+    "test.js": "76C5DB32F2B779B958F1A11E162C749E37E858F246882D96C3ED6222801569A7",
+    "tests/fourth-round-cases.js": "B2173CF5E98DFFA4DD7E1481A850CAC552F352321AE0DB246B8BCBDAB3425D54",
+    "tests/compare-fifth-round.cjs": "29C73623F77E9F299C7BF57AD5A5E2937F893E26BAE24DDAAB53951134692F26",
+    "tests/compare-fourth-round.cjs": "6BE4547AB911B3BD6795133C0138BD9364C47FDE4D2181A6366DB8339D8C2C9E"
+  }
+}

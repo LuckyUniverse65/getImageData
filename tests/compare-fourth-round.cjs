@@ -7,6 +7,7 @@ const browser=read('out/cdp-fourth-round-browser.json');
 assert.equal(browser.browserMode,'user-chrome-cdp');
 assert.equal(browser.script,'tests/fourth-round-cases.js');
 assert.equal(browser.scriptSHA256,hash(browser.script));
+browser.value=browser.value.fourthRound;
 const local=require('./fourth-round-cases')(require('..').OffscreenCanvas);
 assert.deepEqual(Object.keys(local).sort(),Object.keys(browser.value).sort());
 const matches=[],differences=[];
