@@ -7,6 +7,7 @@ const { encodePng } = require('./src/png');
 const OffscreenCanvasRenderingContext2D = native.OffscreenCanvasRenderingContext2D;
 const imageDataObjects = new WeakSet();
 const imageSources = new WeakSet();
+const imageSourceState = new WeakMap();
 const contexts = new WeakSet();
 const offscreenCanvases = new WeakSet();
 function requireOffscreenCanvas(value) {
@@ -60,7 +61,9 @@ function signedLong(value) {
 }
 function checkImageSource(source) {
     if (!imageSources.has(source)) throw new TypeError('Expected a Canvas image source');
-    if (!source.width || !source.height) throw new DOMException('Image source has no pixels', 'InvalidStateError');
+    const state = imageSourceState.get(source) || source;
+    if (!state.width || !state.height) throw new DOMException('Image source has no pixels', 'InvalidStateError');
+    return state;
 }
 
 function dimension(value, fallback) {
@@ -146,8 +149,9 @@ function adaptContextArguments(context) {
         if(!imageSources.has(args[0]))throw new TypeError('Expected a Canvas image source');
         const count=args.length>=9?9:args.length>=5?5:3;
         for(let i=1;i<count;i++)args[i]=+args[i];
-        checkImageSource(args[0]);
+        const source = checkImageSource(args[0]);
         if(!args.slice(1,count).every(Number.isFinite))return;
+        args[0] = {width:source.width, height:source.height, data:source.data};
         return drawImage.apply(this,args.slice(0,count));
     };
     const createPattern=context.createPattern;
@@ -156,8 +160,8 @@ function adaptContextArguments(context) {
         if(!imageSources.has(source))throw new TypeError('Expected a Canvas image source');
         repetition=repetition===null?'':domString(repetition);
         if(!['','repeat','repeat-x','repeat-y','no-repeat'].includes(repetition))throw new DOMException('Invalid repetition','SyntaxError');
-        checkImageSource(source);
-        return createPattern.call(this,source,repetition||'repeat');
+        const state = checkImageSource(source);
+        return createPattern.call(this,{width:state.width,height:state.height,data:state.data},repetition||'repeat');
     };
     for(const name of ['getImageData','createImageData']) {
         const method=context[name];
@@ -231,58 +235,75 @@ function requireImageBitmap(value) {
     if(!imageBitmaps.has(value))throw new TypeError('Illegal invocation');
 }
 class ImageBitmap {
+    #width; #height; #pixels;
     constructor(key, width, height, pixels) {
         if(key!==bitmapCreationKey)throw new TypeError('Illegal constructor');
         imageBitmaps.add(this);
         imageSources.add(this);
-        this._width = width;
-        this._height = height;
-        this._pixels = new Uint8ClampedArray(pixels);
+        const owner = this;
+        imageSourceState.set(this, {
+            get width() { return owner.#width; },
+            get height() { return owner.#height; },
+            get data() { return owner.#readPixels(); }
+        });
+        this.#width = width;
+        this.#height = height;
+        this.#pixels = new Uint8ClampedArray(pixels);
     }
-    get width() { requireImageBitmap(this); return this._width; }
-    get height() { requireImageBitmap(this); return this._height; }
-    get data() { return this._pixels; }
-    close() { requireImageBitmap(this); this._width = 0; this._height = 0; this._pixels = new Uint8ClampedArray(0); }
+    get width() { requireImageBitmap(this); return this.#width; }
+    get height() { requireImageBitmap(this); return this.#height; }
+    #readPixels() { return this.#pixels; }
+    get data() { return this.#readPixels(); }
+    close() { requireImageBitmap(this); this.#width = 0; this.#height = 0; this.#pixels = new Uint8ClampedArray(0); }
 }
 
 class OffscreenCanvas {
+    #width; #height; #contexts; #native;
     constructor(width, height) {
         if (arguments.length < 2) throw new TypeError('OffscreenCanvas requires width and height');
-        this._width = offscreenDimension(width);
-        this._height = offscreenDimension(height);
-        this._contexts = new Map();
-        this._native = new native.OffscreenCanvas(this._width, this._height);
+        this.#width = offscreenDimension(width);
+        this.#height = offscreenDimension(height);
+        this.#contexts = new Map();
+        this.#native = new native.OffscreenCanvas(this.#width, this.#height);
         offscreenCanvases.add(this);
         imageSources.add(this);
+        const owner = this;
+        imageSourceState.set(this, {
+            get width() { return owner.#width; },
+            get height() { return owner.#height; },
+            get data() { return owner.#readPixels(); }
+        });
     }
 
-    get width() { requireOffscreenCanvas(this); return this._width; }
+    get width() { requireOffscreenCanvas(this); return this.#width; }
     set width(value) {
         requireOffscreenCanvas(this);
-        this._resize(offscreenDimension(value), this._height);
+        this.#resize(offscreenDimension(value), this.#height);
     }
 
-    get height() { requireOffscreenCanvas(this); return this._height; }
+    get height() { requireOffscreenCanvas(this); return this.#height; }
     set height(value) {
         requireOffscreenCanvas(this);
         const height = offscreenDimension(value);
-        this._resize(this._width, height);
+        this.#resize(this.#width, height);
     }
 
-    get data() {
-        if (!this._width || !this._height) return new Uint8ClampedArray(0);
-        const context = this._contexts.get("2d");
-        if (!context) return new Uint8ClampedArray(this._width * this._height * 4);
-        return context.getImageData(0, 0, this._width, this._height).data;
+    get data() { return this.#readPixels(); }
+
+    #readPixels() {
+        if (!this.#width || !this.#height) return new Uint8ClampedArray(0);
+        const context = this.#contexts.get("2d");
+        if (!context) return new Uint8ClampedArray(this.#width * this.#height * 4);
+        return context.getImageData(0, 0, this.#width, this.#height).data;
     }
 
-    _resize(width, height) {
-        const context = this._contexts.get('2d');
+    #resize(width, height) {
+        const context = this.#contexts.get('2d');
         if (context) context._resize(width, height);
-        this._width = width;
-        this._height = height;
-        this._native.width = width;
-        this._native.height = height;
+        this.#width = width;
+        this.#height = height;
+        this.#native.width = width;
+        this.#native.height = height;
     }
 
     getContext(type, attributes) {
@@ -294,17 +315,17 @@ class OffscreenCanvas {
         }
         // Web IDL conversion precedes the implementation's cached-context path.
         attributes=contextOptions(attributes);
-        if (this._contexts.has(kind)) return this._contexts.get(kind);
+        if (this.#contexts.has(kind)) return this.#contexts.get(kind);
         // Only a successful context creation locks the canvas to that mode.
-        if (this._contexts.size) return null;
+        if (this.#contexts.size) return null;
         if (kind === "2d" || kind === "webgl" || kind === "webgl2") {
-            const context = this._native.getContext(kind, attributes);
+            const context = this.#native.getContext(kind, attributes);
             if (kind === "2d" && context && Object.getPrototypeOf(context) !== OffscreenCanvasRenderingContext2D.prototype) {
                 Object.setPrototypeOf(context, OffscreenCanvasRenderingContext2D.prototype);
             }
             if (kind === '2d' && context) adaptContextArguments(context);
             if (context) Object.defineProperty(context, 'canvas', { value: this, enumerable: true });
-            if (context) this._contexts.set(kind, context);
+            if (context) this.#contexts.set(kind, context);
             return context;
         }
         return null;
@@ -312,10 +333,10 @@ class OffscreenCanvas {
 
     transferToImageBitmap() {
         requireOffscreenCanvas(this);
-        const context = this._contexts.get("2d");
+        const context = this.#contexts.get("2d");
         if (!context) throw new DOMException('Canvas has no rendering context', 'InvalidStateError');
-        if (!this._width || !this._height) throw new DOMException('Canvas has no transferable image', 'UnknownError');
-        const bitmap = new ImageBitmap(bitmapCreationKey, this._width, this._height, this.data);
+        if (!this.#width || !this.#height) throw new DOMException('Canvas has no transferable image', 'UnknownError');
+        const bitmap = new ImageBitmap(bitmapCreationKey, this.#width, this.#height, this.#readPixels());
         context._clearBitmap();
         return bitmap;
     }
@@ -328,9 +349,9 @@ class OffscreenCanvas {
         if(quality!==undefined)void +quality; // unrestricted double, including NaN/Infinity
         const type=options?.type;
         if(type!==undefined)domString(type);
-        if (!this._width || !this._height) throw new DOMException('Canvas has zero size', 'IndexSizeError');
-        if(!this._contexts.size)throw new DOMException('Canvas has no rendering context','InvalidStateError');
-        const bytes = encodePng(this._width, this._height, this.data);
+        if (!this.#width || !this.#height) throw new DOMException('Canvas has zero size', 'IndexSizeError');
+        if(!this.#contexts.size)throw new DOMException('Canvas has no rendering context','InvalidStateError');
+        const bytes = encodePng(this.#width, this.#height, this.#readPixels());
         return new Blob([bytes], {type: 'image/png'});
     }
 }

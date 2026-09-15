@@ -59,9 +59,9 @@ extern "C" {
     fn skia_canvas_point_in_path(canvas: *mut c_void, x: f32, y: f32, stroke: i32, evenodd: i32) -> i32;
     fn skia_canvas_set_color(canvas: *mut c_void, stroke: i32, r: u8, g: u8, b: u8, a: u8);
     fn skia_canvas_set_color_float(canvas: *mut c_void, stroke: i32, r: f32, g: f32, b: f32, a: f32);
-    fn skia_canvas_set_gradient(canvas: *mut c_void, stroke: i32, kind: i32, args: *const f32, positions: *const f32, colors: *const u8, count: u32);
+    fn skia_canvas_set_gradient(canvas: *mut c_void, stroke: i32, kind: i32, args: *const f32, positions: *const f32, colors: *const f32, count: u32);
     fn skia_canvas_set_pattern(canvas: *mut c_void, stroke: i32, pixels: *const u8, width: u32, height: u32, repeat_x: i32, repeat_y: i32);
-    fn skia_canvas_set_shadow(canvas: *mut c_void, r: u8, g: u8, b: u8, a: u8, blur: f32, offset_x: f32, offset_y: f32);
+    fn skia_canvas_set_shadow(canvas: *mut c_void, r: f32, g: f32, b: f32, a: f32, blur: f32, offset_x: f32, offset_y: f32);
     fn skia_canvas_set_line_width(canvas: *mut c_void, width: f32);
     fn skia_canvas_set_stroke_style(canvas: *mut c_void, cap: i32, join: i32, miter_limit: f32);
     fn skia_canvas_set_line_dash(canvas: *mut c_void, values: *const f32, count: u32, offset: f32);
@@ -215,7 +215,7 @@ struct Canvas2D {
     pixels: Vec<u8>,
     fill: Style,
     stroke: Style,
-    shadow: [u8; 4],
+    shadow: Style,
     shadow_blur: f64,
     shadow_offset_x: f64,
     shadow_offset_y: f64,
@@ -243,7 +243,7 @@ struct Canvas2D {
 struct CanvasState {
     fill: Style,
     stroke: Style,
-    shadow: [u8; 4],
+    shadow: Style,
     shadow_blur: f64,
     shadow_offset_x: f64,
     shadow_offset_y: f64,
@@ -276,7 +276,7 @@ enum Style {
 struct Gradient {
     kind: u8,
     args: [f64; 6],
-    stops: Vec<(f64, [u8; 4])>,
+    stops: Vec<(f64, [u8; 4], [f32; 4])>,
 }
 
 #[derive(Clone)]
@@ -736,7 +736,7 @@ unsafe fn canvas_2d(width: usize, height: usize, env: NapiEnv, alpha: bool, desy
         native: skia_canvas_create(width.min(u32::MAX as usize) as u32, height.min(u32::MAX as usize) as u32, alpha as i32),
         alpha, desynchronized, will_read_frequently,
         width, height, pixels: vec![0; length], fill: Style::Color([0, 0, 0, 255]),
-        stroke: Style::Color([0, 0, 0, 255]), shadow: [0, 0, 0, 0], shadow_blur: 0.0, shadow_offset_x: 0.0, shadow_offset_y: 0.0,
+        stroke: Style::Color([0, 0, 0, 255]), shadow: Style::Color([0, 0, 0, 0]), shadow_blur: 0.0, shadow_offset_x: 0.0, shadow_offset_y: 0.0,
         transform: [1.0, 0.0, 0.0, 1.0, 0.0, 0.0], path: Vec::new(), current_path: None,
         line_width: 1.0, line_cap: "butt".to_string(), line_join: "miter".to_string(), miter_limit: 10.0, line_dash_offset: 0.0, global_alpha: 1.0, composite_copy: false, image_smoothing: true,
         font: "10px sans-serif".to_string(), text_align: "start".to_string(),
@@ -776,6 +776,17 @@ fn rectangle(x: f64, y: f64, width: f64, height: f64) -> (isize, isize, isize, i
 
 fn style_color(style: &Style) -> [u8; 4] { match style { Style::Color(c) | Style::CssColor(c,_,_) => *c, Style::Gradient(g) => g.data.borrow().stops.first().map(|s| s.1).unwrap_or([0,0,0,255]), Style::Pattern(_) => [0,0,0,255] } }
 
+fn css_style(value: &str, color: [u8;4]) -> Style {
+    let floats=canvas_css::hsl_color(value);
+    if let Some(alpha)=canvas_css::alpha(value).or_else(||floats.map(|c|c[3] as f64)) {
+        Style::CssColor(color,alpha,floats)
+    } else { Style::Color(color) }
+}
+fn drawing_color(style: &Style) -> [f32;4] {
+    if let Style::CssColor(_,_,Some(color))=style { *color }
+    else { style_color(style).map(|v|v as f32/255.0) }
+}
+
 unsafe fn style_value(env: NapiEnv, style: &Style) -> NapiValue {
     if let Style::Gradient(g) = style {
         let mut value = ptr::null_mut();
@@ -802,9 +813,9 @@ unsafe fn sync_native_style(canvas: &Canvas2D, style: &Style, stroke: bool) {
         Style::Gradient(gradient) => {
             let gradient = gradient.data.borrow();
             let args = gradient.args.map(|value| value as f32);
-            let positions: Vec<f32> = gradient.stops.iter().map(|(position, _)| *position as f32).collect();
+            let positions: Vec<f32> = gradient.stops.iter().map(|(position, _, _)| *position as f32).collect();
             let mut colors = Vec::with_capacity(gradient.stops.len() * 4);
-            for (_, color) in &gradient.stops { colors.extend_from_slice(color); }
+            for (_, _, color) in &gradient.stops { colors.extend_from_slice(color); }
             skia_canvas_set_gradient(canvas.native, stroke as i32, gradient.kind as i32, args.as_ptr(),
                                      positions.as_ptr(), colors.as_ptr(), gradient.stops.len() as u32);
         },
@@ -816,7 +827,8 @@ unsafe fn sync_native_paint(canvas: &Canvas2D) {
     if canvas.native.is_null() { return; }
     sync_native_style(canvas, &canvas.fill, false);
     sync_native_style(canvas, &canvas.stroke, true);
-    skia_canvas_set_shadow(canvas.native, canvas.shadow[0], canvas.shadow[1], canvas.shadow[2], canvas.shadow[3], canvas.shadow_blur as f32, canvas.shadow_offset_x as f32, canvas.shadow_offset_y as f32);
+    let shadow = drawing_color(&canvas.shadow);
+    skia_canvas_set_shadow(canvas.native, shadow[0], shadow[1], shadow[2], shadow[3], canvas.shadow_blur as f32, canvas.shadow_offset_x as f32, canvas.shadow_offset_y as f32);
     skia_canvas_set_line_width(canvas.native, canvas.line_width as f32);
     let cap = if canvas.line_cap == "round" { 1 } else if canvas.line_cap == "square" { 2 } else { 0 };
     let join = if canvas.line_join == "round" { 1 } else if canvas.line_join == "bevel" { 2 } else { 0 };
@@ -918,7 +930,7 @@ unsafe extern "C" fn get_canvas_property(env: NapiEnv, info: NapiCallbackInfo) -
     match data {
         0 => style_value(env, &c.fill),
         1 => style_value(env, &c.stroke),
-        2 => style_value(env, &Style::Color(c.shadow)),
+        2 => style_value(env, &c.shadow),
         3 => number_value(env, c.shadow_blur), 4 => number_value(env, c.line_width), 10 => number_value(env, c.shadow_offset_x), 11 => number_value(env, c.shadow_offset_y),
         5 => number_value(env, c.global_alpha), 6 => string(env, &canvas_css::serialized_font(&c.font)),
         7 => string(env, &c.text_align), 8 => string(env, &c.text_baseline),
@@ -949,8 +961,7 @@ unsafe extern "C" fn set_canvas_property(env: NapiEnv, info: NapiCallbackInfo) -
         0 | 1 => {
             if let Some(s) = prepared.clone() {
                 if let Some(col) = parse_color(&s) {
-                    let floats=canvas_css::hsl_color(&s);
-                    let style=if let Some(alpha)=canvas_css::alpha(&s).or_else(||floats.map(|c|c[3] as f64)){Style::CssColor(col,alpha,floats)}else{Style::Color(col)};
+                    let style=css_style(&s, col);
                     if data == 0 { c.fill = style; } else { c.stroke = style; }
                 }
             } else {
@@ -972,7 +983,7 @@ unsafe extern "C" fn set_canvas_property(env: NapiEnv, info: NapiCallbackInfo) -
                 }
             }
         },
-        2 => if let Some(s) = prepared.clone() { if let Some(col) = parse_color(&s) { c.shadow = col; } },
+        2 => if let Some(s) = prepared.clone() { if let Some(col) = parse_color(&s) { c.shadow = css_style(&s, col); } },
         3 => { let n = prepared_number.unwrap(); if n.is_finite() && n >= 0.0 { c.shadow_blur = n; } }, 4 => { let n = prepared_number.unwrap(); if n.is_finite() && n > 0.0 { c.line_width = n; } },
         10 => { let n = prepared_number.unwrap(); if n.is_finite() { c.shadow_offset_x = n; } }, 11 => { let n = prepared_number.unwrap(); if n.is_finite() { c.shadow_offset_y = n; } },
         5 => {
@@ -1026,7 +1037,7 @@ fn style_at(style: &Style, x: f64, y: f64) -> [u8; 4] {
             let mut p = p; if g.kind == 3 { p -= p.floor(); }
             let p = p.clamp(0.0,1.0);
             if p <= g.stops[0].0 { return g.stops[0].1; }
-            for i in 1..g.stops.len() { if p <= g.stops[i].0 { let (a,ca)=g.stops[i-1]; let (b,cb)=g.stops[i]; let q=((p-a)/(b-a).max(1e-9)).clamp(0.0,1.0); return [0,1,2,3].map(|k| (ca[k] as f64+(cb[k] as f64-ca[k] as f64)*q).round() as u8); } }
+            for i in 1..g.stops.len() { if p <= g.stops[i].0 { let (a,ca,_)=g.stops[i-1]; let (b,cb,_)=g.stops[i]; let q=((p-a)/(b-a).max(1e-9)).clamp(0.0,1.0); return [0,1,2,3].map(|k| (ca[k] as f64+(cb[k] as f64-ca[k] as f64)*q).round() as u8); } }
             g.stops.last().unwrap().1
         },
         Style::Pattern(p) => if p.pixels.len() >= 4 && p.width > 0 && p.height > 0 { p.pixels[0..4].try_into().unwrap_or([0,0,0,0]) } else { [0,0,0,0] },
@@ -1054,13 +1065,14 @@ fn raster(c:&mut Canvas2D, paths:&[Path], style:&Style, stroke:bool) {
 fn offset_paths(paths:&[Path],dx:f64,dy:f64)->Vec<Path>{ paths.iter().map(|p|Path{points:p.points.iter().map(|(x,y)|(x+dx,y+dy)).collect(),closed:p.closed}).collect() }
 
 fn shadow_paths(c: &mut Canvas2D, paths: &[Path], stroke: bool) {
-    if c.shadow[3] == 0 || c.shadow_blur <= 0.0 { return; }
+    let shadow=style_color(&c.shadow);
+    if shadow[3] == 0 || c.shadow_blur <= 0.0 { return; }
     let radius = c.shadow_blur.ceil().min(64.0) as isize;
     let mut tmp = c.clone_for_raster();
     tmp.pixels.fill(0);
-    tmp.shadow = [0, 0, 0, 0];
+    tmp.shadow = Style::Color([0, 0, 0, 0]);
     tmp.global_alpha = c.global_alpha;
-    raster(&mut tmp, paths, &Style::Color(c.shadow), stroke);
+    raster(&mut tmp, paths, &c.shadow, stroke);
     if radius == 0 { return; }
     let mut blurred = vec![0u8; tmp.pixels.len()];
     let w = c.width as isize;
@@ -1072,14 +1084,14 @@ fn shadow_paths(c: &mut Canvas2D, paths: &[Path], stroke: bool) {
         }}
         let i=(y as usize*c.width+x as usize)*4;
         let a=(sum / count.max(1)) as u8;
-        blurred[i..i+4].copy_from_slice(&[c.shadow[0],c.shadow[1],c.shadow[2],a]);
+        blurred[i..i+4].copy_from_slice(&[shadow[0],shadow[1],shadow[2],a]);
     }}
     for y in 0..h { for x in 0..w { let i=(y as usize*c.width+x as usize)*4; if blurred[i+3] > 0 { blend(c,x,y,[blurred[i],blurred[i+1],blurred[i+2],blurred[i+3]],1.0); } } }
 }
 
 impl Canvas2D {
     fn clone_for_raster(&self) -> Canvas2D {
-        Canvas2D { native:ptr::null_mut(),alpha:self.alpha,desynchronized:self.desynchronized,will_read_frequently:self.will_read_frequently,width:self.width,height:self.height,pixels:self.pixels.clone(),fill:self.fill.clone(),stroke:self.stroke.clone(),shadow:self.shadow,shadow_blur:self.shadow_blur,shadow_offset_x:self.shadow_offset_x,shadow_offset_y:self.shadow_offset_y,transform:self.transform,path:self.path.clone(),current_path:self.current_path,line_width:self.line_width,line_cap:self.line_cap.clone(),line_join:self.line_join.clone(),miter_limit:self.miter_limit,line_dash_offset:self.line_dash_offset,global_alpha:self.global_alpha,composite_copy:self.composite_copy,image_smoothing:self.image_smoothing,font:self.font.clone(),text_align:self.text_align.clone(),text_baseline:self.text_baseline.clone(),direction:self.direction.clone(),line_dash:self.line_dash.clone(),state_stack:Vec::new(),clip:self.clip.clone() }
+        Canvas2D { native:ptr::null_mut(),alpha:self.alpha,desynchronized:self.desynchronized,will_read_frequently:self.will_read_frequently,width:self.width,height:self.height,pixels:self.pixels.clone(),fill:self.fill.clone(),stroke:self.stroke.clone(),shadow:self.shadow.clone(),shadow_blur:self.shadow_blur,shadow_offset_x:self.shadow_offset_x,shadow_offset_y:self.shadow_offset_y,transform:self.transform,path:self.path.clone(),current_path:self.current_path,line_width:self.line_width,line_cap:self.line_cap.clone(),line_join:self.line_join.clone(),miter_limit:self.miter_limit,line_dash_offset:self.line_dash_offset,global_alpha:self.global_alpha,composite_copy:self.composite_copy,image_smoothing:self.image_smoothing,font:self.font.clone(),text_align:self.text_align.clone(),text_baseline:self.text_baseline.clone(),direction:self.direction.clone(),line_dash:self.line_dash.clone(),state_stack:Vec::new(),clip:self.clip.clone() }
     }
 }
 
@@ -1095,14 +1107,14 @@ unsafe extern "C" fn gradient_add_stop(env:NapiEnv, info:NapiCallbackInfo)->Napi
     let Some(color)=dom_string(env,args[1])else{return undefined(env);};
     if !(0.0..=1.0).contains(&off){return dom_error(env,"IndexSizeError","Offset must be between zero and one");}
     let Some(col)=parse_color(&color) else{return dom_error(env,"SyntaxError","Invalid color");};
-    let mut g=(*(raw as *mut GradientObject)).0.borrow_mut();g.stops.push((off,col));g.stops.sort_by(|a,b|a.0.total_cmp(&b.0));
+    let mut g=(*(raw as *mut GradientObject)).0.borrow_mut();g.stops.push((off,col,drawing_color(&css_style(&color,col))));g.stops.sort_by(|a,b|a.0.total_cmp(&b.0));
     undefined(env)
 }
 unsafe fn create_gradient(env:NapiEnv, g:Gradient)->NapiValue { let mut o=ptr::null_mut(); (api().create_object)(env,&mut o); (api().type_tag_object)(env,o,&GRADIENT_TYPE_TAG); (api().wrap)(env,o,Box::into_raw(Box::new(GradientObject(Rc::new(RefCell::new(g))))) as *mut c_void,Some(finalize_gradient),ptr::null_mut(),ptr::null_mut()); let mut f=ptr::null_mut(); (api().create_function)(env,b"addColorStop\0".as_ptr() as *const c_char,12,gradient_add_stop,ptr::null_mut(),&mut f); set(env,o,"addColorStop",f); o }
 unsafe fn create_pattern(env:NapiEnv, pattern:Pattern)->NapiValue { let mut o=ptr::null_mut(); (api().create_object)(env,&mut o); (api().type_tag_object)(env,o,&PATTERN_TYPE_TAG); (api().wrap)(env,o,Box::into_raw(Box::new(PatternObject(pattern))) as *mut c_void,Some(finalize_pattern),ptr::null_mut(),ptr::null_mut()); o }
 
 unsafe fn reset_canvas_state(canvas: &mut Canvas2D) {
- canvas.fill=Style::Color([0,0,0,255]); canvas.stroke=Style::Color([0,0,0,255]); canvas.shadow=[0,0,0,0]; canvas.shadow_blur=0.0; canvas.shadow_offset_x=0.0; canvas.shadow_offset_y=0.0; canvas.transform=[1.0,0.0,0.0,1.0,0.0,0.0]; canvas.path.clear(); canvas.current_path=None; canvas.line_width=1.0; canvas.line_cap="butt".to_string(); canvas.line_join="miter".to_string(); canvas.miter_limit=10.0; canvas.line_dash.clear(); canvas.line_dash_offset=0.0; canvas.global_alpha=1.0; canvas.composite_copy=false; canvas.image_smoothing=true; canvas.font="10px sans-serif".to_string(); canvas.text_align="start".to_string(); canvas.text_baseline="alphabetic".to_string(); canvas.direction="inherit".to_string(); canvas.state_stack.clear(); canvas.clip.clear(); if !canvas.native.is_null(){skia_canvas_reset(canvas.native);}  canvas.pixels.fill(0);
+ canvas.fill=Style::Color([0,0,0,255]); canvas.stroke=Style::Color([0,0,0,255]); canvas.shadow=Style::Color([0,0,0,0]); canvas.shadow_blur=0.0; canvas.shadow_offset_x=0.0; canvas.shadow_offset_y=0.0; canvas.transform=[1.0,0.0,0.0,1.0,0.0,0.0]; canvas.path.clear(); canvas.current_path=None; canvas.line_width=1.0; canvas.line_cap="butt".to_string(); canvas.line_join="miter".to_string(); canvas.miter_limit=10.0; canvas.line_dash.clear(); canvas.line_dash_offset=0.0; canvas.global_alpha=1.0; canvas.composite_copy=false; canvas.image_smoothing=true; canvas.font="10px sans-serif".to_string(); canvas.text_align="start".to_string(); canvas.text_baseline="alphabetic".to_string(); canvas.direction="inherit".to_string(); canvas.state_stack.clear(); canvas.clip.clear(); if !canvas.native.is_null(){skia_canvas_reset(canvas.native);}  canvas.pixels.fill(0);
 }
 
 unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> NapiValue {
@@ -1255,7 +1267,7 @@ unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> N
             canvas.line_dash=dash;
             undefined(env)
         }
-        "save" => { canvas.state_stack.push(CanvasState{fill:canvas.fill.clone(),stroke:canvas.stroke.clone(),shadow:canvas.shadow,shadow_blur:canvas.shadow_blur,shadow_offset_x:canvas.shadow_offset_x,shadow_offset_y:canvas.shadow_offset_y,transform:canvas.transform,line_width:canvas.line_width,line_cap:canvas.line_cap.clone(),line_join:canvas.line_join.clone(),miter_limit:canvas.miter_limit,line_dash_offset:canvas.line_dash_offset,global_alpha:canvas.global_alpha,composite_copy:canvas.composite_copy,image_smoothing:canvas.image_smoothing,font:canvas.font.clone(),text_align:canvas.text_align.clone(),text_baseline:canvas.text_baseline.clone(),direction:canvas.direction.clone(),line_dash:canvas.line_dash.clone(),clip:canvas.clip.clone()}); if !canvas.native.is_null(){skia_canvas_save(canvas.native);} undefined(env) }
+        "save" => { canvas.state_stack.push(CanvasState{fill:canvas.fill.clone(),stroke:canvas.stroke.clone(),shadow:canvas.shadow.clone(),shadow_blur:canvas.shadow_blur,shadow_offset_x:canvas.shadow_offset_x,shadow_offset_y:canvas.shadow_offset_y,transform:canvas.transform,line_width:canvas.line_width,line_cap:canvas.line_cap.clone(),line_join:canvas.line_join.clone(),miter_limit:canvas.miter_limit,line_dash_offset:canvas.line_dash_offset,global_alpha:canvas.global_alpha,composite_copy:canvas.composite_copy,image_smoothing:canvas.image_smoothing,font:canvas.font.clone(),text_align:canvas.text_align.clone(),text_baseline:canvas.text_baseline.clone(),direction:canvas.direction.clone(),line_dash:canvas.line_dash.clone(),clip:canvas.clip.clone()}); if !canvas.native.is_null(){skia_canvas_save(canvas.native);} undefined(env) }
         "restore" => { if let Some(s)=canvas.state_stack.pop(){canvas.fill=s.fill;canvas.stroke=s.stroke;canvas.shadow=s.shadow;canvas.shadow_blur=s.shadow_blur;canvas.shadow_offset_x=s.shadow_offset_x;canvas.shadow_offset_y=s.shadow_offset_y;canvas.transform=s.transform;canvas.line_width=s.line_width;canvas.line_cap=s.line_cap;canvas.line_join=s.line_join;canvas.miter_limit=s.miter_limit;canvas.line_dash_offset=s.line_dash_offset;canvas.global_alpha=s.global_alpha;canvas.composite_copy=s.composite_copy;canvas.image_smoothing=s.image_smoothing;canvas.font=s.font;canvas.text_align=s.text_align;canvas.text_baseline=s.text_baseline;canvas.direction=s.direction;canvas.line_dash=s.line_dash;canvas.clip=s.clip;} if !canvas.native.is_null(){skia_canvas_restore(canvas.native);} undefined(env) }
         "fillText" | "strokeText" => {
             if args.len()<3{return type_error(env,"Text drawing requires text, x and y");}

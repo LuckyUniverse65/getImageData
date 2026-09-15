@@ -212,6 +212,7 @@ pub fn serialized_font(value:&str)->String{
 }
 
 pub fn hsl_color(value:&str)->Option<[f32;4]>{
+    let simple_syntax = !value.contains("/*") && !value.contains('\\');
     let value=preprocess(&value.to_ascii_lowercase());let value=value.trim();
     if !value.starts_with("hsl(")&&!value.starts_with("hsla("){return None;}
     function_color(value)?;
@@ -225,7 +226,17 @@ pub fn hsl_color(value:&str)->Option<[f32;4]>{
     let mut a=if fields.len()==4{if let Some(p)=fields[3].strip_suffix('%'){numeric(p)? as f32*0.01f32}else{numeric(fields[3])? as f32}}else{1.0};
     // Chromium's simple HSL parser quantizes numeric alpha, while percentage
     // alpha goes through the general CSS parser and retains float precision.
-    if fields.len()==4&&!fields[3].ends_with('%')&&fields[3]!="none"&&fields[1].ends_with('%')&&fields[2].ends_with('%'){
+    let simple_number=|v:&str| {
+        let v=v.strip_prefix('-').unwrap_or(v);
+        !v.is_empty() && v.bytes().all(|b|b.is_ascii_digit()||b==b'.')
+    };
+    let hue_number=["deg","grad","rad","turn"].iter()
+        .find_map(|unit|fields[0].strip_suffix(unit)).unwrap_or(fields[0]);
+    let simple_percentage=|v:&str|v.strip_suffix('%').is_some_and(|v|
+        simple_number(v) && v.trim_start_matches('-').as_bytes().first().is_some_and(u8::is_ascii_digit));
+    if simple_syntax && fields.len()==4 && simple_number(hue_number)
+        && simple_percentage(fields[1]) && simple_percentage(fields[2])
+        && simple_number(fields[3]) && body.as_bytes().last().is_some_and(u8::is_ascii_digit) {
         a=(a.clamp(0.0,1.0)*255.0).round()/255.0;
     }
     let channel=|n:f32|{let k=(n+h/30.0)%12.0;l-s*l.min(1.0-l)*(-1.0f32).max((k-3.0).min(9.0-k).min(1.0))};
