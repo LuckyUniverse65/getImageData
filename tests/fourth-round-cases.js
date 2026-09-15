@@ -256,6 +256,44 @@
         await add('canvasBitmapReceiver',()=>{const c=new Canvas(2,2);c.getContext('2d');const b=c.transferToImageBitmap();try{return Object.getOwnPropertyDescriptor(Canvas.prototype,'width').get.call(b);}finally{b.close();}});
         return results;
     }
-    if(typeof module!=='undefined'&&module.exports){module.exports=runFourthRoundCases;module.exports.runFifthRoundCases=runFifthRoundCases;module.exports.runSixthRoundCases=runSixthRoundCases;module.exports.runSeventhRoundCases=runSeventhRoundCases;module.exports.runEighthRoundCases=runEighthRoundCases;}
-    else globalThis.__canvasResult=(async()=>({fourthRound:runFourthRoundCases(OffscreenCanvas),fifthRound:runFifthRoundCases(OffscreenCanvas),sixthRound:await runSixthRoundCases(OffscreenCanvas),seventhRound:runSeventhRoundCases(OffscreenCanvas),eighthRound:await runEighthRoundCases(OffscreenCanvas)}))();
+    async function runNinthRoundCases(Canvas) {
+        const results={},fresh=()=>new Canvas(96,48).getContext('2d');
+        const attempt=async fn=>{try{const value=await fn();return {value:value===undefined?'<undefined>':value};}catch(e){return {error:e.name};}};
+        const add=async(name,fn)=>{results[name]=await attempt(fn);};
+        for(const [name,font] of [
+            ['hexCRLF','12px "\\41\r\nrial"'],['escapedCRLF','12px "A\\\r\nrial"'],
+            ['escapedLF','12px "A\\\nrial"'],['escapedFF','12px "A\\\frial"'],['literalFF','12px "A\frial"'],
+            ['verticalTabSeparator','12px\u000bArial'],['quotedVerticalTab','12px "A\u000brial"'],
+            ['escapedSlash','12px A\\/B'],['escapedQuoteComment','12px A\\\"B/**/, Arial'],
+            ['genericMultiword','12px serif Arial'],['genericAfterWord','12px Arial serif'],
+            ['familyEscapedComma','12px A\\,B, Arial'],['hexFamilyComma','12px "\\41rial", Arial'],
+            ['weightBolder','bolder 12px Arial'],['weightLighter','lighter 12px Arial'],['fractionalWeight','450.5 12px Arial'],
+            ['threeNormals','normal normal normal 12px Arial'],['fourNormals','normal normal normal normal 12px Arial'],
+            ['normalAfterBold','bold normal normal normal 12px Arial'],['obliqueAngle','oblique 10deg 12px Arial']
+        ])await add('fontBoundary_'+name,()=>{const g=fresh();g.font='14px Arial';g.font=font;return {font:g.font,width:g.measureText('AVabc').width};});
+        for(const [name,color] of [
+            ['verticalTab','rgb(255\u000b0 0)'],['nbsp','rgb(255\u00a00 0)'],['commentSplitNumber','rgb(2/**/55 0 0)'],
+            ['commentFunctionName','rgb/**/(255 0 0)'],['unterminatedComment','rgb(255 0 0)/*'],
+            ['rgbMixedUnits','rgb(100% 0 0 / 50%)'],['legacyHslAlpha','hsla(0, 100%, 50%, 50%)'],
+            ['noneUppercase','RGB(NONE 0 0 / NONE)'],['hslUnitlessModern','hsl(120 100 50)'],
+            ['hslNonePercent','hsl(120 none 50%)'],['hslZeroPercent','hsl(120 0% 50%)'],
+            ['hslZeroUnitless','hsl(120 0 50)'],['hexGrayControl','#808080']
+        ])await add('colorBoundary_'+name,()=>{const g=fresh();g.fillStyle='blue';g.fillStyle=color;g.fillRect(0,0,1,1);return {style:g.fillStyle,pixel:Array.from(g.getImageData(0,0,1,1).data)};});
+        const bitmap=()=>{const c=new Canvas(2,3);const g=c.getContext('2d');g.fillStyle='red';g.fillRect(0,0,2,3);return c.transferToImageBitmap();};
+        for(const name of ['width','height'])await add('bitmapGetterReceiver_'+name,()=>{const b=bitmap();try{return Object.getOwnPropertyDescriptor(Object.getPrototypeOf(b),name).get.call({});}finally{b.close();}});
+        await add('bitmapCloseReceiver',()=>{const b=bitmap();try{return Object.getPrototypeOf(b).close.call({});}finally{b.close();}});
+        await add('bitmapProxyGetter',()=>{const b=bitmap();try{return new Proxy(b,{}).width;}finally{b.close();}});
+        await add('bitmapConstructor',()=>{const b=bitmap();try{const made=new b.constructor(1,1,new Uint8ClampedArray(4));try{return [made.width,made.height];}finally{made.close();}}finally{b.close();}});
+        await add('bitmapCloseTwice',()=>{const b=bitmap();b.close();b.close();return [b.width,b.height];});
+        await add('bitmapSnapshotLifetime',()=>{const c=new Canvas(2,2),g=c.getContext('2d');g.fillStyle='red';g.fillRect(0,0,2,2);const b=c.transferToImageBitmap();g.fillStyle='blue';g.fillRect(0,0,2,2);const target=fresh();target.drawImage(b,0,0);b.close();return Array.from(target.getImageData(0,0,1,1).data);});
+        await add('contextReentryAttributes',()=>{const c=new Canvas(2,2);let inner;const outer=c.getContext('2d',{get alpha(){inner=c.getContext('2d',{alpha:false});return true;}});return {same:inner===outer,alpha:outer.getContextAttributes().alpha};});
+        await add('contextReentryResize',()=>{const c=new Canvas(2,2);const g=c.getContext('2d',{get alpha(){c.width=4;return false;}});return [c.width,c.height,g.getImageData(0,0,1,1).data[3]];});
+        await add('contextBorrowedMethod',()=>{const a=fresh(),b=fresh();a.fillStyle='red';b.fillStyle='blue';a.fillRect.call(b,0,0,1,1);return [Array.from(a.getImageData(0,0,1,1).data),Array.from(b.getImageData(0,0,1,1).data)];});
+        for(const [name,text] of [['greek','\u03b1\u03b2\u03c2'],['ligatures','\ufb01\ufb03'],['leadingSpacingMark','\u093ea'],['supplementaryMark','\u{1d185}a'],['leadingCGJ','\u034fa'],['wordJoiner','a\u2060b']])await add('capsUnicode_'+name,()=>{const g=fresh();g.font='small-caps 17px Tahoma';const m=g.measureText(text);g.fillText(text,4,30);return {metrics:[m.width,m.actualBoundingBoxLeft,m.actualBoundingBoxRight,m.actualBoundingBoxAscent,m.actualBoundingBoxDescent],pixels:Array.from(g.getImageData(0,0,96,48).data)};});
+        for(const [name,text] of [['spacingMark','\u093ea'],['supplementaryMark','\u{1d185}a'],['supplementaryMarkOnly','\u{1d185}']])await add('normalUnicode_'+name,()=>{const g=fresh();g.font='17px Tahoma';const m=g.measureText(text);g.fillText(text,4,30);return {metrics:[m.width,m.actualBoundingBoxLeft,m.actualBoundingBoxRight,m.actualBoundingBoxAscent,m.actualBoundingBoxDescent],pixels:Array.from(g.getImageData(0,0,96,48).data)};});
+        for(const font of ['17px Tahoma','italic 17px Tahoma','small-caps 17px Tahoma'])await add('fractionalBaselineStroke_'+font,()=>{const g=fresh();g.font=font;g.lineWidth=1.5;g.translate(2.25,1.3);g.scale(1.125,0.875);g.strokeText('Abc',3.3,30.7);return Array.from(g.getImageData(0,0,96,48).data);});
+        return results;
+    }
+    if(typeof module!=='undefined'&&module.exports){module.exports=runFourthRoundCases;module.exports.runFifthRoundCases=runFifthRoundCases;module.exports.runSixthRoundCases=runSixthRoundCases;module.exports.runSeventhRoundCases=runSeventhRoundCases;module.exports.runEighthRoundCases=runEighthRoundCases;module.exports.runNinthRoundCases=runNinthRoundCases;}
+    else globalThis.__canvasResult=(async()=>({fourthRound:runFourthRoundCases(OffscreenCanvas),fifthRound:runFifthRoundCases(OffscreenCanvas),sixthRound:await runSixthRoundCases(OffscreenCanvas),seventhRound:runSeventhRoundCases(OffscreenCanvas),eighthRound:await runEighthRoundCases(OffscreenCanvas),ninthRound:await runNinthRoundCases(OffscreenCanvas)}))();
 })();

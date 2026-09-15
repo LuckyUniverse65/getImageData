@@ -2,6 +2,8 @@
 
 Windows 上的 Node.js `OffscreenCanvas` 兼容层。JavaScript 提供 Canvas 外壳，Rust 通过 Node-API 分派接口，C++ 调用 Skia Graphite / Dawn D3D11 绘制和读取像素。
 
+2026-09-15 第九轮继续检测：新增 **55 项中 32 项一致、23 项存在差异，尚未修复**。涉及字体换行转义与语法、相对字重序列化、HSL 精度、ImageBitmap 身份校验和特殊 Unicode 字形。三次现有 Chrome 采集结果一致，原有 433 项回归、demo 和 GC 均通过。本轮保留生产代码与原生模块，仅增加诊断用例和证据，详见[第九轮检测报告](docs/2026-09-15_ninth-round-review-report.md)。
+
 2026-09-15 第八轮修复完成：此前 **29 个失败用例全部修复**，补充 26 项相关边界后，第八轮 **72 项全部通过**，完整 **433 项**与用户现有 Chrome 实时对照一致，demo 的 9216 个 RGBA 值零差异，GC 通过。修复覆盖 Canvas 接收对象校验、字体转义及序列化、现代颜色注释与 `none`、开头组合重音、合成斜体和变换后的文字基线对齐。详见[第八轮修复报告](docs/2026-09-15_eighth-round-fixes-report.md)；[第八轮检测报告](docs/2026-09-15_eighth-round-review-report.md)保留修复前证据。
 
 2026-09-15 第七轮补齐无 OpenType `smcp` 字体的合成小型大写：新增 **35 项全部通过**，完整 **361 项**与现有 Chrome 实时对照一致，demo 的 9216 个 RGBA 值零差异，GC 通过。已验证 Courier New、Tahoma、Consolas 的混合大小写、Unicode 大写展开、组合重音、填充/描边、变换和阴影。详见[第七轮修复报告](docs/2026-09-15_seventh-round-fixes-report.md)。
