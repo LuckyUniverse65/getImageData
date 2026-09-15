@@ -42,6 +42,7 @@
 #include "modules/skshaper/include/SkShaper_harfbuzz.h"
 #include "modules/skunicode/include/SkUnicode_bidi.h"
 #include "src/core/SkUTF.h"
+#include "third_party/externals/harfbuzz/src/hb.h"
 #include <Windows.h>
 
 extern "C" uint32_t canvas_uppercase(uint32_t codepoint, uint32_t* output);
@@ -333,6 +334,7 @@ struct Gradient {
 };
 
 struct Style {
+    bool float_color = false;
     SkColor4f color = {0, 0, 0, 1};
     std::unique_ptr<Gradient> gradient;
     sk_sp<SkShader> pattern;
@@ -470,7 +472,8 @@ static SkPaint make_paint(const Canvas* canvas, const Style& style, bool stroke)
     } else {
         SkColor4f color = style.color;
         color.fA *= canvas->global_alpha;
-        paint.setColor(SkColorSetARGB(
+        if(style.float_color)paint.setColor4f(color,SkColorSpace::MakeSRGB().get());
+        else paint.setColor(SkColorSetARGB(
             static_cast<uint8_t>(std::round(color.fA * 255.0f)),
             static_cast<uint8_t>(std::round(color.fR * 255.0f)),
             static_cast<uint8_t>(std::round(color.fG * 255.0f)),
@@ -548,8 +551,7 @@ static Style& selected_style(Canvas* canvas, int stroke) { return stroke ? canva
 static SkFont resolve_font(const char* family, float size, int weight, int slant) {
     static sk_sp<SkFontMgr> font_manager = SkFontMgr_New_DirectWrite();
     const int clamped_weight = std::clamp(weight, 1, 1000);
-    const auto font_slant = slant == 2 ? SkFontStyle::kOblique_Slant
-                                       : slant == 1 ? SkFontStyle::kItalic_Slant
+    const auto font_slant = (slant == 1 || slant == 2 || slant == 3) ? SkFontStyle::kItalic_Slant
                                                     : SkFontStyle::kUpright_Slant;
     const SkFontStyle style(clamped_weight, SkFontStyle::kNormal_Width, font_slant);
     const char* font_file = runtime_string("CANVAS_FONT_FILE", "");
@@ -572,6 +574,7 @@ static SkFont resolve_font(const char* family, float size, int weight, int slant
         for(const char* p=family;;++p){
             const char ch=*p;
             if(!ch){match_family();break;}
+            if(ch=='\\'&&p[1]){name+=*++p;continue;}
             if(quote){if(ch==quote)quote=0;else name+=ch;}
             else if(ch=='\''||ch=='"')quote=ch;
             else if(ch==','){match_family();if(typeface)break;}
@@ -598,7 +601,7 @@ static SkFont resolve_font(const char* family, float size, int weight, int slant
     bool synthetic_oblique=false;
     if(typeface && typeface->isSyntheticOblique()) {
         SkFontArguments arguments;arguments.setSyntheticOblique(false);
-        if(auto upright=typeface->makeClone(arguments)){typeface=std::move(upright);synthetic_oblique=true;}
+        if(auto upright=typeface->makeClone(arguments)){typeface=std::move(upright);synthetic_oblique=slant!=3;}
     }
     // Blink's Canvas shaping stage passes linearly measured, subpixel glyph
     // runs into Skia. The public DirectWrite font manager otherwise rounds
@@ -787,6 +790,12 @@ static bool has_small_caps(const SkFont& font) {
 }
 
 struct CapsRun { std::string text; bool reduced; };
+static bool combining_mark(SkUnichar ch) {
+    const auto category=hb_unicode_general_category(hb_unicode_funcs_get_default(),ch);
+    return category==HB_UNICODE_GENERAL_CATEGORY_NON_SPACING_MARK
+        || category==HB_UNICODE_GENERAL_CATEGORY_SPACING_MARK
+        || category==HB_UNICODE_GENERAL_CATEGORY_ENCLOSING_MARK;
+}
 static std::vector<CapsRun> synthetic_caps_runs(const char* text, size_t length) {
     std::vector<CapsRun> runs;
     std::string leading_marks;
@@ -795,16 +804,13 @@ static std::vector<CapsRun> synthetic_caps_runs(const char* text, size_t length)
         auto ch=SkUTF::NextUTF8(&cursor,end);if(ch<0)ch=0xfffd;
         uint32_t upper[3]{};const uint32_t count=canvas_uppercase(ch,upper);
         bool reduced=count!=1 || upper[0]!=static_cast<uint32_t>(ch);
-        bool combining=false;
+        const bool combining=combining_mark(ch);
         // Combining marks remain in the run of their base character.
-        if (ch<=0xffff) {
-            const WCHAR character=static_cast<WCHAR>(ch);WORD type=0;
-            // Windows also marks precomposed accented letters as NONSPACING.
-            // Their ALPHA bit distinguishes them from combining marks.
-            combining=GetStringTypeW(CT_CTYPE3,&character,1,&type) && (type&C3_NONSPACING) && !(type&C3_ALPHA);
-            if(combining && !runs.empty())reduced=runs.back().reduced;
-        }
-        if(combining && runs.empty()){
+        if(combining && !runs.empty())reduced=runs.back().reduced;
+        // Blink carries leading BMP nonspacing accents into the following
+        // case run. Spacing and supplementary marks retain their own size.
+        if(combining && runs.empty() && ch<=0xffff &&
+           hb_unicode_general_category(hb_unicode_funcs_get_default(),ch)==HB_UNICODE_GENERAL_CATEGORY_NON_SPACING_MARK){
             char buffer[SkUTF::kMaxBytesInUTF8Sequence];const size_t n=SkUTF::ToUTF8(ch,buffer);leading_marks.append(buffer,n);continue;
         }
         if(runs.empty()||runs.back().reduced!=reduced)runs.push_back({{},reduced});
@@ -815,11 +821,37 @@ static std::vector<CapsRun> synthetic_caps_runs(const char* text, size_t length)
     return runs;
 }
 
-static sk_sp<SkTextBlob> synthetic_caps_blob(const char* text,size_t length,
-        const SkFont& draw_font,const SkFont& position_font,float* advance,float* output_bounds=nullptr) {
+struct FontTextRun { std::string text; sk_sp<SkTypeface> face; };
+static std::vector<FontTextRun> fallback_runs(const std::string& text,const SkFont& font) {
+    static sk_sp<SkFontMgr> manager=SkFontMgr_New_DirectWrite();
+    std::vector<FontTextRun> runs;
+    const char* cursor=text.data();const char* end=cursor+text.size();
+    while(cursor<end){
+        const char* start=cursor;auto ch=SkUTF::NextUTF8(&cursor,end);if(ch<0)ch=0xfffd;
+        auto face=font.refTypeface();
+        if(combining_mark(ch)&&!runs.empty())face=runs.back().face;
+        else if(!font.unicharToGlyph(ch)&&manager){
+            if(auto fallback=manager->matchFamilyStyleCharacter(nullptr,face->fontStyle(),nullptr,0,ch))face=std::move(fallback);
+        }
+        if(runs.empty()||runs.back().face->uniqueID()!=face->uniqueID())runs.push_back({{},face});
+        runs.back().text.append(start,cursor-start);
+    }
+    return runs;
+}
+static bool needs_font_fallback(const char* text,size_t length,const SkFont& font){
+    const char* cursor=text;const char* end=text+length;
+    while(cursor<end){auto ch=SkUTF::NextUTF8(&cursor,end);if(ch>=0&&!font.unicharToGlyph(ch))return true;}
+    return false;
+}
+
+static sk_sp<SkTextBlob> font_runs_blob(const char* text,size_t length,
+        const SkFont& draw_font,const SkFont& position_font,float* advance,float* output_bounds=nullptr,bool synthetic_caps=true,bool native_small_caps=false) {
     SkTextBlobBuilder builder;SkRect combined=SkRect::MakeEmpty();float offset=0;
-    for(const auto& run:synthetic_caps_runs(text,length)) {
+    const auto caps_runs=synthetic_caps?synthetic_caps_runs(text,length):std::vector<CapsRun>{{std::string(text,length),false}};
+    for(const auto& run:caps_runs) {
+      for(const auto& font_run:fallback_runs(run.text,position_font)) {
         SkFont draw(draw_font),position(position_font);
+        draw.setTypeface(font_run.face);position.setTypeface(font_run.face);
         if(run.reduced) {
             // Blink derives the synthetic face at an integral 70% font size.
             draw.setSize(std::round(draw.getSize()*0.7f));position.setSize(std::round(position.getSize()*0.7f));
@@ -827,7 +859,7 @@ static sk_sp<SkTextBlob> synthetic_caps_blob(const char* text,size_t length,
             position.setLinearMetrics(false);
         } else position.setLinearMetrics(true);
         std::vector<SkGlyphID> glyphs;std::vector<SkPoint> positions;float width=0;
-        shape_text_blob(run.text.data(),run.text.size(),draw,position,true,&width,&glyphs,&positions);
+        shape_text_blob(font_run.text.data(),font_run.text.size(),draw,position,true,&width,&glyphs,&positions,native_small_caps);
         if(glyphs.empty())continue;
         std::vector<SkScalar> widths(glyphs.size());
         position.getWidths(SkSpan<const SkGlyphID>(glyphs.data(),glyphs.size()),SkSpan<SkScalar>(widths.data(),widths.size()));
@@ -847,6 +879,7 @@ static sk_sp<SkTextBlob> synthetic_caps_blob(const char* text,size_t length,
             for(size_t i=0;i<bounds.size();i++){bounds[i].offset(positions[i]);combined.join(bounds[i]);}
         }
         offset+=width+correction;
+      }
     }
     if(advance)*advance=offset;
     if(output_bounds){output_bounds[0]=combined.left();output_bounds[1]=combined.top();output_bounds[2]=combined.right();output_bounds[3]=combined.bottom();}
@@ -1051,7 +1084,11 @@ int skia_canvas_point_in_path(void* value, float x, float y, int stroke, int eve
 
 void skia_canvas_set_color(void* value, int stroke, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
     auto* c = static_cast<Canvas*>(value); if (!c) return;
-    Style& style = selected_style(c, stroke); style.gradient.reset(); style.pattern.reset(); style.color = {r / 255.f, g / 255.f, b / 255.f, a / 255.f};
+    Style& style = selected_style(c, stroke); style.gradient.reset(); style.pattern.reset(); style.float_color=false; style.color = {r / 255.f, g / 255.f, b / 255.f, a / 255.f};
+}
+void skia_canvas_set_color_float(void* value, int stroke, float r, float g, float b, float a) {
+    auto* c = static_cast<Canvas*>(value); if (!c) return;
+    Style& style = selected_style(c, stroke); style.gradient.reset(); style.pattern.reset(); style.float_color=true; style.color = {r,g,b,a};
 }
 void skia_canvas_set_gradient(void* value, int stroke, int kind, const float* args, const float* positions, const uint8_t* colors, uint32_t count) {
     auto* c = static_cast<Canvas*>(value); if (!c) return;
@@ -1169,7 +1206,9 @@ void skia_canvas_draw_text(void* value, const char* text, uint32_t length,
                                              : "CANVAS_TEXT_FOREGROUND_POSITION_SCALE",
                                  "CANVAS_GLYPH_SCALE"));
                              auto blob = small_caps && !has_small_caps(position_font)
-                                 ? synthetic_caps_blob(text,length,draw_font,position_font,nullptr)
+                                 ? font_runs_blob(text,length,draw_font,position_font,nullptr)
+                                 : needs_font_fallback(text,length,position_font)
+                                 ? font_runs_blob(text,length,draw_font,position_font,nullptr,nullptr,false,small_caps!=0)
                                  : harfbuzz_shaping
                                  ? make_shaped_text_blob(text, length, draw_font, position_font, nullptr, small_caps != 0)
                                  : make_positioned_text_blob(text, length, draw_font, position_font);
@@ -1201,7 +1240,8 @@ float skia_canvas_measure_text(void* value, const char* text, uint32_t length,
                                const char* family, float size, int weight, int slant, int small_caps) {
     if (!value || !text) return 0;
     SkFont font = resolve_font(family, size, weight, slant);
-    if(small_caps && !has_small_caps(font)){float advance=0;synthetic_caps_blob(text,length,font,font,&advance);return advance;}
+    if(small_caps && !has_small_caps(font)){float advance=0;font_runs_blob(text,length,font,font,&advance);return advance;}
+    if(needs_font_fallback(text,length,font)){float advance=0;font_runs_blob(text,length,font,font,&advance,nullptr,false,small_caps!=0);return advance;}
     font.setLinearMetrics(true);
     if (runtime_float("CANVAS_HARFBUZZ_SHAPING", 1.0f) != 0.0f) {
         std::vector<SkGlyphID> glyphs;std::vector<SkPoint> positions;
@@ -1214,7 +1254,8 @@ void skia_canvas_text_bounds(void* value, const char* text, uint32_t length,
                                const char* family, float size, int weight, int slant, float* output, int small_caps) {
     if (!value || !text || !output) return;
     SkFont font=resolve_font(family,size,weight,slant);
-    if(small_caps && !has_small_caps(font)){synthetic_caps_blob(text,length,font,font,nullptr,output);return;}
+    if(small_caps && !has_small_caps(font)){font_runs_blob(text,length,font,font,nullptr,output);return;}
+    if(needs_font_fallback(text,length,font)){font_runs_blob(text,length,font,font,nullptr,output,false,small_caps!=0);return;}
     font.setLinearMetrics(true);
     std::vector<SkGlyphID> glyphs;
     std::vector<SkPoint> positions;

@@ -2,7 +2,7 @@
 
 Windows 上的 Node.js `OffscreenCanvas` 兼容层。JavaScript 提供 Canvas 外壳，Rust 通过 Node-API 分派接口，C++ 调用 Skia Graphite / Dawn D3D11 绘制和读取像素。
 
-2026-09-15 第九轮继续检测：新增 **55 项中 32 项一致、23 项存在差异，尚未修复**。涉及字体换行转义与语法、相对字重序列化、HSL 精度、ImageBitmap 身份校验和特殊 Unicode 字形。三次现有 Chrome 采集结果一致，原有 433 项回归、demo 和 GC 均通过。本轮保留生产代码与原生模块，仅增加诊断用例和证据，详见[第九轮检测报告](docs/2026-09-15_ninth-round-review-report.md)。
+2026-09-15 第九轮修复完成：此前 **23 个失败用例全部修复**，补充 15 项相关边界后，第九轮 **70 项全部通过**，完整 **503 项**与现有 Chrome 实时对照一致，demo 的 9216 个 RGBA 值零差异，GC 通过。修复覆盖 ImageBitmap 身份和构造约束、字体换行与转义、相对字重和斜体角度、HSL 浮点绘制，以及缺失字形回退和组合标记分组。详见[第九轮修复报告](docs/2026-09-15_ninth-round-fixes-report.md)；[第九轮检测报告](docs/2026-09-15_ninth-round-review-report.md)保留历史差异。
 
 2026-09-15 第八轮修复完成：此前 **29 个失败用例全部修复**，补充 26 项相关边界后，第八轮 **72 项全部通过**，完整 **433 项**与用户现有 Chrome 实时对照一致，demo 的 9216 个 RGBA 值零差异，GC 通过。修复覆盖 Canvas 接收对象校验、字体转义及序列化、现代颜色注释与 `none`、开头组合重音、合成斜体和变换后的文字基线对齐。详见[第八轮修复报告](docs/2026-09-15_eighth-round-fixes-report.md)；[第八轮检测报告](docs/2026-09-15_eighth-round-review-report.md)保留修复前证据。
 
@@ -68,12 +68,13 @@ node capture-cdp.cjs tests/additional-cases.js cdp-additional-review
 node tests/compare-additional.cjs
 ```
 
-`node test.js` 执行八组测试及独立防崩溃检查，共 433 项，另有 demo 和 GC 检查。第四至第八轮通过同一采集入口返回独立结果；第五至第八轮的本地检查在子进程运行。`out/cdp-verification-result.json` 保存主回归结果，连接前先写入未验证状态，避免 CDP 失败后残留旧的成功报告；`out/cdp-*-browser.json` 保存各组实际浏览器返回值、运行编号、时间、Chrome 版本、测试标签页 ID 和源码 SHA-256。运行 `node tests/compare-additional.cjs`、`node tests/compare-third-round.cjs`、`node tests/compare-fourth-round.cjs`、`node tests/compare-fifth-round.cjs`、`node tests/compare-sixth-round.cjs`、`node tests/compare-seventh-round.cjs`、`node tests/compare-eighth-round.cjs` 或 `node tests/compare-unicode-color.cjs` 可生成对应逐项结果；存在差异时比较器退出码为 1。CDP 输出与历史 F12 输出分别保存，`out/` 不提交到 Git。
+`node test.js` 执行九组测试及独立防崩溃检查，共 503 项，另有 demo 和 GC 检查。第四至第九轮通过同一采集入口返回独立结果；第五至第九轮的本地检查在子进程运行。`out/cdp-verification-result.json` 保存主回归结果，连接前先写入未验证状态，避免 CDP 失败后残留旧的成功报告；`out/cdp-*-browser.json` 保存各组实际浏览器返回值、运行编号、时间、Chrome 版本、测试标签页 ID 和源码 SHA-256。运行 `node tests/compare-additional.cjs`、`node tests/compare-third-round.cjs`、`node tests/compare-fourth-round.cjs`、`node tests/compare-fifth-round.cjs`、`node tests/compare-sixth-round.cjs`、`node tests/compare-seventh-round.cjs`、`node tests/compare-eighth-round.cjs`、`node tests/compare-ninth-round.cjs` 或 `node tests/compare-unicode-color.cjs` 可生成对应逐项结果；存在差异时比较器退出码为 1。CDP 输出与历史 F12 输出分别保存，`out/` 不提交到 Git。
 
 `demo.js` 的渐变没有添加色标，填充按语义透明；有色渐变由独立用例检查。字体回退、Chrome 后端、显卡及驱动变化可能改变像素结果。部分越界读取使用同一 Chrome 的 `willReadFrequently: true` 路径作为规范参照，原因见[此前的修复记录](docs/canvas-fixes.md#chrome-越界读取差异)。
 
 ## 当前修复与支持范围
 
+- 第九轮阻止公开构造 ImageBitmap，并验证 getter/close 的接收对象；规范字体换行和转义、相对字重与斜体角度；HSL 绘制保留浮点颜色；缺失字形通过系统字体回退，并与组合标记分组、原生及合成 small-caps 共用测量/绘制布局。
 - 第八轮在参数转换前校验 OffscreenCanvas 实例身份；补齐字体转义、保留字及多词序列化、现代 RGB/HSL 的注释和 `none`；修复开头组合重音的分段、合成斜体倾斜与变换后的基线像素对齐。
 - 第七轮为缺少 `smcp` 的字体合成小型大写，测量和绘制共用分段字形布局；保留原有大写字母、数字和空格大小，并处理本轮覆盖的大小写展开与组合重音。
 - 第六轮补齐尺寸转换重入、选项原型访问器、Blob 字典及状态检查、CSS 数字/注释/字体族处理和 alpha 序列化。文字支持 1～1000 的字重传递、字体自带的 OpenType `smcp` 特性，并修复空格后字母的字距。

@@ -23,10 +23,11 @@ fn identifier(value:&str)->bool{
     chars.all(|c|start(c)||c.is_ascii_digit()||c=='-')
 }
 pub fn preprocess(value:&str)->String{
+    let value=value.replace("\r\n","\n").replace(['\r','\x0c'],"\n");
     let mut out=String::new();let mut chars=value.chars().peekable();let mut quote=None;
     while let Some(ch)=chars.next(){
+        if ch=='\\'{out.push(ch);if let Some(c)=chars.next(){out.push(if c=='\0'{'\u{fffd}'}else{c});}continue;}
         if let Some(q)=quote{
-            if ch=='\\'{out.push(ch);if let Some(c)=chars.next(){out.push(if c=='\0'{'\u{fffd}'}else{c});}continue;}
             if ch==q{quote=None;}
         }else if ch=='\''||ch=='"'{quote=Some(ch);}
         else if ch=='/'&&chars.peek()==Some(&'*'){
@@ -108,7 +109,11 @@ pub fn serialized_alpha(byte:u8)->f64{
 pub fn alpha(value:&str)->Option<f64>{
     let value=preprocess(value);
     let value=value.trim();
-    let (_,tail)=value.split_once('/')?;
+    let tail=if let Some((_,tail))=value.split_once('/') {tail} else {
+        let (_,body)=value.split_once('(')?;
+        if body.split(',').count()!=4{return None;}
+        body.rsplit_once(',')?.1
+    };
     let tail=tail.trim().strip_suffix(')')?.trim();
     let a=if tail=="none"{0.0}else if let Some(p)=tail.strip_suffix('%'){number(p.trim())?/100.0}else{number(tail)?};
     a.is_finite().then_some(a.clamp(0.0,1.0))
@@ -120,6 +125,12 @@ pub fn font(value: &str) -> Option<String> {
     let (mut style,mut variant,mut weight)=(None,None,None);
     for (i,token) in tokens.iter().enumerate(){
         let lower=token.to_ascii_lowercase();
+        if i>0&&tokens[i-1].eq_ignore_ascii_case("oblique"){
+            if let Some(angle)=angle_degrees(&lower){
+                if !(-90.0..=90.0).contains(&angle){return None;}
+                style=Some(format!("oblique {}deg",angle));continue;
+            }
+        }
         let size_token=lower.split('/').next()?;
         let units=[("px",1.0),("pt",96.0/72.0),("pc",16.0),("in",96.0),("cm",96.0/2.54),("mm",96.0/25.4),("q",96.0/101.6)];
         if let Some((number,scale))=units.iter().find_map(|(u,s)|size_token.strip_suffix(u).map(|n|(n,*s))){
@@ -161,6 +172,7 @@ pub fn font(value: &str) -> Option<String> {
                 }else{
                     let names=font_tokens(p)?.iter().map(|token|decoded_identifier(token)).collect::<Option<Vec<_>>>()?;
                     if names.len()==1&&wide_keyword(&names[0]){return None;}
+                    if names.len()>1&&generic_family(&names[0]){return None;}
                     let name=names.join(" ");
                     *part=if names.len()==1&&generic_family(&name){name.to_ascii_lowercase()}else{serialize_family(&name)};
                 }
@@ -174,11 +186,50 @@ pub fn font(value: &str) -> Option<String> {
             "normal"=>{},
             "italic"|"oblique"=>{if style.is_some(){return None;}style=Some(lower);},
             "small-caps"=>{if variant.is_some(){return None;}variant=Some(lower);},
-            "bold"|"bolder"|"lighter"=>{if weight.is_some(){return None;}weight=Some(lower);},
+            "bold"|"bolder"|"lighter"=>{if weight.is_some(){return None;}weight=Some(match lower.as_str(){"bolder"=>"bold".to_string(),"lighter"=>"100".to_string(),_=>lower});},
             _=>{let n=self::number(&lower)?;if !(1.0..=1000.0).contains(&n)||weight.is_some(){return None;}weight=Some((n.trunc() as u32).to_string());}
         }
     }
     None
+}
+
+fn angle_degrees(value:&str)->Option<f64>{
+    for (unit,scale) in [("deg",1.0),("grad",0.9),("rad",180.0/std::f64::consts::PI),("turn",360.0)]{
+        if let Some(n)=value.strip_suffix(unit){return Some(number(n)?*scale);}
+    }
+    None
+}
+// Keep the requested slope in internal state even where Blink omits it from
+// the public canvas font serialization.
+pub fn serialized_font(value:&str)->String{
+    if let Some(rest)=value.strip_prefix("oblique "){
+        if let Some((angle,tail))=rest.split_once(' '){
+            if let Some(angle)=angle_degrees(angle){return if angle==14.0{format!("italic {}",tail)}else{tail.to_string()};}
+        }
+        return format!("italic {}",rest);
+    }
+    value.to_string()
+}
+
+pub fn hsl_color(value:&str)->Option<[f32;4]>{
+    let value=preprocess(&value.to_ascii_lowercase());let value=value.trim();
+    if !value.starts_with("hsl(")&&!value.starts_with("hsla("){return None;}
+    function_color(value)?;
+    let body=value.split_once('(')?.1.strip_suffix(')')?;
+    let fields=body.split(|c:char|c.is_ascii_whitespace()||c=='/'||c==',').filter(|v|!v.is_empty()).collect::<Vec<_>>();
+    let numeric=|s:&str|if s=="none"{Some(0.0)}else{number(s)};
+    let hue=if fields[0]=="none"{0.0}else{angle_degrees(fields[0]).or_else(||number(fields[0]))?};
+    let h=hue.rem_euclid(360.0) as f32;
+    let s=numeric(fields[1].strip_suffix('%').unwrap_or(fields[1]))?.clamp(0.0,100.0) as f32*0.01f32;
+    let l=numeric(fields[2].strip_suffix('%').unwrap_or(fields[2]))?.clamp(0.0,100.0) as f32*0.01f32;
+    let mut a=if fields.len()==4{if let Some(p)=fields[3].strip_suffix('%'){numeric(p)? as f32*0.01f32}else{numeric(fields[3])? as f32}}else{1.0};
+    // Chromium's simple HSL parser quantizes numeric alpha, while percentage
+    // alpha goes through the general CSS parser and retains float precision.
+    if fields.len()==4&&!fields[3].ends_with('%')&&fields[3]!="none"&&fields[1].ends_with('%')&&fields[2].ends_with('%'){
+        a=(a.clamp(0.0,1.0)*255.0).round()/255.0;
+    }
+    let channel=|n:f32|{let k=(n+h/30.0)%12.0;l-s*l.min(1.0-l)*(-1.0f32).max((k-3.0).min(9.0-k).min(1.0))};
+    Some([channel(0.0),channel(8.0),channel(4.0),a.clamp(0.0,1.0)])
 }
 
 pub fn function_color(value:&str)->Option<[u8;4]>{

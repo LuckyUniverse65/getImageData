@@ -58,6 +58,7 @@ extern "C" {
     fn skia_canvas_clip(canvas: *mut c_void, evenodd: i32);
     fn skia_canvas_point_in_path(canvas: *mut c_void, x: f32, y: f32, stroke: i32, evenodd: i32) -> i32;
     fn skia_canvas_set_color(canvas: *mut c_void, stroke: i32, r: u8, g: u8, b: u8, a: u8);
+    fn skia_canvas_set_color_float(canvas: *mut c_void, stroke: i32, r: f32, g: f32, b: f32, a: f32);
     fn skia_canvas_set_gradient(canvas: *mut c_void, stroke: i32, kind: i32, args: *const f32, positions: *const f32, colors: *const u8, count: u32);
     fn skia_canvas_set_pattern(canvas: *mut c_void, stroke: i32, pixels: *const u8, width: u32, height: u32, repeat_x: i32, repeat_y: i32);
     fn skia_canvas_set_shadow(canvas: *mut c_void, r: u8, g: u8, b: u8, a: u8, blur: f32, offset_x: f32, offset_y: f32);
@@ -265,7 +266,7 @@ struct CanvasState {
 
 #[derive(Clone)]
 enum Style {
-    CssColor([u8; 4], f64),
+    CssColor([u8; 4], f64, Option<[f32;4]>),
     Color([u8; 4]),
     Gradient(Rc<GradientStyle>),
     Pattern(Pattern),
@@ -773,7 +774,7 @@ fn rectangle(x: f64, y: f64, width: f64, height: f64) -> (isize, isize, isize, i
     (x1.min(x2), y1.min(y2), x1.max(x2), y1.max(y2))
 }
 
-fn style_color(style: &Style) -> [u8; 4] { match style { Style::Color(c) | Style::CssColor(c,_) => *c, Style::Gradient(g) => g.data.borrow().stops.first().map(|s| s.1).unwrap_or([0,0,0,255]), Style::Pattern(_) => [0,0,0,255] } }
+fn style_color(style: &Style) -> [u8; 4] { match style { Style::Color(c) | Style::CssColor(c,_,_) => *c, Style::Gradient(g) => g.data.borrow().stops.first().map(|s| s.1).unwrap_or([0,0,0,255]), Style::Pattern(_) => [0,0,0,255] } }
 
 unsafe fn style_value(env: NapiEnv, style: &Style) -> NapiValue {
     if let Style::Gradient(g) = style {
@@ -782,7 +783,7 @@ unsafe fn style_value(env: NapiEnv, style: &Style) -> NapiValue {
         return value;
     }
     let color = style_color(style);
-    if let Style::CssColor(_,alpha)=style {
+    if let Style::CssColor(_,alpha,_)=style {
         let byte=(*alpha*255.0).round() as u8;
         if byte<255{return string(env,&format!("rgba({}, {}, {}, {})",color[0],color[1],color[2],canvas_css::serialized_alpha(byte)));}
         return string(env,&format!("#{:02x}{:02x}{:02x}",color[0],color[1],color[2]));
@@ -796,7 +797,8 @@ unsafe fn style_value(env: NapiEnv, style: &Style) -> NapiValue {
 unsafe fn sync_native_style(canvas: &Canvas2D, style: &Style, stroke: bool) {
     if canvas.native.is_null() { return; }
     match style {
-        Style::Color(color) | Style::CssColor(color,_) => skia_canvas_set_color(canvas.native, stroke as i32, color[0], color[1], color[2], color[3]),
+        Style::CssColor(_,_,Some(color)) => skia_canvas_set_color_float(canvas.native, stroke as i32, color[0], color[1], color[2], color[3]),
+        Style::Color(color) | Style::CssColor(color,_,None) => skia_canvas_set_color(canvas.native, stroke as i32, color[0], color[1], color[2], color[3]),
         Style::Gradient(gradient) => {
             let gradient = gradient.data.borrow();
             let args = gradient.args.map(|value| value as f32);
@@ -858,7 +860,12 @@ fn font_spec(value: &str) -> FontSpec {
     let mut family = suffix.trim();
     if family.is_empty() { family = "Arial"; }
     let tokens: Vec<&str> = prefix.split_whitespace().collect();
-    let slant = if tokens.iter().any(|token| token.eq_ignore_ascii_case("oblique")) { 2 }
+    let requested_angle=tokens.windows(2).find_map(|pair|if pair[0]=="oblique"{pair[1].strip_suffix("deg").and_then(|n|n.parse::<f64>().ok())}else{None});
+    // Blink's Windows matching prefers an italic face for slopes between 0
+    // and the default 14 degrees, but synthesizes oblique only at the default.
+    // Slant 3 requests an italic face without DirectWrite's synthetic oblique.
+    let slant = if let Some(angle)=requested_angle { if angle==14.0{1}else if angle>0.0&&angle<14.0{3}else{0} }
+                else if tokens.iter().any(|token| token.eq_ignore_ascii_case("oblique")) { 2 }
                 else if tokens.iter().any(|token| token.eq_ignore_ascii_case("italic")) { 1 } else { 0 };
     let weight = if tokens.iter().any(|token| token.eq_ignore_ascii_case("bold") || token.eq_ignore_ascii_case("bolder")) { 700 }
         else { tokens.iter().find_map(|token| token.parse::<i32>().ok()).filter(|weight| (1..=1000).contains(weight)).unwrap_or(400) };
@@ -913,7 +920,7 @@ unsafe extern "C" fn get_canvas_property(env: NapiEnv, info: NapiCallbackInfo) -
         1 => style_value(env, &c.stroke),
         2 => style_value(env, &Style::Color(c.shadow)),
         3 => number_value(env, c.shadow_blur), 4 => number_value(env, c.line_width), 10 => number_value(env, c.shadow_offset_x), 11 => number_value(env, c.shadow_offset_y),
-        5 => number_value(env, c.global_alpha), 6 => string(env, &c.font),
+        5 => number_value(env, c.global_alpha), 6 => string(env, &canvas_css::serialized_font(&c.font)),
         7 => string(env, &c.text_align), 8 => string(env, &c.text_baseline),
         17 => string(env, if c.direction == "inherit" { "ltr" } else { &c.direction }),
         9 => string(env, if c.composite_copy { "copy" } else { "source-over" }), 12 => string(env, &c.line_cap), 13 => string(env, &c.line_join), 14 => number_value(env, c.miter_limit), 15 => number_value(env, c.line_dash_offset), 16 => boolean(env, c.image_smoothing), _ => undefined(env)
@@ -942,7 +949,8 @@ unsafe extern "C" fn set_canvas_property(env: NapiEnv, info: NapiCallbackInfo) -
         0 | 1 => {
             if let Some(s) = prepared.clone() {
                 if let Some(col) = parse_color(&s) {
-                    let style=if let Some(alpha)=canvas_css::alpha(&s){Style::CssColor(col,alpha)}else{Style::Color(col)};
+                    let floats=canvas_css::hsl_color(&s);
+                    let style=if let Some(alpha)=canvas_css::alpha(&s).or_else(||floats.map(|c|c[3] as f64)){Style::CssColor(col,alpha,floats)}else{Style::Color(col)};
                     if data == 0 { c.fill = style; } else { c.stroke = style; }
                 }
             } else {
@@ -1006,7 +1014,7 @@ unsafe fn fill_rectangle(canvas: &mut Canvas2D, x: f64, y: f64, width: f64, heig
 fn tx(t: [f64; 6], x: f64, y: f64) -> (f64, f64) { (t[0]*x+t[2]*y+t[4], t[1]*x+t[3]*y+t[5]) }
 fn style_at(style: &Style, x: f64, y: f64) -> [u8; 4] {
     match style {
-        Style::Color(c) | Style::CssColor(c,_) => *c,
+        Style::Color(c) | Style::CssColor(c,_,_) => *c,
         Style::Gradient(g) => {
             let g = g.data.borrow();
             if g.stops.is_empty() { return [0,0,0,0]; }

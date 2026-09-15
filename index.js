@@ -225,17 +225,24 @@ function adaptContextArguments(context) {
     }
 }
 
+const imageBitmaps = new WeakSet();
+const bitmapCreationKey = Symbol('ImageBitmap internal creation');
+function requireImageBitmap(value) {
+    if(!imageBitmaps.has(value))throw new TypeError('Illegal invocation');
+}
 class ImageBitmap {
-    constructor(width, height, pixels) {
+    constructor(key, width, height, pixels) {
+        if(key!==bitmapCreationKey)throw new TypeError('Illegal constructor');
+        imageBitmaps.add(this);
         imageSources.add(this);
         this._width = width;
         this._height = height;
         this._pixels = new Uint8ClampedArray(pixels);
     }
-    get width() { return this._width; }
-    get height() { return this._height; }
+    get width() { requireImageBitmap(this); return this._width; }
+    get height() { requireImageBitmap(this); return this._height; }
     get data() { return this._pixels; }
-    close() { this._width = 0; this._height = 0; this._pixels = new Uint8ClampedArray(0); }
+    close() { requireImageBitmap(this); this._width = 0; this._height = 0; this._pixels = new Uint8ClampedArray(0); }
 }
 
 class OffscreenCanvas {
@@ -308,7 +315,7 @@ class OffscreenCanvas {
         const context = this._contexts.get("2d");
         if (!context) throw new DOMException('Canvas has no rendering context', 'InvalidStateError');
         if (!this._width || !this._height) throw new DOMException('Canvas has no transferable image', 'UnknownError');
-        const bitmap = new ImageBitmap(this._width, this._height, this.data);
+        const bitmap = new ImageBitmap(bitmapCreationKey, this._width, this._height, this.data);
         context._clearBitmap();
         return bitmap;
     }
