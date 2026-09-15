@@ -183,6 +183,31 @@
         await add('blobSnapshotsPixels',async()=>{const g=fresh();g.fillStyle='red';g.fillRect(0,0,24,24);const first=g.canvas.convertToBlob();g.fillStyle='blue';g.fillRect(0,0,24,24);const second=g.canvas.convertToBlob();const a=new Uint8Array(await (await first).arrayBuffer()),b=new Uint8Array(await (await second).arrayBuffer());return {same:a.length===b.length&&a.every((v,i)=>v===b[i]),types:[(await first).type,(await second).type]};});
         return results;
     }
-    if(typeof module!=='undefined'&&module.exports){module.exports=runFourthRoundCases;module.exports.runFifthRoundCases=runFifthRoundCases;module.exports.runSixthRoundCases=runSixthRoundCases;}
-    else globalThis.__canvasResult=(async()=>({fourthRound:runFourthRoundCases(OffscreenCanvas),fifthRound:runFifthRoundCases(OffscreenCanvas),sixthRound:await runSixthRoundCases(OffscreenCanvas)}))();
+    function runSeventhRoundCases(Canvas) {
+        const results={};
+        const add=(name,fn)=>{try{results[name]={value:fn()};}catch(e){results[name]={error:e.name};}};
+        for(const family of ['Courier New','Tahoma','Consolas']){
+            for(const size of [12,16,23.5])add(`syntheticMetrics_${family}_${size}`,()=>{
+                const g=new Canvas(160,48).getContext('2d');g.font=`small-caps ${size}px "${family}"`;
+                return ['abc','ABC','aBc','AVava','éß','a\u0301','a b','123','','aÉ','Éa','A\u0301'].map(text=>{const m=g.measureText(text);return [m.width,m.actualBoundingBoxLeft,m.actualBoundingBoxRight,m.actualBoundingBoxAscent,m.actualBoundingBoxDescent,m.fontBoundingBoxAscent,m.fontBoundingBoxDescent];});
+            });
+            for(const method of ['fillText','strokeText'])add(`syntheticDrawing_${family}_${method}`,()=>{
+                const g=new Canvas(160,48).getContext('2d');g.font=`small-caps 16px "${family}"`;g[method]('aBc AVé ß',2,28);return Array.from(g.getImageData(0,0,160,48).data);
+            });
+            add(`syntheticScale_${family}`,()=>{const g=new Canvas(20,20).getContext('2d');return [10,11,11.2,11.203125,12,14,16].map(size=>{g.font=`${size}px "${family}"`;return g.measureText('ABC').width;});});
+            for(const variant of ['maxWidth','transform','shadow','copy'])add(`syntheticState_${family}_${variant}`,()=>{
+                const g=new Canvas(160,64).getContext('2d');g.font=`small-caps 16px "${family}"`;
+                if(variant==='transform'){g.translate(4,5);g.scale(1.25,1.1);g.textAlign='center';}
+                if(variant==='shadow'){g.shadowColor='blue';g.shadowBlur=2;g.shadowOffsetX=3;g.shadowOffsetY=2;}
+                if(variant==='copy'){g.fillStyle='red';g.fillRect(0,0,160,64);g.fillStyle='black';g.globalCompositeOperation='copy';}
+                g.fillText('aBc AVé',variant==='transform'?40:3,30,...(variant==='maxWidth'?[24]:[]));return Array.from(g.getImageData(0,0,160,64).data);
+            });
+            add(`syntheticSaveRestore_${family}`,()=>{const g=new Canvas(40,40).getContext('2d');g.font=`small-caps 16px "${family}"`;g.save();g.font='12px Arial';g.restore();return {font:g.font,width:g.measureText('aBc').width};});
+        }
+        add('syntheticTinySizes',()=>{const g=new Canvas(24,24).getContext('2d');return [0,0.5,1,2,3,4,5,6,15,25].map(size=>{g.font=`small-caps ${size}px Tahoma`;const m=g.measureText('aAß');return [m.width,m.actualBoundingBoxAscent,m.actualBoundingBoxDescent];});});
+        add('syntheticFallbackList',()=>{const g=new Canvas(24,24).getContext('2d');g.font='small-caps 16px NoSuchCanvasCapsFont, "Courier New"';return g.measureText('abc').width;});
+        return results;
+    }
+    if(typeof module!=='undefined'&&module.exports){module.exports=runFourthRoundCases;module.exports.runFifthRoundCases=runFifthRoundCases;module.exports.runSixthRoundCases=runSixthRoundCases;module.exports.runSeventhRoundCases=runSeventhRoundCases;}
+    else globalThis.__canvasResult=(async()=>({fourthRound:runFourthRoundCases(OffscreenCanvas),fifthRound:runFifthRoundCases(OffscreenCanvas),sixthRound:await runSixthRoundCases(OffscreenCanvas),seventhRound:runSeventhRoundCases(OffscreenCanvas)}))();
 })();

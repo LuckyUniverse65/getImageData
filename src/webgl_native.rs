@@ -826,6 +826,16 @@ unsafe fn sync_native_paint(canvas: &Canvas2D) {
 
 struct FontSpec { family: CString, size: f64, weight: i32, slant: i32, small_caps: i32 }
 
+// Unicode full uppercase can expand one scalar (e.g. sharp s) to three scalars.
+// The C++ text layout caller supplies a buffer with capacity three.
+#[no_mangle]
+pub unsafe extern "C" fn canvas_uppercase(codepoint:u32, output:*mut u32)->u32 {
+    let Some(ch)=char::from_u32(codepoint) else{return 0;};
+    if output.is_null(){return 0;}
+    let mut count=0;for upper in ch.to_uppercase(){output.add(count).write(upper as u32);count+=1;}
+    count as u32
+}
+
 fn font_spec(value: &str) -> FontSpec {
     let lowercase = value.to_ascii_lowercase();
     let mut size = 10.0;
