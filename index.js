@@ -9,6 +9,28 @@ const imageDataObjects = new WeakSet();
 const imageSources = new WeakSet();
 const imageSourceState = new WeakMap();
 const contexts = new WeakSet();
+const contextInternals = new WeakMap();
+const patternTransforms = new WeakMap();
+class CanvasPattern {
+    constructor() { throw new TypeError("Illegal constructor"); }
+    get [Symbol.toStringTag]() { return "CanvasPattern"; }
+    setTransform(matrix = {}) {
+        const apply = patternTransforms.get(this);
+        if (!apply) throw new TypeError("Illegal invocation");
+        if (matrix != null && !isObject(matrix)) throw new TypeError("Expected a matrix dictionary");
+        const fields = Object.create(null);
+        for (const key of ["a","b","c","d","e","f","m11","m12","m21","m22","m41","m42"]) {
+            const value = matrix?.[key];
+            fields[key] = value === undefined ? undefined : +value;
+        }
+        const values = [["a","m11",1],["b","m12",0],["c","m21",0],["d","m22",1],["e","m41",0],["f","m42",0]].map(([key,alias,fallback]) => {
+            const a=fields[key], b=fields[alias];
+            if(a!==undefined && b!==undefined && a!==b && !(Number.isNaN(a)&&Number.isNaN(b))) throw new TypeError("Conflicting matrix dictionary aliases");
+            return a===undefined ? (b===undefined ? fallback : b) : a;
+        });
+        return apply(...values);
+    }
+}
 const offscreenCanvases = new WeakSet();
 function requireOffscreenCanvas(value) {
     if(!offscreenCanvases.has(value))throw new TypeError('Illegal invocation');
@@ -88,6 +110,11 @@ function offscreenDimension(value) {
 // normalized numeric data to the native drawing/state implementation.
 function adaptContextArguments(context) {
     contexts.add(context);
+    contextInternals.set(context, {
+        read: context.getImageData.bind(context),
+        resize: context._resize.bind(context),
+        clear: context._clearBitmap.bind(context)
+    });
     const nativeDash = context.setLineDash;
     context.setLineDash = function (segments) {
         if (!isObject(segments))throw new TypeError('Line dash must be a sequence object');
@@ -161,7 +188,13 @@ function adaptContextArguments(context) {
         repetition=repetition===null?'':domString(repetition);
         if(!['','repeat','repeat-x','repeat-y','no-repeat'].includes(repetition))throw new DOMException('Invalid repetition','SyntaxError');
         const state = checkImageSource(source);
-        return createPattern.call(this,{width:state.width,height:state.height,data:state.data},repetition||'repeat');
+        const pattern=createPattern.call(this,{width:state.width,height:state.height,data:state.data},repetition||'repeat');
+        if(pattern){
+            patternTransforms.set(pattern,pattern.setTransform.bind(pattern));
+            delete pattern.setTransform;
+            Object.setPrototypeOf(pattern,CanvasPattern.prototype);
+        }
+        return pattern;
     };
     for(const name of ['getImageData','createImageData']) {
         const method=context[name];
@@ -294,12 +327,12 @@ class OffscreenCanvas {
         if (!this.#width || !this.#height) return new Uint8ClampedArray(0);
         const context = this.#contexts.get("2d");
         if (!context) return new Uint8ClampedArray(this.#width * this.#height * 4);
-        return context.getImageData(0, 0, this.#width, this.#height).data;
+        return contextInternals.get(context).read(0, 0, this.#width, this.#height).data;
     }
 
     #resize(width, height) {
         const context = this.#contexts.get('2d');
-        if (context) context._resize(width, height);
+        if (context) contextInternals.get(context).resize(width, height);
         this.#width = width;
         this.#height = height;
         this.#native.width = width;
@@ -337,7 +370,7 @@ class OffscreenCanvas {
         if (!context) throw new DOMException('Canvas has no rendering context', 'InvalidStateError');
         if (!this.#width || !this.#height) throw new DOMException('Canvas has no transferable image', 'UnknownError');
         const bitmap = new ImageBitmap(bitmapCreationKey, this.#width, this.#height, this.#readPixels());
-        context._clearBitmap();
+        contextInternals.get(context).clear();
         return bitmap;
     }
 
@@ -384,6 +417,7 @@ class HTMLCanvasElement {
 
 function installWebGLGlobals(target = globalThis) {
     native.installWebGLGlobals(target);
+    target.CanvasPattern = CanvasPattern;
     target.OffscreenCanvas = OffscreenCanvas;
     target.OffscreenCanvasRenderingContext2D = OffscreenCanvasRenderingContext2D;
     target.CanvasRenderingContext2D = OffscreenCanvasRenderingContext2D;
@@ -401,6 +435,7 @@ function installWebGLGlobals(target = globalThis) {
 
 module.exports = Object.assign({}, native, {
     OffscreenCanvas,
+    CanvasPattern,
     OffscreenCanvasRenderingContext2D,
     CanvasRenderingContext2D: OffscreenCanvasRenderingContext2D,
     HTMLCanvasElement,

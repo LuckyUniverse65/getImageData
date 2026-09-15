@@ -60,7 +60,7 @@ extern "C" {
     fn skia_canvas_set_color(canvas: *mut c_void, stroke: i32, r: u8, g: u8, b: u8, a: u8);
     fn skia_canvas_set_color_float(canvas: *mut c_void, stroke: i32, r: f32, g: f32, b: f32, a: f32);
     fn skia_canvas_set_gradient(canvas: *mut c_void, stroke: i32, kind: i32, args: *const f32, positions: *const f32, colors: *const f32, count: u32);
-    fn skia_canvas_set_pattern(canvas: *mut c_void, stroke: i32, pixels: *const u8, width: u32, height: u32, repeat_x: i32, repeat_y: i32);
+    fn skia_canvas_set_pattern(canvas: *mut c_void, stroke: i32, pixels: *const u8, width: u32, height: u32, repeat_x: i32, repeat_y: i32, matrix: *const f64, smoothing: i32);
     fn skia_canvas_set_shadow(canvas: *mut c_void, r: f32, g: f32, b: f32, a: f32, blur: f32, offset_x: f32, offset_y: f32);
     fn skia_canvas_set_line_width(canvas: *mut c_void, width: f32);
     fn skia_canvas_set_stroke_style(canvas: *mut c_void, cap: i32, join: i32, miter_limit: f32);
@@ -269,7 +269,7 @@ enum Style {
     CssColor([u8; 4], f64, Option<[f32;4]>),
     Color([u8; 4]),
     Gradient(Rc<GradientStyle>),
-    Pattern(Pattern),
+    Pattern(Rc<PatternStyle>),
 }
 
 #[derive(Clone)]
@@ -297,8 +297,16 @@ impl Drop for GradientStyle {
 }
 
 #[derive(Clone)]
-struct Pattern { pixels: Vec<u8>, width: u32, height: u32, repeat_x: bool, repeat_y: bool }
-struct PatternObject(Pattern);
+struct Pattern { pixels: Vec<u8>, width: u32, height: u32, repeat_x: bool, repeat_y: bool, matrix: [f64;6] }
+struct PatternObject(Rc<RefCell<Pattern>>);
+struct PatternStyle {
+    data: Rc<RefCell<Pattern>>,
+    env: NapiEnv,
+    reference: *mut c_void,
+}
+impl Drop for PatternStyle {
+    fn drop(&mut self) { unsafe { (api().delete_reference)(self.env, self.reference); } }
+}
 
 unsafe extern "C" fn finalize_gradient(_: NapiEnv, data: *mut c_void, _: *mut c_void) {
     drop(Box::from_raw(data as *mut GradientObject));
@@ -793,6 +801,11 @@ unsafe fn style_value(env: NapiEnv, style: &Style) -> NapiValue {
         (api().get_reference_value)(env, g.reference, &mut value);
         return value;
     }
+    if let Style::Pattern(p) = style {
+        let mut value = ptr::null_mut();
+        (api().get_reference_value)(env, p.reference, &mut value);
+        return value;
+    }
     let color = style_color(style);
     if let Style::CssColor(_,alpha,_)=style {
         let byte=(*alpha*255.0).round() as u8;
@@ -819,7 +832,10 @@ unsafe fn sync_native_style(canvas: &Canvas2D, style: &Style, stroke: bool) {
             skia_canvas_set_gradient(canvas.native, stroke as i32, gradient.kind as i32, args.as_ptr(),
                                      positions.as_ptr(), colors.as_ptr(), gradient.stops.len() as u32);
         },
-        Style::Pattern(pattern) => skia_canvas_set_pattern(canvas.native, stroke as i32, pattern.pixels.as_ptr(), pattern.width, pattern.height, pattern.repeat_x as i32, pattern.repeat_y as i32),
+        Style::Pattern(pattern) => {
+            let pattern=pattern.data.borrow();
+            skia_canvas_set_pattern(canvas.native, stroke as i32, pattern.pixels.as_ptr(), pattern.width, pattern.height, pattern.repeat_x as i32, pattern.repeat_y as i32, pattern.matrix.as_ptr(), canvas.image_smoothing as i32);
+        },
     }
 }
 
@@ -978,7 +994,11 @@ unsafe extern "C" fn set_canvas_property(env: NapiEnv, info: NapiCallbackInfo) -
                         let style = Style::Gradient(Rc::new(GradientStyle { data: g.0.clone(), env, reference }));
                         if data==0 {c.fill=style;} else {c.stroke=style;}
                     } else if is_pattern {
-                        let p=&*(raw as *mut PatternObject); if data==0 {c.fill=Style::Pattern(p.0.clone());} else {c.stroke=Style::Pattern(p.0.clone());}
+                        let p=&*(raw as *mut PatternObject);
+                        let mut reference=ptr::null_mut();
+                        if (api().create_reference)(env,*value,1,&mut reference)!=0 { return undefined(env); }
+                        let style=Style::Pattern(Rc::new(PatternStyle{data:p.0.clone(),env,reference}));
+                        if data==0 {c.fill=style;} else {c.stroke=style;}
                     }
                 }
             }
@@ -1040,7 +1060,7 @@ fn style_at(style: &Style, x: f64, y: f64) -> [u8; 4] {
             for i in 1..g.stops.len() { if p <= g.stops[i].0 { let (a,ca,_)=g.stops[i-1]; let (b,cb,_)=g.stops[i]; let q=((p-a)/(b-a).max(1e-9)).clamp(0.0,1.0); return [0,1,2,3].map(|k| (ca[k] as f64+(cb[k] as f64-ca[k] as f64)*q).round() as u8); } }
             g.stops.last().unwrap().1
         },
-        Style::Pattern(p) => if p.pixels.len() >= 4 && p.width > 0 && p.height > 0 { p.pixels[0..4].try_into().unwrap_or([0,0,0,0]) } else { [0,0,0,0] },
+        Style::Pattern(p) => {let p=p.data.borrow();if p.pixels.len() >= 4 && p.width > 0 && p.height > 0 { p.pixels[0..4].try_into().unwrap_or([0,0,0,0]) } else { [0,0,0,0] }},
     }
 }
 fn clip_contains(c: &Canvas2D, x: f64, y: f64) -> bool {
@@ -1111,7 +1131,25 @@ unsafe extern "C" fn gradient_add_stop(env:NapiEnv, info:NapiCallbackInfo)->Napi
     undefined(env)
 }
 unsafe fn create_gradient(env:NapiEnv, g:Gradient)->NapiValue { let mut o=ptr::null_mut(); (api().create_object)(env,&mut o); (api().type_tag_object)(env,o,&GRADIENT_TYPE_TAG); (api().wrap)(env,o,Box::into_raw(Box::new(GradientObject(Rc::new(RefCell::new(g))))) as *mut c_void,Some(finalize_gradient),ptr::null_mut(),ptr::null_mut()); let mut f=ptr::null_mut(); (api().create_function)(env,b"addColorStop\0".as_ptr() as *const c_char,12,gradient_add_stop,ptr::null_mut(),&mut f); set(env,o,"addColorStop",f); o }
-unsafe fn create_pattern(env:NapiEnv, pattern:Pattern)->NapiValue { let mut o=ptr::null_mut(); (api().create_object)(env,&mut o); (api().type_tag_object)(env,o,&PATTERN_TYPE_TAG); (api().wrap)(env,o,Box::into_raw(Box::new(PatternObject(pattern))) as *mut c_void,Some(finalize_pattern),ptr::null_mut(),ptr::null_mut()); o }
+unsafe extern "C" fn pattern_set_transform(env:NapiEnv, info:NapiCallbackInfo)->NapiValue {
+    let (args,this_arg,_)=callback_info(env,info);
+    let mut tagged=false;(api().check_object_type_tag)(env,this_arg,&PATTERN_TYPE_TAG,&mut tagged);
+    if !tagged{return type_error(env,"Illegal invocation");}
+    let mut raw=ptr::null_mut();
+    if (api().unwrap)(env,this_arg,&mut raw)!=0 || raw.is_null() || args.len()<6{return undefined(env);}
+    // The JS adapter completes dictionary conversion before this borrow.
+    let matrix=std::array::from_fn(|i|number(env,args[i]));
+    (*(raw as *mut PatternObject)).0.borrow_mut().matrix=matrix;
+    undefined(env)
+}
+unsafe fn create_pattern(env:NapiEnv, pattern:Pattern)->NapiValue {
+    let mut o=ptr::null_mut();(api().create_object)(env,&mut o);
+    (api().type_tag_object)(env,o,&PATTERN_TYPE_TAG);
+    (api().wrap)(env,o,Box::into_raw(Box::new(PatternObject(Rc::new(RefCell::new(pattern))))) as *mut c_void,Some(finalize_pattern),ptr::null_mut(),ptr::null_mut());
+    let mut f=ptr::null_mut();
+    (api().create_function)(env,b"setTransform\0".as_ptr() as *const c_char,12,pattern_set_transform,ptr::null_mut(),&mut f);
+    set(env,o,"setTransform",f);o
+}
 
 unsafe fn reset_canvas_state(canvas: &mut Canvas2D) {
  canvas.fill=Style::Color([0,0,0,255]); canvas.stroke=Style::Color([0,0,0,255]); canvas.shadow=Style::Color([0,0,0,0]); canvas.shadow_blur=0.0; canvas.shadow_offset_x=0.0; canvas.shadow_offset_y=0.0; canvas.transform=[1.0,0.0,0.0,1.0,0.0,0.0]; canvas.path.clear(); canvas.current_path=None; canvas.line_width=1.0; canvas.line_cap="butt".to_string(); canvas.line_join="miter".to_string(); canvas.miter_limit=10.0; canvas.line_dash.clear(); canvas.line_dash_offset=0.0; canvas.global_alpha=1.0; canvas.composite_copy=false; canvas.image_smoothing=true; canvas.font="10px sans-serif".to_string(); canvas.text_align="start".to_string(); canvas.text_baseline="alphabetic".to_string(); canvas.direction="inherit".to_string(); canvas.state_stack.clear(); canvas.clip.clear(); if !canvas.native.is_null(){skia_canvas_reset(canvas.native);}  canvas.pixels.fill(0);
@@ -1164,7 +1202,7 @@ unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> N
             if width==0 || height==0 || (api().get_typedarray_info)(env,data,&mut kind,&mut length,&mut source,&mut buffer,&mut offset)!=0 || source.is_null() || length < width as usize*height as usize*4 { return undefined(env); }
             let repetition=args.get(1).and_then(|v|value_string(env,*v)).unwrap_or_else(||"repeat".to_string());
             let (repeat_x,repeat_y)=match repetition.as_str() { "repeat-x"=>(true,false), "repeat-y"=>(false,true), "no-repeat"=>(false,false), _=>(true,true) };
-            create_pattern(env,Pattern{pixels:std::slice::from_raw_parts(source as *const u8,width as usize*height as usize*4).to_vec(),width,height,repeat_x,repeat_y})
+            create_pattern(env,Pattern{pixels:std::slice::from_raw_parts(source as *const u8,width as usize*height as usize*4).to_vec(),width,height,repeat_x,repeat_y,matrix:[1.0,0.0,0.0,1.0,0.0,0.0]})
         }
         "createLinearGradient" | "createRadialGradient" | "createConicGradient" => {
             let count = match name { "createLinearGradient" => 4, "createRadialGradient" => 6, _ => 3 };

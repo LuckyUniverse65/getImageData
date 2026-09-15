@@ -834,7 +834,7 @@ static std::vector<CapsRun> synthetic_caps_runs(const char* text, size_t length)
 }
 
 struct FontTextRun { std::string text; sk_sp<SkTypeface> face; };
-static std::vector<FontTextRun> fallback_runs(const std::string& text,const SkFont& font) {
+static std::vector<FontTextRun> fallback_runs(const std::string& text,const SkFont& font,const char* families) {
     static sk_sp<SkFontMgr> manager=SkFontMgr_New_DirectWrite();
     std::vector<FontTextRun> runs;
     const char* cursor=text.data();const char* end=cursor+text.size();
@@ -844,9 +844,28 @@ static std::vector<FontTextRun> fallback_runs(const std::string& text,const SkFo
         if(combining_mark(ch)&&!runs.empty())face=runs.back().face;
         else if(!font.unicharToGlyph(ch)&&manager){
             sk_sp<SkTypeface> fallback;
+            std::string name;char quote=0;
+            auto match=[&](){
+                const auto first=name.find_first_not_of(" \t\r\n"),last=name.find_last_not_of(" \t\r\n");
+                if(first!=std::string::npos){
+                    auto styles=manager->matchFamily(name.substr(first,last-first+1).c_str());
+                    auto candidate=styles&&styles->count()>0?styles->matchStyle(face->fontStyle()):nullptr;
+                    if(candidate&&candidate->unicharToGlyph(ch))fallback=std::move(candidate);
+                }
+                name.clear();
+            };
+            if(families)for(const char* p=families;;++p){
+                const char c=*p;
+                if(!c){match();break;}
+                if(c=='\\'&&p[1]){name+=*++p;continue;}
+                if(quote){if(c==quote)quote=0;else name+=c;}
+                else if(c=='\''||c=='"')quote=c;
+                else if(c==','){match();if(fallback)break;}
+                else name+=c;
+            }
             // Blink's Windows Simplified Han list precedes DirectWrite's
             // generic fallback (which otherwise selects Microsoft YaHei).
-            if(hb_unicode_script(hb_unicode_funcs_get_default(),ch)==HB_SCRIPT_HAN) {
+            if(!fallback && hb_unicode_script(hb_unicode_funcs_get_default(),ch)==HB_SCRIPT_HAN) {
                 for(const char* family : {"Noto Sans SC","Noto Sans CJK SC","Microsoft YaHei","SimSun"}) {
                     auto styles=manager->matchFamily(family);
                     auto candidate=styles && styles->count()>0 ? styles->matchStyle(face->fontStyle()) : nullptr;
@@ -867,12 +886,12 @@ static bool needs_font_fallback(const char* text,size_t length,const SkFont& fon
     return false;
 }
 
-static sk_sp<SkTextBlob> font_runs_blob(const char* text,size_t length,
+static sk_sp<SkTextBlob> font_runs_blob(const char* text,size_t length,const char* families,
         const SkFont& draw_font,const SkFont& position_font,float* advance,float* output_bounds=nullptr,bool synthetic_caps=true,bool native_small_caps=false) {
     SkTextBlobBuilder builder;SkRect combined=SkRect::MakeEmpty();float offset=0;
     const auto caps_runs=synthetic_caps?synthetic_caps_runs(text,length):std::vector<CapsRun>{{std::string(text,length),false}};
     for(const auto& run:caps_runs) {
-      for(const auto& font_run:fallback_runs(run.text,position_font)) {
+      for(const auto& font_run:fallback_runs(run.text,position_font,families)) {
         SkFont draw(draw_font),position(position_font);
         draw.setTypeface(font_run.face);position.setTypeface(font_run.face);
         draw.setEmbeddedBitmaps(use_embedded_bitmaps(font_run.face.get()));
@@ -1127,11 +1146,16 @@ void skia_canvas_set_gradient(void* value, int stroke, int kind, const float* ar
     selected_style(c, stroke).pattern.reset();
     selected_style(c, stroke).gradient = std::move(gradient);
 }
-void skia_canvas_set_pattern(void* value, int stroke, const uint8_t* pixels, uint32_t width, uint32_t height, int repeat_x, int repeat_y) {
+void skia_canvas_set_pattern(void* value, int stroke, const uint8_t* pixels, uint32_t width, uint32_t height, int repeat_x, int repeat_y, const double* matrix, int smoothing) {
     auto* c = static_cast<Canvas*>(value); if (!c || !pixels || width == 0 || height == 0) return;
     const size_t bytes = static_cast<size_t>(width) * height * 4;
-    auto data = SkData::MakeWithCopy(pixels, bytes);
-    auto image = SkImages::RasterFromData(SkImageInfo::Make(width, height, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType), std::move(data), width * 4);
+    // Interpolate premultiplied texels, including transparent decal edges.
+    // An unpremultiplied shader multiplies alpha again after interpolation.
+    auto data = SkData::MakeUninitialized(bytes);
+    const auto info = SkImageInfo::Make(width, height, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    if (!SkPixmap(info.makeAlphaType(kUnpremul_SkAlphaType), pixels, width * 4)
+             .readPixels(info, data->writable_data(), width * 4)) return;
+    auto image = SkImages::RasterFromData(info, std::move(data), width * 4);
     if (!image) return;
     if (c->graphite) {
         image = SkImages::TextureFromImage(c->recorder.get(), image);
@@ -1140,7 +1164,13 @@ void skia_canvas_set_pattern(void* value, int stroke, const uint8_t* pixels, uin
     const SkTileMode tx = repeat_x ? SkTileMode::kRepeat : SkTileMode::kDecal;
     const SkTileMode ty = repeat_y ? SkTileMode::kRepeat : SkTileMode::kDecal;
     selected_style(c, stroke).gradient.reset();
-    selected_style(c, stroke).pattern = image->makeShader(tx, ty, SkSamplingOptions());
+    SkMatrix local;
+    const auto component=[&](int i){return static_cast<float>(std::clamp(matrix[i],-double(std::numeric_limits<float>::max()),double(std::numeric_limits<float>::max())));};
+    local.setAll(component(0),component(2),component(4),component(1),component(3),component(5),0,0,1);
+    SkMatrix inverse;
+    selected_style(c, stroke).pattern = local.invert(&inverse)
+        ? image->makeShader(tx, ty, SkSamplingOptions(smoothing ? SkFilterMode::kLinear : SkFilterMode::kNearest), &local)
+        : SkShaders::Color(SK_ColorTRANSPARENT);
 }
 void skia_canvas_set_shadow(void* value, float r, float g, float b, float a, float blur, float offset_x, float offset_y) {
     auto* c = static_cast<Canvas*>(value); if (!c) return; c->shadow = {r, g, b, a}; c->shadow_blur = std::max(0.f, blur); c->shadow_offset_x = offset_x; c->shadow_offset_y = offset_y;
@@ -1235,9 +1265,9 @@ void skia_canvas_draw_text(void* value, const char* text, uint32_t length,
                                              : "CANVAS_TEXT_FOREGROUND_POSITION_SCALE",
                                  "CANVAS_GLYPH_SCALE"));
                              auto blob = small_caps && !has_small_caps(position_font)
-                                 ? font_runs_blob(text,length,draw_font,position_font,nullptr)
+                                 ? font_runs_blob(text,length,family,draw_font,position_font,nullptr)
                                  : needs_font_fallback(text,length,position_font)
-                                 ? font_runs_blob(text,length,draw_font,position_font,nullptr,nullptr,false,small_caps!=0)
+                                 ? font_runs_blob(text,length,family,draw_font,position_font,nullptr,nullptr,false,small_caps!=0)
                                  : harfbuzz_shaping
                                  ? make_shaped_text_blob(text, length, draw_font, position_font, nullptr, small_caps != 0)
                                  : make_positioned_text_blob(text, length, draw_font, position_font);
@@ -1269,8 +1299,8 @@ float skia_canvas_measure_text(void* value, const char* text, uint32_t length,
                                const char* family, float size, int weight, int slant, int small_caps) {
     if (!value || !text) return 0;
     SkFont font = resolve_font(family, size, weight, slant);
-    if(small_caps && !has_small_caps(font)){float advance=0;font_runs_blob(text,length,font,font,&advance);return advance;}
-    if(needs_font_fallback(text,length,font)){float advance=0;font_runs_blob(text,length,font,font,&advance,nullptr,false,small_caps!=0);return advance;}
+    if(small_caps && !has_small_caps(font)){float advance=0;font_runs_blob(text,length,family,font,font,&advance);return advance;}
+    if(needs_font_fallback(text,length,font)){float advance=0;font_runs_blob(text,length,family,font,font,&advance,nullptr,false,small_caps!=0);return advance;}
     font.setLinearMetrics(use_linear_metrics(font));
     if (runtime_float("CANVAS_HARFBUZZ_SHAPING", 1.0f) != 0.0f) {
         std::vector<SkGlyphID> glyphs;std::vector<SkPoint> positions;
@@ -1283,8 +1313,8 @@ void skia_canvas_text_bounds(void* value, const char* text, uint32_t length,
                                const char* family, float size, int weight, int slant, float* output, int small_caps) {
     if (!value || !text || !output) return;
     SkFont font=resolve_font(family,size,weight,slant);
-    if(small_caps && !has_small_caps(font)){font_runs_blob(text,length,font,font,nullptr,output);return;}
-    if(needs_font_fallback(text,length,font)){font_runs_blob(text,length,font,font,nullptr,output,false,small_caps!=0);return;}
+    if(small_caps && !has_small_caps(font)){font_runs_blob(text,length,family,font,font,nullptr,output);return;}
+    if(needs_font_fallback(text,length,font)){font_runs_blob(text,length,family,font,font,nullptr,output,false,small_caps!=0);return;}
     font.setLinearMetrics(use_linear_metrics(font));
     std::vector<SkGlyphID> glyphs;
     std::vector<SkPoint> positions;
