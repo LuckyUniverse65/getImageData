@@ -2,6 +2,8 @@
 
 Windows 上的 Node.js `OffscreenCanvas` 兼容层。JavaScript 提供 Canvas 外壳，Rust 通过 Node-API 分派接口，C++ 调用 Skia Graphite / Dawn D3D11 绘制和读取像素。
 
+2026-09-15 第十一轮检测：新增 **34 项中 9 项一致、25 项存在差异，尚未修复**。涉及 CanvasPattern 对象身份、变换与平滑，内部操作对可覆盖上下文方法的依赖，以及字体列表后续候选被跳过。两次最终脚本采集一致；既有 578 项回归、demo 和 GC 均通过，生产实现未修改。详见[第十一轮检测报告](docs/2026-09-15_eleventh-round-review-report.md)。
+
 2026-09-15 第十轮修复完成：此前 **17 个失败用例全部修复**，补充 29 项边界验证后，第十轮 **75 项全部通过**，完整 **578 项**与现有 Chrome 实时对照一致，demo 的 9216 个 RGBA 值零差异，GC 通过。修复覆盖冻结对象的内部状态、图像源属性遮蔽、HSL 阴影/渐变及解析精度、混合脚本和中文字体，并修复扩展测试发现的 Graphite 图案纹理上传问题。详见[第十轮修复报告](docs/2026-09-15_tenth-round-fixes-report.md)；[第十轮检测报告](docs/2026-09-15_tenth-round-review-report.md)保留修复前证据。
 
 2026-09-15 第九轮修复完成：此前 **23 个失败用例全部修复**，补充 15 项相关边界后，第九轮 **70 项全部通过**，完整 **503 项**与现有 Chrome 实时对照一致，demo 的 9216 个 RGBA 值零差异，GC 通过。修复覆盖 ImageBitmap 身份和构造约束、字体换行与转义、相对字重和斜体角度、HSL 浮点绘制，以及缺失字形回退和组合标记分组。详见[第九轮修复报告](docs/2026-09-15_ninth-round-fixes-report.md)；[第九轮检测报告](docs/2026-09-15_ninth-round-review-report.md)保留历史差异。
