@@ -2,7 +2,7 @@
 
 Windows 上的 Node.js `OffscreenCanvas` 兼容层。JavaScript 提供 Canvas 外壳，Rust 通过 Node-API 分派接口，C++ 调用 Skia Graphite / Dawn D3D11 绘制和读取像素。
 
-2026-09-14 完成第四轮代码修复：此前 29 个失败用例已修复，原 46 项与保存的 Chrome 153.0.8010.37 结果全部一致。新增 12 项回归后，本地共 **216 项**通过；204 项已有用例及 demo 的 9216 个 RGBA 值与历史 Chrome 采集一致。**本次 CDP 连接超时，新增 12 项尚待浏览器对照，未完成实时验收。**详见[第四轮修复记录](docs/2026-09-14_fourth-round-fixes-report.md)。
+2026-09-15 完成第四轮实时验收：此前 29 个失败用例和新增 12 项边界检查均已通过，共 **216 项**与用户手动打开的 Chrome 153.0.8010.37 一致；demo 的 9216 个 RGBA 值零差异，渐变 GC 检查通过。所有采集复用同一条持久 CDP 连接。详见[最终验收报告](docs/2026-09-15_fourth-round-verification-report.md)。
 
 [第二轮修复记录](docs/2026-09-14_offscreen-fixes-report.md)和[第三轮修复前检测](docs/2026-09-14_third-round-review-report.md)保留了历史结果及证据。
 
@@ -80,7 +80,7 @@ node tests/compare-additional.cjs
 
 Blob 导出支持 PNG；其他 MIME 请求回退为 PNG。位图是本地兼容对象，不是浏览器跨线程 transferable。项目尚未完整覆盖 `CanvasPattern.setTransform`、所有图像源和完整 WebGL pipeline；上下文互斥测试不代表完整 WebGL 绘制能力。图像入口接受项目创建的 Canvas/位图；ImageData 入口接受 Canvas 返回的 ImageData，不再把任意带 data 字段的普通对象当作图像。
 
-字体解析支持常见样式、字体族及 px/pt 等绝对单位，已支持按字体族列表顺序查找已安装字体；尚未实现完整 CSS 语法、相对单位及逐字形回退。文字宽度与实际字形边界已与已测样本一致，全部字体、复杂文字排版和其他 TextMetrics 字段仍未完整验证。颜色解析也不是完整 CSS Color 实现。Canvas 尺寸仍受原生 u32 上限及可用内存限制。当前 216 项本地通过，新增 12 项仍待 Chrome 对照；已有用例与保存结果一致不代表完整 Canvas 标准实现。
+字体解析支持常见样式、字体族及 px/pt 等绝对单位，已支持按字体族列表顺序查找已安装字体；尚未实现完整 CSS 语法、相对单位及逐字形回退。文字宽度与实际字形边界已与已测样本一致，全部字体、复杂文字排版和其他 TextMetrics 字段仍未完整验证。颜色解析也不是完整 CSS Color 实现。Canvas 尺寸仍受原生 u32 上限及可用内存限制。当前 216 项与现有 Chrome 实时对照通过，不代表完整 Canvas 标准实现。
 
 ## 代码与记录
 
@@ -100,7 +100,7 @@ Blob 导出支持 PNG；其他 MIME 请求回退为 PNG。位图是本地兼容�
 | [tests/gradient-gc.cjs](tests/gradient-gc.cjs) | 渐变共享引用与强制 GC 检查。 |
 | [tests/png-reader.js](tests/png-reader.js) | 本地独立 PNG 解码；浏览器侧使用 createImageBitmap。 |
 | [test.js](test.js)、[capture-cdp.cjs](capture-cdp.cjs) | 本地断言、现有 Chrome CDP 采集与比较。 |
-| [tests/fourth-round-cases.js](tests/fourth-round-cases.js)、[docs/2026-09-14_fourth-round-fixes-report.md](docs/2026-09-14_fourth-round-fixes-report.md) | 第四轮 58 项、修复及当前验收限制。 |
+| [tests/fourth-round-cases.js](tests/fourth-round-cases.js)、[docs/2026-09-15_fourth-round-verification-report.md](docs/2026-09-15_fourth-round-verification-report.md) | 第四轮 58 项、修复及 216 项最终实时验收。 |
 | [visible-f12-demo.ps1](visible-f12-demo.ps1)、[tests/VisibleDevTools.cs](tests/VisibleDevTools.cs) | 历史桌面 F12 采集工具，默认验证不再调用。 |
 | [canvas-task.ps1](canvas-task.ps1) | Build、Test、CDP Capture，以及历史窗口 Inspect 入口。 |
 | [docs/offscreen-compatibility.md](docs/offscreen-compatibility.md) | 本次六类问题的修复与证据。 |

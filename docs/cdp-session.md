@@ -37,4 +37,6 @@ node --test tests/cdp-session.test.cjs
 
 6 项测试覆盖并发启动只连接一次、连续采集保持连接、授权失败/断开后不重连、采集错误后释放队列、独立 Node 客户端共用服务、脚本/端口校验，以及取消等待授权。这些是模拟连接和本机进程通信测试，不代表 Chrome 已实际连接；实际状态以 `--session-status` 的 `connected` 为准。
 
+2026-09-15 已完成真实 Chrome 验证：单独采集与随后完整回归共用同一 `connectionId`，216 项全部一致，测试后连接仍保持。采集证据见[实时验收报告](2026-09-15_fourth-round-verification-report.md)。
+
 服务仅接受项目列出的 Canvas 验证脚本，不提供任意 CDP 命令转发，也不监听面向网页的 HTTP 控制端口。

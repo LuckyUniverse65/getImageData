@@ -1144,10 +1144,13 @@ void skia_canvas_typo_metrics(void* value, const char* family, float size,
     }
     // Blink SimpleFontData normalizes OS/2 typo metrics to one em, then
     // rounds to LayoutUnit (1/64 px). Descent is the remaining em height.
+    // Use the resolved platform size, including Blink's hundredth-pixel
+    // font-cache quantization, just as glyph drawing and measurement do.
+    const float em_height = font.getSize();
     *ascent = *descent = 0;
     if (a + d > 0 && a >= 0 && d >= 0) {
-        *ascent = std::round((a * size / (a + d)) * 64.0f) / 64.0f;
-        *descent = std::round(size * 64.0f) / 64.0f - *ascent;
+        *ascent = std::round((a * em_height / (a + d)) * 64.0f) / 64.0f;
+        *descent = std::round(em_height * 64.0f) / 64.0f - *ascent;
     }
 }
 void skia_canvas_reset(void* value) {
