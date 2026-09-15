@@ -581,8 +581,10 @@ unsafe fn image_data(env: NapiEnv, width: usize, height: usize, pixels: &[u8]) -
 
 fn parse_color(value: &str) -> Option<[u8; 4]> {
     let value = value.trim().to_ascii_lowercase();
-    if value.starts_with("hsl") || value.starts_with("rgb(")||value.starts_with("rgba(") {
-        return canvas_css::function_color(&value);
+    let function=canvas_css::preprocess(&value);
+    let function=function.trim();
+    if function.starts_with("hsl") || function.starts_with("rgb(")||function.starts_with("rgba(") {
+        return canvas_css::function_color(function);
     }
     let named = match value.as_str() {
         "black" => Some([0, 0, 0, 255]), "white" => Some([255, 255, 255, 255]),

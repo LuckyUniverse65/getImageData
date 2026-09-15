@@ -8,6 +8,10 @@ const OffscreenCanvasRenderingContext2D = native.OffscreenCanvasRenderingContext
 const imageDataObjects = new WeakSet();
 const imageSources = new WeakSet();
 const contexts = new WeakSet();
+const offscreenCanvases = new WeakSet();
+function requireOffscreenCanvas(value) {
+    if(!offscreenCanvases.has(value))throw new TypeError('Illegal invocation');
+}
 const isObject = value => value !== null && (typeof value === 'object' || typeof value === 'function');
 // Web IDL converts each iterator value immediately and does not perform
 // Array.from's IteratorClose on conversion failure.
@@ -241,16 +245,19 @@ class OffscreenCanvas {
         this._height = offscreenDimension(height);
         this._contexts = new Map();
         this._native = new native.OffscreenCanvas(this._width, this._height);
+        offscreenCanvases.add(this);
         imageSources.add(this);
     }
 
-    get width() { return this._width; }
+    get width() { requireOffscreenCanvas(this); return this._width; }
     set width(value) {
+        requireOffscreenCanvas(this);
         this._resize(offscreenDimension(value), this._height);
     }
 
-    get height() { return this._height; }
+    get height() { requireOffscreenCanvas(this); return this._height; }
     set height(value) {
+        requireOffscreenCanvas(this);
         const height = offscreenDimension(value);
         this._resize(this._width, height);
     }
@@ -272,6 +279,7 @@ class OffscreenCanvas {
     }
 
     getContext(type, attributes) {
+        requireOffscreenCanvas(this);
         // OffscreenRenderingContextId is a case-sensitive Web IDL enum.
         const kind = String(type);
         if (!['2d', 'webgl', 'webgl2', 'bitmaprenderer'].includes(kind)) {
@@ -296,6 +304,7 @@ class OffscreenCanvas {
     }
 
     transferToImageBitmap() {
+        requireOffscreenCanvas(this);
         const context = this._contexts.get("2d");
         if (!context) throw new DOMException('Canvas has no rendering context', 'InvalidStateError');
         if (!this._width || !this._height) throw new DOMException('Canvas has no transferable image', 'UnknownError');
@@ -305,6 +314,7 @@ class OffscreenCanvas {
     }
 
     async convertToBlob(options = {}) {
+        requireOffscreenCanvas(this);
         if(options!=null&&!isObject(options))throw new TypeError('Expected ImageEncodeOptions dictionary');
         // Web IDL reads dictionary members alphabetically, before canvas state.
         const quality=options?.quality;

@@ -22,7 +22,7 @@ fn identifier(value:&str)->bool{
     match chars.next(){Some('-')=>{if !chars.next().is_some_and(|c|start(c)||c=='-'){return false;}},Some(c) if start(c)=>{},_=>return false}
     chars.all(|c|start(c)||c.is_ascii_digit()||c=='-')
 }
-fn preprocess(value:&str)->String{
+pub fn preprocess(value:&str)->String{
     let mut out=String::new();let mut chars=value.chars().peekable();let mut quote=None;
     while let Some(ch)=chars.next(){
         if let Some(q)=quote{
@@ -53,8 +53,45 @@ fn family_string(value:&str)->Option<String>{
     }
     Some(out)
 }
+fn wide_keyword(value:&str)->bool{
+    matches!(value.to_ascii_lowercase().as_str(),"inherit"|"initial"|"unset"|"revert"|"revert-layer"|"default")
+}
+fn generic_family(value:&str)->bool{
+    matches!(value.to_ascii_lowercase().as_str(),"serif"|"sans-serif"|"monospace"|"cursive"|"fantasy"|"system-ui"|"math"|"emoji"|"fangsong"|"ui-serif"|"ui-sans-serif"|"ui-monospace"|"ui-rounded")
+}
+// Preserve each escape as one token, including the optional hex terminator.
+fn raw_escape(chars:&mut std::iter::Peekable<std::str::Chars<'_>>)->Option<String>{
+    let mut out=String::from("\\");let next=chars.next()?;out.push(next);
+    if next.is_ascii_hexdigit(){
+        let mut count=1;while count<6&&chars.peek().is_some_and(char::is_ascii_hexdigit){out.push(chars.next()?);count+=1;}
+        if chars.peek().is_some_and(char::is_ascii_whitespace){let c=chars.next()?;out.push(c);if c=='\r'&&chars.peek()==Some(&'\n'){out.push(chars.next()?);}}
+    }
+    Some(out)
+}
+fn font_tokens(value:&str)->Option<Vec<String>>{
+    let mut tokens=Vec::new();let mut token=String::new();let mut quote=None;let mut chars=value.chars().peekable();
+    while let Some(ch)=chars.next(){
+        if ch=='\\'{token.push_str(&raw_escape(&mut chars)?);continue;}
+        if let Some(q)=quote{token.push(ch);if ch==q{quote=None;}}
+        else if ch=='\''||ch=='"'{quote=Some(ch);token.push(ch);}
+        else if ch.is_ascii_whitespace()||ch=='/'{if !token.is_empty(){tokens.push(std::mem::take(&mut token));}if ch=='/'{tokens.push("/".to_string());}}
+        else{token.push(ch);}
+    }
+    if quote.is_some(){return None;}if !token.is_empty(){tokens.push(token);}Some(tokens)
+}
+fn decoded_identifier(value:&str)->Option<String>{
+    let mut mask=String::new();let mut chars=value.chars().peekable();
+    while let Some(ch)=chars.next(){
+        if ch=='\\'{let escape=raw_escape(&mut chars)?;if escape[1..].starts_with(['\n','\r','\x0c']){return None;}mask.push('_');}
+        else{mask.push(ch);}
+    }
+    if !identifier(&mask){return None;}family_string(value)
+}
 fn serialize_family(value:&str)->String{
-    if identifier(value)&&!value.starts_with("--"){return value.to_string();}
+    // CSS-wide keywords are reserved regardless of case. Blink's generic
+    // family serialization quotes only the canonical lowercase spelling.
+    let reserved=wide_keyword(value)||(generic_family(value)&&value==value.to_ascii_lowercase());
+    if identifier(value)&&!value.starts_with("--")&&!reserved{return value.to_string();}
     let mut out=String::from("\"");
     for ch in value.chars(){
         if ch=='"'||ch=='\\'{out.push('\\');out.push(ch);}
@@ -70,23 +107,16 @@ pub fn serialized_alpha(byte:u8)->f64{
 }
 pub fn alpha(value:&str)->Option<f64>{
     let value=preprocess(value);
+    let value=value.trim();
     let (_,tail)=value.split_once('/')?;
     let tail=tail.trim().strip_suffix(')')?.trim();
-    let a=if let Some(p)=tail.strip_suffix('%'){number(p.trim())?/100.0}else{number(tail)?};
+    let a=if tail=="none"{0.0}else if let Some(p)=tail.strip_suffix('%'){number(p.trim())?/100.0}else{number(tail)?};
     a.is_finite().then_some(a.clamp(0.0,1.0))
 }
 
 pub fn font(value: &str) -> Option<String> {
     let value=preprocess(value);
-    // Keep quoted family names intact; malformed quoting is rejected.
-    let mut tokens=Vec::new();let mut token=String::new();let mut quote=None;
-    for ch in value.chars(){
-        if let Some(q)=quote{token.push(ch);if ch==q{quote=None;}}
-        else if ch=='\''||ch=='"'{quote=Some(ch);token.push(ch);}
-        else if ch.is_ascii_whitespace()||ch=='/'{if !token.is_empty(){tokens.push(std::mem::take(&mut token));}if ch=='/'{tokens.push("/".to_string());}}
-        else{token.push(ch);}
-    }
-    if quote.is_some(){return None;}if !token.is_empty(){tokens.push(token);}
+    let tokens=font_tokens(&value)?;
     let (mut style,mut variant,mut weight)=(None,None,None);
     for (i,token) in tokens.iter().enumerate(){
         let lower=token.to_ascii_lowercase();
@@ -111,7 +141,9 @@ pub fn font(value: &str) -> Option<String> {
             if family.is_empty(){return None;}
             // Family grammar: quoted names or CSS identifiers separated by commas.
             let mut quoted=None;let mut part=String::new();let mut families=Vec::new();
-            for ch in family.chars(){
+            let mut chars=family.chars().peekable();
+            while let Some(ch)=chars.next(){
+                if ch=='\\'{part.push_str(&raw_escape(&mut chars)?);continue;}
                 if let Some(q)=quoted{part.push(ch);if ch==q{quoted=None;}}
                 else if ch=='\''||ch=='"'{quoted=Some(ch);part.push(ch);}
                 else if ch==','{families.push(std::mem::take(&mut part));}
@@ -122,13 +154,19 @@ pub fn font(value: &str) -> Option<String> {
                 let p=part.trim();if p.is_empty(){return None;}
                 if p.starts_with(['\'', '"']){
                     let q=p.chars().next()?;
-                    if p.len()<2||!p.ends_with(q)||p[1..p.len()-1].contains(q){return None;}
+                    if p.len()<2||!p.ends_with(q){return None;}
+                    let mut chars=p[1..p.len()-1].chars().peekable();
+                    while let Some(ch)=chars.next(){if ch=='\\'{raw_escape(&mut chars)?;}else if ch==q{return None;}}
                     *part=serialize_family(&family_string(&p[1..p.len()-1])?);
-                }else if !p.split_whitespace().all(identifier){return None;}
-                else if p.starts_with("--"){*part=serialize_family(p);}
+                }else{
+                    let names=font_tokens(p)?.iter().map(|token|decoded_identifier(token)).collect::<Option<Vec<_>>>()?;
+                    if names.len()==1&&wide_keyword(&names[0]){return None;}
+                    let name=names.join(" ");
+                    *part=if names.len()==1&&generic_family(&name){name.to_ascii_lowercase()}else{serialize_family(&name)};
+                }
             }
             let mut result=Vec::new();
-            if let Some(s)=style{result.push(s);}if let Some(v)=variant{result.push(v);}if let Some(w)=weight{result.push(w);}
+            if let Some(s)=style{result.push(s);}if let Some(w)=weight{result.push(w);}if let Some(v)=variant{result.push(v);}
             result.push(format!("{}px",size));result.push(families.iter().map(|f|f.trim()).collect::<Vec<_>>().join(", "));
             return Some(result.join(" "));
         }
@@ -145,6 +183,7 @@ pub fn font(value: &str) -> Option<String> {
 
 pub fn function_color(value:&str)->Option<[u8;4]>{
     let value=preprocess(value);
+    let value=value.trim();
     let (name,body)=value.split_once('(')?;let body=body.strip_suffix(')')?;
     if !["rgb","rgba","hsl","hsla"].contains(&name){return None;}
     let modern=!body.contains(',');
@@ -152,9 +191,10 @@ pub fn function_color(value:&str)->Option<[u8;4]>{
         let parts=body.split('/').collect::<Vec<_>>();
         if parts.len()>2||parts[0].split_whitespace().count()!=3||(parts.len()==2&&parts[1].split_whitespace().count()!=1){return None;}
     }
-    let fields:Vec<&str>=if modern{body.split(|c:char|c.is_ascii_whitespace()||c=='/').filter(|v|!v.is_empty()).collect()}else{body.split(',').map(str::trim).collect()};
+    let mut fields:Vec<&str>=if modern{body.split(|c:char|c.is_ascii_whitespace()||c=='/').filter(|v|!v.is_empty()).collect()}else{body.split(',').map(str::trim).collect()};
     if fields.len()!=3&&fields.len()!=4{return None;}
     if !modern && name.starts_with("rgb") && fields[..3].iter().any(|s|s.ends_with('%')!=fields[0].ends_with('%')){return None;}
+    if modern{for field in &mut fields{if *field=="none"{*field="0";}}}
     let numeric=number;
     let alpha=if fields.len()==4{
         if let Some(p)=fields[3].strip_suffix('%'){

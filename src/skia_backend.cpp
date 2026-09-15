@@ -593,10 +593,18 @@ static SkFont resolve_font(const char* family, float size, int weight, int slant
         arguments.setVariationDesignPosition({&coordinate, 1});
         if (auto clone = typeface->makeClone(arguments)) typeface = std::move(clone);
     }
+    // Blink applies synthetic italics in SkFont rather than DirectWrite's
+    // differently slanted font-face simulation.
+    bool synthetic_oblique=false;
+    if(typeface && typeface->isSyntheticOblique()) {
+        SkFontArguments arguments;arguments.setSyntheticOblique(false);
+        if(auto upright=typeface->makeClone(arguments)){typeface=std::move(upright);synthetic_oblique=true;}
+    }
     // Blink's Canvas shaping stage passes linearly measured, subpixel glyph
     // runs into Skia. The public DirectWrite font manager otherwise rounds
     // advances differently, so retain these run-level settings here.
     SkFont font(typeface, blink_font_size(size, "CANVAS_GLYPH_SCALE"));
+    if(synthetic_oblique)font.setSkewX(-0.25f);
     const int hinting = static_cast<int>(runtime_float("CANVAS_FONT_HINTING", 1.0f));
     font.setHinting(hinting <= 0 ? SkFontHinting::kNone
                     : hinting == 2 ? SkFontHinting::kFull
@@ -608,7 +616,9 @@ static SkFont resolve_font(const char* family, float size, int weight, int slant
                                             : SkFont::Edging::kAntiAlias);
     font.setSubpixel(runtime_float("CANVAS_FONT_SUBPIXEL", 1.0f) != 0.0f);
     font.setLinearMetrics(runtime_float("CANVAS_FONT_LINEAR_METRICS", 0.0f) != 0.0f);
-    font.setBaselineSnap(runtime_float("CANVAS_FONT_BASELINE_SNAP", 0.0f) != 0.0f);
+    // Blink snaps horizontal baselines after the canvas transform, including
+    // fractional device-space positions produced by scaling.
+    font.setBaselineSnap(runtime_float("CANVAS_FONT_BASELINE_SNAP", 1.0f) != 0.0f);
     font.setEmbeddedBitmaps(runtime_float("CANVAS_FONT_EMBEDDED_BITMAPS", 0.0f) != 0.0f);
     font.setForceAutoHinting(runtime_float("CANVAS_FONT_AUTO_HINT", 0.0f) != 0.0f);
     return font;
@@ -779,21 +789,29 @@ static bool has_small_caps(const SkFont& font) {
 struct CapsRun { std::string text; bool reduced; };
 static std::vector<CapsRun> synthetic_caps_runs(const char* text, size_t length) {
     std::vector<CapsRun> runs;
+    std::string leading_marks;
     const char* cursor=text;const char* end=text+length;
     while(cursor<end) {
         auto ch=SkUTF::NextUTF8(&cursor,end);if(ch<0)ch=0xfffd;
         uint32_t upper[3]{};const uint32_t count=canvas_uppercase(ch,upper);
         bool reduced=count!=1 || upper[0]!=static_cast<uint32_t>(ch);
+        bool combining=false;
         // Combining marks remain in the run of their base character.
         if (ch<=0xffff) {
             const WCHAR character=static_cast<WCHAR>(ch);WORD type=0;
             // Windows also marks precomposed accented letters as NONSPACING.
             // Their ALPHA bit distinguishes them from combining marks.
-            if(GetStringTypeW(CT_CTYPE3,&character,1,&type) && (type&C3_NONSPACING) && !(type&C3_ALPHA) && !runs.empty())reduced=runs.back().reduced;
+            combining=GetStringTypeW(CT_CTYPE3,&character,1,&type) && (type&C3_NONSPACING) && !(type&C3_ALPHA);
+            if(combining && !runs.empty())reduced=runs.back().reduced;
+        }
+        if(combining && runs.empty()){
+            char buffer[SkUTF::kMaxBytesInUTF8Sequence];const size_t n=SkUTF::ToUTF8(ch,buffer);leading_marks.append(buffer,n);continue;
         }
         if(runs.empty()||runs.back().reduced!=reduced)runs.push_back({{},reduced});
+        if(!leading_marks.empty()){runs.back().text+=leading_marks;leading_marks.clear();}
         for(uint32_t i=0;i<count;i++){char buffer[SkUTF::kMaxBytesInUTF8Sequence];const size_t n=SkUTF::ToUTF8(upper[i],buffer);runs.back().text.append(buffer,n);}
     }
+    if(!leading_marks.empty())runs.push_back({std::move(leading_marks),false});
     return runs;
 }
 
@@ -1113,7 +1131,7 @@ void skia_canvas_draw_text(void* value, const char* text, uint32_t length,
     foreground_font.setSize(blink_font_size(size,
         "CANVAS_TEXT_FOREGROUND_GLYPH_SCALE", "CANVAS_GLYPH_SCALE"));
     foreground_font.setScaleX(runtime_float("CANVAS_TEXT_FOREGROUND_SCALE_X", 1.0f));
-    foreground_font.setSkewX(runtime_float("CANVAS_TEXT_FOREGROUND_SKEW_X", 0.0f));
+    foreground_font.setSkewX(runtime_float("CANVAS_TEXT_FOREGROUND_SKEW_X", font.getSkewX()));
     const int foreground_edging = static_cast<int>(runtime_float("CANVAS_TEXT_FOREGROUND_EDGING", 2.0f));
     foreground_font.setEdging(foreground_edging <= 0 ? SkFont::Edging::kAlias
                                : foreground_edging == 2 ? SkFont::Edging::kSubpixelAntiAlias
