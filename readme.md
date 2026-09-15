@@ -2,6 +2,8 @@
 
 Windows 上的 Node.js `OffscreenCanvas` 兼容层。JavaScript 提供 Canvas 外壳，Rust 通过 Node-API 分派接口，C++ 调用 Skia Graphite / Dawn D3D11 绘制和读取像素。
 
+2026-09-15 第八轮继续检测：新增 **46 项中 17 项一致、29 项存在差异，尚未修复**。涉及 Canvas 接收对象校验、字体字符串与颜色注释、组合重音开头的合成字形，以及 Tahoma 小型大写斜体。两次现有 Chrome 采集结果一致；原有 361 项回归仍全部通过，demo 零差异。本轮仅增加诊断用例与证据，详见[第八轮检测报告](docs/2026-09-15_eighth-round-review-report.md)。
+
 2026-09-15 第七轮补齐无 OpenType `smcp` 字体的合成小型大写：新增 **35 项全部通过**，完整 **361 项**与现有 Chrome 实时对照一致，demo 的 9216 个 RGBA 值零差异，GC 通过。已验证 Courier New、Tahoma、Consolas 的混合大小写、Unicode 大写展开、组合重音、填充/描边、变换和阴影。详见[第七轮修复报告](docs/2026-09-15_seventh-round-fixes-report.md)。
 
 2026-09-15 第六轮修复完成：此前 21 个失败用例已修复，补充 16 项相关边界后，第六轮 **52 项全部通过**，已纳入 **326 项主回归**。所有用例与用户手动打开的 Chrome 实时对照一致，demo 的 9216 个 RGBA 值零差异，GC 通过。详见[第六轮修复报告](docs/2026-09-15_sixth-round-fixes-report.md)；[第六轮检测报告](docs/2026-09-15_sixth-round-review-report.md)保留修复前证据。
@@ -113,6 +115,7 @@ Blob 导出支持 PNG；其他 MIME 请求回退为 PNG。位图是本地兼容�
 | [tests/compare-fifth-round.cjs](tests/compare-fifth-round.cjs)、[docs/2026-09-15_fifth-round-fixes-report.md](docs/2026-09-15_fifth-round-fixes-report.md) | 第五轮 58 项，已纳入 274 项主回归；修复及最终实测证据。 |
 | [tests/compare-sixth-round.cjs](tests/compare-sixth-round.cjs)、[docs/sixth-round-fixes.json](docs/sixth-round-fixes.json) | 第六轮 52 项已纳入 326 项主回归；逐项浏览器结果和最终源码/产物哈希。 |
 | [tests/compare-seventh-round.cjs](tests/compare-seventh-round.cjs)、[docs/seventh-round-fixes.json](docs/seventh-round-fixes.json) | 第七轮 35 项、361 项验收结果、字体特性及源码/产物哈希。 |
+| [tests/compare-eighth-round.cjs](tests/compare-eighth-round.cjs)、[docs/eighth-round-review.json](docs/eighth-round-review.json) | 第八轮 46 项独立诊断、29 项待修复差异及重复采集证据；未计入 361 项主回归。 |
 | [visible-f12-demo.ps1](visible-f12-demo.ps1)、[tests/VisibleDevTools.cs](tests/VisibleDevTools.cs) | 历史桌面 F12 采集工具，默认验证不再调用。 |
 | [canvas-task.ps1](canvas-task.ps1) | Build、Test、CDP Capture，以及历史窗口 Inspect 入口。 |
 | [docs/offscreen-compatibility.md](docs/offscreen-compatibility.md) | 本次六类问题的修复与证据。 |

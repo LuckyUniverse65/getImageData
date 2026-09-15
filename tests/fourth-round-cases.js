@@ -208,6 +208,41 @@
         add('syntheticFallbackList',()=>{const g=new Canvas(24,24).getContext('2d');g.font='small-caps 16px NoSuchCanvasCapsFont, "Courier New"';return g.measureText('abc').width;});
         return results;
     }
-    if(typeof module!=='undefined'&&module.exports){module.exports=runFourthRoundCases;module.exports.runFifthRoundCases=runFifthRoundCases;module.exports.runSixthRoundCases=runSixthRoundCases;module.exports.runSeventhRoundCases=runSeventhRoundCases;}
-    else globalThis.__canvasResult=(async()=>({fourthRound:runFourthRoundCases(OffscreenCanvas),fifthRound:runFifthRoundCases(OffscreenCanvas),sixthRound:await runSixthRoundCases(OffscreenCanvas),seventhRound:runSeventhRoundCases(OffscreenCanvas)}))();
+    async function runEighthRoundCases(Canvas) {
+        const results={},fresh=()=>new Canvas(80,40).getContext('2d');
+        const attempt=async fn=>{try{const value=await fn();return {value:value===undefined?'<undefined>':value};}catch(e){return {error:e.name};}};
+        const add=async(name,fn)=>{results[name]=await attempt(fn);};
+        for(const [name,font] of [
+            ['escapedQuote','12px "A\\\"B"'],['escapedIdentifier','12px \\41 rial'],['quotedGeneric','12px "serif"'],
+            ['quotedKeyword','12px "inherit"'],['reservedFamily','12px inherit'],['reservedInitial','12px initial'],
+            ['multiwordFamily','12px Times New Roman'],['emptyFamily','12px ""'],['fontComment','12px/**/Arial'],
+            ['escapedBackslash','12px "A\\\\B"'],['commentSuffix','12px Arial/**/'],['unicodeSpace','12px Arial\u00a0Bold']
+        ])await add('fontToken_'+name,()=>{const g=fresh();g.font='14px Arial';g.font=font;return g.font;});
+        for(const [name,color] of [
+            ['commentPrefix','/**/rgb(255 0 0)'],['commentSuffix','rgb(255 0 0)/**/'],['commentBeforeClose','rgb(255 0 0/**/)'],
+            ['namedComment','red/**/'],['escapedName','r\\65 d'],['noneChannel','rgb(none 0 0)'],
+            ['legacyMixedHSL','hsl(0, 100, 50)'],['percentageAlpha','rgb(255 0 0 / 12.5%)']
+        ])await add('colorToken_'+name,()=>{const g=fresh();g.fillStyle='blue';g.fillStyle=color;g.fillRect(0,0,1,1);return {style:g.fillStyle,pixel:Array.from(g.getImageData(0,0,1,1).data)};});
+        for(const family of ['Tahoma','Courier New','Arial']){
+            await add('capsBoundaries_'+family,()=>{const g=fresh();g.font=`small-caps 16px "${family}"`;return ['aV','Ta','a-v','a!b','a\u00a0b','\u0301a','a\u0345','µ','ǅ'].map(t=>{const m=g.measureText(t);return [m.width,m.actualBoundingBoxLeft,m.actualBoundingBoxRight,m.actualBoundingBoxAscent,m.actualBoundingBoxDescent];});});
+            for(const style of ['italic','bold','bold italic'])await add('capsStyle_'+family+'_'+style,()=>{const g=fresh();g.font=`${style} small-caps 17px "${family}"`;const m=g.measureText('aVéß');return {font:g.font,width:m.width,ascent:m.actualBoundingBoxAscent,descent:m.actualBoundingBoxDescent};});
+        }
+        await add('italicTahomaControl',()=>{const g=fresh();g.font='italic 17px Tahoma';const m=g.measureText('aVéß');return {width:m.width,ascent:m.actualBoundingBoxAscent,descent:m.actualBoundingBoxDescent};});
+        await add('italicTahomaDrawing',()=>{const g=fresh();g.font='italic small-caps 17px Tahoma';g.fillText('aVéß',10,26);return Array.from(g.getImageData(0,0,80,40).data);});
+        await add('italicTypefaceControl',()=>['Tahoma','Courier New'].map(family=>{const draw=style=>{const g=fresh();g.font=`${style} 17px "${family}"`;g.fillText('aVéß',10,26);return g.getImageData(0,0,80,40).data;};const equal=(a,b)=>a.every((v,i)=>v===b[i]);return {family,plainEqualsItalic:equal(draw('normal'),draw('italic')),capsEqualsItalic:equal(draw('small-caps'),draw('italic small-caps'))};}));
+        for(const family of ['Tahoma','Courier New'])await add('leadingCombiningDrawing_'+family,()=>{const g=fresh();g.font=`small-caps 16px "${family}"`;g.fillText('\u0301a',12,25);return Array.from(g.getImageData(0,0,80,40).data);});
+        for(const name of ['width','height']){
+            const descriptor=Object.getOwnPropertyDescriptor(Canvas.prototype,name);
+            await add('canvasGetterReceiver_'+name,()=>descriptor.get.call({}));
+            await add('canvasSetterReceiver_'+name,async()=>{let conversions=0,resizes=0;const failure=await attempt(()=>descriptor.set.call({_width:2,_height:2,_resize(){resizes++;}},{valueOf(){conversions++;return 3;}}));return {failure,conversions,resizes};});
+        }
+        await add('canvasContextReceiverOrder',async()=>{const log=[];const failure=await attempt(()=>Canvas.prototype.getContext.call({},{toString(){log.push('type');return '2d';}},{get alpha(){log.push('alpha');return true;}}));return {failure,log};});
+        await add('canvasTransferReceiver',()=>Canvas.prototype.transferToImageBitmap.call({_contexts:new Map()}));
+        await add('canvasBlobReceiverOrder',async()=>{const log=[];const failure=await attempt(()=>Canvas.prototype.convertToBlob.call({},{get type(){log.push('type');return 'image/png';}}));return {failure,log};});
+        await add('canvasSubclassControl',()=>{class Derived extends Canvas{}const c=new Derived(2,3);c.height=4;return [c.width,c.height,!!c.getContext('2d')];});
+        await add('canvasBlobQualityRejectOrder',async()=>{const c=new Canvas(2,2);c.getContext('2d');const log=[];const failure=await attempt(()=>c.convertToBlob({get quality(){log.push('quality');return Symbol();},get type(){log.push('type');return 'image/png';}}));return {failure,log};});
+        return results;
+    }
+    if(typeof module!=='undefined'&&module.exports){module.exports=runFourthRoundCases;module.exports.runFifthRoundCases=runFifthRoundCases;module.exports.runSixthRoundCases=runSixthRoundCases;module.exports.runSeventhRoundCases=runSeventhRoundCases;module.exports.runEighthRoundCases=runEighthRoundCases;}
+    else globalThis.__canvasResult=(async()=>({fourthRound:runFourthRoundCases(OffscreenCanvas),fifthRound:runFifthRoundCases(OffscreenCanvas),sixthRound:await runSixthRoundCases(OffscreenCanvas),seventhRound:runSeventhRoundCases(OffscreenCanvas),eighthRound:await runEighthRoundCases(OffscreenCanvas)}))();
 })();
