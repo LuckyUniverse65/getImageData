@@ -543,7 +543,7 @@ static Style& selected_style(Canvas* canvas, int stroke) { return stroke ? canva
 
 static SkFont resolve_font(const char* family, float size, int weight, int slant) {
     static sk_sp<SkFontMgr> font_manager = SkFontMgr_New_DirectWrite();
-    const int clamped_weight = std::clamp(weight, 100, 900);
+    const int clamped_weight = std::clamp(weight, 1, 1000);
     const auto font_slant = slant == 2 ? SkFontStyle::kOblique_Slant
                                        : slant == 1 ? SkFontStyle::kItalic_Slant
                                                     : SkFontStyle::kUpright_Slant;
@@ -676,7 +676,8 @@ static sk_sp<SkTextBlob> shape_text_blob(const char* text, size_t length,
                                         bool enable_kern,
                                         float* advance = nullptr,
                                         std::vector<SkGlyphID>* glyphs = nullptr,
-                                        std::vector<SkPoint>* positions = nullptr) {
+                                        std::vector<SkPoint>* positions = nullptr,
+                                        bool small_caps = false) {
     auto unicode = SkUnicodes::Bidi::Make();
     auto shaper = SkShapers::HB::ShapeDontWrapOrReorder(std::move(unicode), nullptr);
     auto script = SkShapers::HB::ScriptRunIterator(text, length);
@@ -686,11 +687,14 @@ static sk_sp<SkTextBlob> shape_text_blob(const char* text, size_t length,
     SkShaper::TrivialBiDiRunIterator bidi(SkBidiIterator::kLTR, length);
     SkShaper::TrivialLanguageRunIterator language("und", length);
     PositionedRunHandler handler(draw_font);
-    const SkShaper::Feature kern = {
-        SkSetFourByteTag('k', 'e', 'r', 'n'), 0, 0, length
-    };
+    std::vector<SkShaper::Feature> features;
+    if (!enable_kern) features.push_back({SkSetFourByteTag('k','e','r','n'),0,0,length});
+    // Blink shapes words separately: pair positioning must not cross a space.
+    if (enable_kern) for (size_t i=0;i<length;i++) if (text[i]==' ')
+        features.push_back({SkSetFourByteTag('k','e','r','n'),0,i,i+1});
+    if (small_caps) features.push_back({SkSetFourByteTag('s','m','c','p'),1,0,length});
     shaper->shape(text, length, font, bidi, *script, language,
-                  enable_kern ? nullptr : &kern, enable_kern ? 0 : 1,
+                  features.data(), features.size(),
                   std::numeric_limits<SkScalar>::max(), &handler);
     if (advance) *advance = handler.advance();
     if (glyphs) *glyphs = handler.glyphs();
@@ -701,14 +705,14 @@ static sk_sp<SkTextBlob> shape_text_blob(const char* text, size_t length,
 static sk_sp<SkTextBlob> make_shaped_text_blob(const char* text, size_t length,
                                                const SkFont& draw_font,
                                                const SkFont& position_font,
-                                               float* advance = nullptr) {
+                                               float* advance = nullptr, bool small_caps = false) {
     const bool enable_kern = runtime_float("CANVAS_HARFBUZZ_KERN", 1.0f) != 0.0f;
     float shaped_advance = 0;
     std::vector<SkGlyphID> shaped_glyphs;
     std::vector<SkPoint> shaped_positions;
     auto shaped = shape_text_blob(text, length, draw_font, position_font,
                                   enable_kern, &shaped_advance,
-                                  &shaped_glyphs, &shaped_positions);
+                                  &shaped_glyphs, &shaped_positions, small_caps);
     if (!shaped || !enable_kern) {
         if (advance) *advance = shaped_advance;
         return shaped;
@@ -719,7 +723,7 @@ static sk_sp<SkTextBlob> make_shaped_text_blob(const char* text, size_t length,
     std::vector<SkPoint> unkerned_positions;
     auto unkerned = shape_text_blob(text, length, draw_font, position_font,
                                     false, &unkerned_advance,
-                                    &unkerned_glyphs, &unkerned_positions);
+                                    &unkerned_glyphs, &unkerned_positions, small_caps);
     const size_t direct_count = position_font.textToGlyphs(
         text, length, SkTextEncoding::kUTF8, {});
     std::vector<SkGlyphID> direct_glyphs(direct_count);
@@ -727,6 +731,8 @@ static sk_sp<SkTextBlob> make_shaped_text_blob(const char* text, size_t length,
     const bool direct_ok = direct_count > 0 && position_font.textToGlyphs(
         text, length, SkTextEncoding::kUTF8,
         SkSpan<SkGlyphID>(direct_glyphs.data(), direct_glyphs.size())) == direct_count;
+    // Preserve substituted small-cap glyphs when using hinted advances for drawing.
+    if (small_caps && direct_count == unkerned_glyphs.size()) direct_glyphs = unkerned_glyphs;
     if (!unkerned || !direct_ok || shaped_positions.size() != shaped_glyphs.size() ||
         unkerned_positions.size() != unkerned_glyphs.size() ||
         shaped_glyphs != unkerned_glyphs || shaped_glyphs.size() != direct_glyphs.size() ||
@@ -996,7 +1002,7 @@ void skia_canvas_set_composite(void* value, int copy) { if (auto* c = static_cas
 void skia_canvas_set_image_smoothing(void* value, int enabled) { if (auto* c = static_cast<Canvas*>(value)) c->image_smoothing = enabled != 0; }
 void skia_canvas_draw_text(void* value, const char* text, uint32_t length,
                            const char* family, float x, float y, float size, int stroke,
-                           int weight, int slant) {
+                           int weight, int slant, int small_caps) {
     auto* c = static_cast<Canvas*>(value); if (!c || !text) return;
     SkCanvas* target = c->surface->getCanvas();
     // The raster Skia build has DirectWrite enabled. A null typeface has no
@@ -1068,7 +1074,7 @@ void skia_canvas_draw_text(void* value, const char* text, uint32_t length,
                                              : "CANVAS_TEXT_FOREGROUND_POSITION_SCALE",
                                  "CANVAS_GLYPH_SCALE"));
                              auto blob = harfbuzz_shaping
-                                 ? make_shaped_text_blob(text, length, draw_font, position_font)
+                                 ? make_shaped_text_blob(text, length, draw_font, position_font, nullptr, small_caps != 0)
                                  : make_positioned_text_blob(text, length, draw_font, position_font);
                              if (blob) draw_canvas->drawTextBlob(blob, text_x, text_y, paint);
                          } else {
@@ -1079,9 +1085,9 @@ void skia_canvas_draw_text(void* value, const char* text, uint32_t length,
                      }, &shadow_source);
 }
 static float canvas_shaped_metrics(const char* text, uint32_t length, const SkFont& font,
-                                  std::vector<SkGlyphID>& glyphs, std::vector<SkPoint>& positions) {
+                                  std::vector<SkGlyphID>& glyphs, std::vector<SkPoint>& positions, bool small_caps) {
     float advance=0;
-    shape_text_blob(text,length,font,font,true,&advance,&glyphs,&positions);
+    shape_text_blob(text,length,font,font,true,&advance,&glyphs,&positions,small_caps);
     std::vector<SkScalar> widths(glyphs.size());
     font.getWidths(SkSpan<const SkGlyphID>(glyphs.data(),glyphs.size()),SkSpan<SkScalar>(widths.data(),widths.size()));
     // SkShaper rounds advances to HB 16.16; Blink truncates the font metrics.
@@ -1095,23 +1101,23 @@ static float canvas_shaped_metrics(const char* text, uint32_t length, const SkFo
     return advance+correction;
 }
 float skia_canvas_measure_text(void* value, const char* text, uint32_t length,
-                               const char* family, float size, int weight, int slant) {
+                               const char* family, float size, int weight, int slant, int small_caps) {
     if (!value || !text) return 0;
     SkFont font = resolve_font(family, size, weight, slant);
     if (runtime_float("CANVAS_HARFBUZZ_SHAPING", 1.0f) != 0.0f) {
         std::vector<SkGlyphID> glyphs;std::vector<SkPoint> positions;
-        const float advance=canvas_shaped_metrics(text,length,font,glyphs,positions);
+        const float advance=canvas_shaped_metrics(text,length,font,glyphs,positions,small_caps != 0);
         if (!glyphs.empty()) return advance;
     }
     return font.measureText(text, length, SkTextEncoding::kUTF8);
 }
 void skia_canvas_text_bounds(void* value, const char* text, uint32_t length,
-                               const char* family, float size, int weight, int slant, float* output) {
+                               const char* family, float size, int weight, int slant, float* output, int small_caps) {
     if (!value || !text || !output) return;
     SkFont font=resolve_font(family,size,weight,slant);
     std::vector<SkGlyphID> glyphs;
     std::vector<SkPoint> positions;
-    canvas_shaped_metrics(text,length,font,glyphs,positions);
+    canvas_shaped_metrics(text,length,font,glyphs,positions,small_caps != 0);
     std::vector<SkRect> bounds(glyphs.size());
     // Blink obtains glyph ink bounds using its LCD text edging configuration.
     font.setEdging(SkFont::Edging::kSubpixelAntiAlias);

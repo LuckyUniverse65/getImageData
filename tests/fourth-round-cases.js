@@ -144,6 +144,7 @@
             finally{if(before)Object.defineProperty(Object.prototype,'alpha',before);else delete Object.prototype.alpha;}
         });
         await add('contextExplicitUndefinedOption',()=>{let calls=0;const c=new Canvas(2,2);const g=c.getContext('2d',{get alpha(){calls++;return undefined;}});return {calls,alpha:g.getContextAttributes().alpha};});
+        await add('contextAttributesOwnProperties',()=>{const before=Object.getOwnPropertyDescriptor(Object.prototype,'alpha');let calls=0;Object.defineProperty(Object.prototype,'alpha',{configurable:true,get(){calls++;return false;},set(){throw new RangeError('sentinel');}});try{const g=new Canvas(2,2).getContext('2d',{}),attrs=g.getContextAttributes(),d=Object.getOwnPropertyDescriptor(attrs,'alpha');return {calls,alpha:attrs.alpha,own:!!d,writable:d?.writable,enumerable:d?.enumerable,configurable:d?.configurable};}finally{if(before)Object.defineProperty(Object.prototype,'alpha',before);else delete Object.prototype.alpha;}});
         await add('imageSettingsReentrantResize',()=>{const g=fresh();const d=g.getImageData(0,0,1,1,{get colorSpace(){g.canvas.width=8;return 'srgb';}});return {width:g.canvas.width,pixel:Array.from(d.data)};});
         await add('imageSettingsPrimitive',()=>{fresh().getImageData(0,0,1,1,3);return 'accepted';});
         await add('cloneImageDataExtraUndefined',()=>{const g=fresh();g.createImageData(g.createImageData(1,1),undefined);return 'accepted';});
@@ -153,10 +154,18 @@
         await add('fontWeight950',()=>{const g=fresh();g.font='950 12px Arial';return {font:g.font,width:g.measureText('iiiiWW').width};});
         await add('fontWeight900Control',()=>{const g=fresh();g.font='900 12px Arial';return {font:g.font,width:g.measureText('iiiiWW').width};});
         await add('fontSmallCaps',()=>{const g=fresh();g.font='small-caps 16px Arial';return {font:g.font,width:g.measureText('abc').width};});
+        await add('smallCapsMetricsSweep',()=>{const g=fresh();return [10,12,16,20,24].map(size=>{g.font=`small-caps ${size}px Arial`;return ['abc','ABC','aBc','AVava','éß'].map(text=>{const m=g.measureText(text);return [m.width,m.actualBoundingBoxAscent,m.actualBoundingBoxDescent];});});});
+        await add('smallCapsSizeControl',()=>{const g=fresh();return [11,11.2,12,13,13.6,14,16].map(size=>{g.font=`${size}px Arial`;return g.measureText('ABC').width;});});
+        for(const method of ['fillText','strokeText'])await add('smallCapsDrawing_'+method,()=>{const g=new Canvas(100,32).getContext('2d');g.font='small-caps 16px Arial';g[method]('aBc AVé',2,22);const data=g.getImageData(0,0,100,32).data;return Array.from(data);});
+        await add('smallCapsSaveRestore',()=>{const g=fresh();g.font='small-caps 16px Arial';g.save();g.font='12px Arial';g.restore();return {font:g.font,width:g.measureText('abc').width};});
+        await add('smallCapsWordSpacing',()=>{const g=fresh();return ['16px Arial','small-caps 16px Arial'].map(font=>{g.font=font;return ['aBc','aBc ','aBc A','aBc AV','aBc AVé',' ','AVé','AV','é'].map(t=>g.measureText(t).width);});});
+        await add('fontWeightRange',()=>{const g=fresh();return [1,99,100,950,1000].map(w=>{g.font=`${w} 12px Arial`;return {font:g.font,width:g.measureText('iiiiWW').width};});});
+        await add('fontFamilySerialization',()=>{const g=fresh();return ['12px "Arial"','12px "Times New Roman"','12px "A-B"','12px "A\\0B"','12px --foo','12px -1foo'].map(font=>{g.font='14px Arial';g.font=font;return g.font;});});
         for(const [name,color] of [['trailingDot','rgb(255.,0,0)'],['comments','rgb(255/**/ 0 0)'],['modernMixed','rgb(100% 0 0)'],['alphaTrailingDot','rgba(255,0,0,1.)'],['hslNumber','hsl(0 100 50)'],['hugeHue','hsl(1e30deg 100% 50%)']]){
             await add('colorGrammar_'+name,()=>{const g=fresh();g.fillStyle='blue';g.fillStyle=color;g.fillRect(0,0,1,1);return {style:g.fillStyle,pixel:pixel(g)};});
         }
         await add('fillStyleAlphaPrecision',()=>{const g=fresh();g.fillStyle='rgb(255 0 0 / 0.123456789)';return g.fillStyle;});
+        await add('modernAlphaPrecisionSweep',()=>{const g=fresh();return [0.001,0.004,0.005,0.009,0.123,0.125,0.9999].map(a=>{g.fillStyle=`rgb(255 0 0 / ${a})`;return g.fillStyle;});});
         await add('shadowAlphaPrecision',()=>{const g=fresh();g.shadowColor='rgb(255 0 0 / 0.123456789)';return g.shadowColor;});
         await add('blobOptionsOrder',async()=>{const log=[];const result=await blobInfo(initializedCanvas().convertToBlob({get quality(){log.push('quality');return 0.5;},get type(){log.push('type');return 'image/png';}}));return {log,result};});
         await add('blobTypeThrows',()=>blobInfo(initializedCanvas().convertToBlob({get type(){throw new RangeError('sentinel');}})));
@@ -165,9 +174,12 @@
         await add('blobTypeSymbol',()=>blobInfo(initializedCanvas().convertToBlob({type:Symbol()})));
         await add('blobPrimitiveOptions',()=>blobInfo(initializedCanvas().convertToBlob(3)));
         await add('blobNullOptions',()=>blobInfo(initializedCanvas().convertToBlob(null)));
+        for(const [name,quality] of [['NaN',NaN],['Infinity',Infinity],['BigInt',1n],['Negative',-1]])await add('blobQuality'+name,()=>blobInfo(initializedCanvas().convertToBlob({quality})));
+        await add('blobConversionReentry',async()=>{const log=[];const result=await blobInfo(initializedCanvas().convertToBlob({get quality(){log.push('quality');return {valueOf(){log.push('number');return 0.5;}};},get type(){log.push('type');return {toString(){log.push('string');return 'image/png';}};}}));return {log,result};});
         await add('blobZeroOptionsOrder',async()=>{const log=[];const failure=await attempt(()=>initializedCanvas(0,0).convertToBlob({get type(){log.push('type');return 'image/png';}}));return {failure,log};});
         await add('blobOptionResizesCanvas',()=>{const c=initializedCanvas();return blobInfo(c.convertToBlob({get type(){c.width=0;return 'image/png';}}));});
         await add('blobMissingContextControl',()=>blobInfo(new Canvas(2,2).convertToBlob()));
+        await add('blobNoContextZero',()=>blobInfo(new Canvas(0,0).convertToBlob()));
         await add('blobSnapshotsPixels',async()=>{const g=fresh();g.fillStyle='red';g.fillRect(0,0,24,24);const first=g.canvas.convertToBlob();g.fillStyle='blue';g.fillRect(0,0,24,24);const second=g.canvas.convertToBlob();const a=new Uint8Array(await (await first).arrayBuffer()),b=new Uint8Array(await (await second).arrayBuffer());return {same:a.length===b.length&&a.every((v,i)=>v===b[i]),types:[(await first).type,(await second).type]};});
         return results;
     }

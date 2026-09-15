@@ -67,9 +67,9 @@ extern "C" {
     fn skia_canvas_set_global_alpha(canvas: *mut c_void, alpha: f32);
     fn skia_canvas_set_composite(canvas: *mut c_void, copy: i32);
     fn skia_canvas_set_image_smoothing(canvas: *mut c_void, enabled: i32);
-    fn skia_canvas_draw_text(canvas: *mut c_void, text: *const u8, length: u32, family: *const c_char, x: f32, y: f32, size: f32, stroke: i32, weight: i32, slant: i32);
-    fn skia_canvas_measure_text(canvas: *mut c_void, text: *const u8, length: u32, family: *const c_char, size: f32, weight: i32, slant: i32) -> f32;
-    fn skia_canvas_text_bounds(canvas: *mut c_void, text: *const u8, length: u32, family: *const c_char, size: f32, weight: i32, slant: i32, bounds: *mut f32);
+    fn skia_canvas_draw_text(canvas: *mut c_void, text: *const u8, length: u32, family: *const c_char, x: f32, y: f32, size: f32, stroke: i32, weight: i32, slant: i32, small_caps: i32);
+    fn skia_canvas_measure_text(canvas: *mut c_void, text: *const u8, length: u32, family: *const c_char, size: f32, weight: i32, slant: i32, small_caps: i32) -> f32;
+    fn skia_canvas_text_bounds(canvas: *mut c_void, text: *const u8, length: u32, family: *const c_char, size: f32, weight: i32, slant: i32, bounds: *mut f32, small_caps: i32);
     fn skia_canvas_font_metrics(canvas: *mut c_void, family: *const c_char, size: f32, weight: i32, slant: i32, ascent: *mut f32, descent: *mut f32);
     fn skia_canvas_typo_metrics(canvas: *mut c_void, family: *const c_char, size: f32, weight: i32, slant: i32, ascent: *mut f32, descent: *mut f32);
     fn skia_canvas_reset(canvas: *mut c_void);
@@ -519,6 +519,13 @@ unsafe fn set(env: NapiEnv, object: NapiValue, name: &str, value: NapiValue) {
     (api().set_named_property)(env, object, name.as_ptr(), value);
 }
 
+// Web IDL dictionary results define own data properties, bypassing inherited setters.
+unsafe fn dictionary_set(env: NapiEnv, object: NapiValue, name: &str, value: NapiValue) {
+    let name=CString::new(name).unwrap();
+    let descriptor=NapiPropertyDescriptor{utf8name:name.as_ptr(),name:ptr::null_mut(),method:None,getter:None,setter:None,value,attributes:7,data:ptr::null_mut()};
+    (api().define_properties)(env,object,1,&descriptor);
+}
+
 unsafe fn callback_info(env: NapiEnv, info: NapiCallbackInfo) -> (Vec<NapiValue>, NapiValue, usize) {
     let mut argc = 0usize;
     let mut this_arg = ptr::null_mut();
@@ -773,7 +780,11 @@ unsafe fn style_value(env: NapiEnv, style: &Style) -> NapiValue {
         return value;
     }
     let color = style_color(style);
-    if let Style::CssColor(_,alpha)=style {if *alpha<1.0{return string(env,&format!("rgba({}, {}, {}, {})",color[0],color[1],color[2],alpha));}}
+    if let Style::CssColor(_,alpha)=style {
+        let byte=(*alpha*255.0).round() as u8;
+        if byte<255{return string(env,&format!("rgba({}, {}, {}, {})",color[0],color[1],color[2],canvas_css::serialized_alpha(byte)));}
+        return string(env,&format!("#{:02x}{:02x}{:02x}",color[0],color[1],color[2]));
+    }
     if color[3] == 255 { string(env, &format!("#{:02x}{:02x}{:02x}", color[0], color[1], color[2])) }
     else { string(env, &format!("rgba({}, {}, {}, {})", color[0], color[1], color[2], canvas_css::serialized_alpha(color[3]))) }
 }
@@ -813,7 +824,7 @@ unsafe fn sync_native_paint(canvas: &Canvas2D) {
     skia_canvas_set_image_smoothing(canvas.native, canvas.image_smoothing as i32);
 }
 
-struct FontSpec { family: CString, size: f64, weight: i32, slant: i32 }
+struct FontSpec { family: CString, size: f64, weight: i32, slant: i32, small_caps: i32 }
 
 fn font_spec(value: &str) -> FontSpec {
     let lowercase = value.to_ascii_lowercase();
@@ -824,7 +835,12 @@ fn font_spec(value: &str) -> FontSpec {
         let before = &value[..index];
         let token = before.split_whitespace().last().unwrap_or("").split('/').next().unwrap_or("");
         if let Ok(parsed) = token.parse::<f64>() {
-            if parsed.is_finite() && parsed >= 0.0 { size = parsed; suffix = &value[index + 2..]; prefix = before; break; }
+            if parsed.is_finite() && parsed >= 0.0 {
+                size = parsed; suffix = &value[index + 2..];
+                // The numeric size is not a font-weight token (weights may now be 1..1000).
+                prefix = before.rsplit_once(char::is_whitespace).map(|(head,_)|head).unwrap_or("");
+                break;
+            }
         }
     }
     let mut family = suffix.trim();
@@ -833,8 +849,8 @@ fn font_spec(value: &str) -> FontSpec {
     let slant = if tokens.iter().any(|token| token.eq_ignore_ascii_case("oblique")) { 2 }
                 else if tokens.iter().any(|token| token.eq_ignore_ascii_case("italic")) { 1 } else { 0 };
     let weight = if tokens.iter().any(|token| token.eq_ignore_ascii_case("bold") || token.eq_ignore_ascii_case("bolder")) { 700 }
-        else { tokens.iter().find_map(|token| token.parse::<i32>().ok()).filter(|weight| (100..=900).contains(weight)).unwrap_or(400) };
-    FontSpec { family: CString::new(family).unwrap_or_else(|_| CString::new("Arial").unwrap()), size, weight, slant }
+        else { tokens.iter().find_map(|token| token.parse::<i32>().ok()).filter(|weight| (1..=1000).contains(weight)).unwrap_or(400) };
+    FontSpec { family: CString::new(family).unwrap_or_else(|_| CString::new("Arial").unwrap()), size, weight, slant, small_caps: tokens.contains(&"small-caps") as i32 }
 }
 
 fn text_align_offset(canvas: &Canvas2D, width: f64) -> f64 {
@@ -1228,7 +1244,7 @@ unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> N
             let mut x=number(env,args[1]);let y=number(env,args[2])+text_baseline_offset(canvas,&font);
             if !x.is_finite()||!y.is_finite()||text.is_empty(){return undefined(env);}
             let width=if canvas.native.is_null(){text.chars().count() as f64*font.size*0.6}
-                else{skia_canvas_measure_text(canvas.native,text.as_ptr(),text.len() as u32,font.family.as_ptr(),font.size as f32,font.weight,font.slant) as f64};
+                else{skia_canvas_measure_text(canvas.native,text.as_ptr(),text.len() as u32,font.family.as_ptr(),font.size as f32,font.weight,font.slant,font.small_caps) as f64};
             let mut draw_width=width;
             if let Some(max)=args.get(3){
                 let mut value_type=0;
@@ -1245,7 +1261,7 @@ unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> N
             if !canvas.native.is_null(){
                 let compressed=draw_width<width;
                 if compressed{skia_canvas_save(canvas.native);skia_canvas_translate(canvas.native,x as f32,0.0);skia_canvas_scale(canvas.native,(draw_width/width) as f32,1.0);}
-                skia_canvas_draw_text(canvas.native,text.as_ptr(),text.len() as u32,font.family.as_ptr(),if compressed{0.0}else{x as f32},y as f32,font.size as f32,(name=="strokeText") as i32,font.weight,font.slant);
+                skia_canvas_draw_text(canvas.native,text.as_ptr(),text.len() as u32,font.family.as_ptr(),if compressed{0.0}else{x as f32},y as f32,font.size as f32,(name=="strokeText") as i32,font.weight,font.slant,font.small_caps);
                 if compressed{skia_canvas_restore(canvas.native);}
             }
             undefined(env)
@@ -1255,11 +1271,11 @@ unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> N
             let mut o=ptr::null_mut(); (api().create_object)(env,&mut o);
             let text=args.first().and_then(|v|value_string(env,*v)).unwrap_or_default();
             let font=font_spec(&canvas.font);
-            let width=if canvas.native.is_null(){text.chars().count() as f64*font.size*0.6}else{skia_canvas_measure_text(canvas.native,text.as_ptr(),text.len() as u32,font.family.as_ptr(),font.size as f32,font.weight,font.slant) as f64};
+            let width=if canvas.native.is_null(){text.chars().count() as f64*font.size*0.6}else{skia_canvas_measure_text(canvas.native,text.as_ptr(),text.len() as u32,font.family.as_ptr(),font.size as f32,font.weight,font.slant,font.small_caps) as f64};
             set(env,o,"width",number_value(env,width));
             let (ascent,descent)=text_font_metrics(canvas,&font);
             let mut bounds=[0.0f32;4];
-            if !canvas.native.is_null() && !text.is_empty(){skia_canvas_text_bounds(canvas.native,text.as_ptr(),text.len() as u32,font.family.as_ptr(),font.size as f32,font.weight,font.slant,bounds.as_mut_ptr());}
+            if !canvas.native.is_null() && !text.is_empty(){skia_canvas_text_bounds(canvas.native,text.as_ptr(),text.len() as u32,font.family.as_ptr(),font.size as f32,font.weight,font.slant,bounds.as_mut_ptr(),font.small_caps);}
 
             let align=text_align_offset(canvas,width);
             let baseline=text_baseline_offset(canvas,&font);
@@ -1403,9 +1419,9 @@ unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> N
         "_clearBitmap" => {canvas.pixels.fill(0);if !canvas.native.is_null(){skia_canvas_clear_bitmap(canvas.native);}undefined(env)}
         "getContextAttributes" => {
             let mut o=ptr::null_mut();(api().create_object)(env,&mut o);
-            for (name,value) in [("alpha",canvas.alpha),("desynchronized",canvas.desynchronized),("willReadFrequently",canvas.will_read_frequently)] {set(env,o,name,boolean(env,value));}
-            set(env,o,"colorSpace",string(env,"srgb"));set(env,o,"colorType",string(env,"unorm8"));
-            let mut tone=ptr::null_mut();(api().create_object)(env,&mut tone);set(env,tone,"mode",string(env,"standard"));set(env,o,"toneMapping",tone);o
+            for (name,value) in [("alpha",canvas.alpha),("desynchronized",canvas.desynchronized),("willReadFrequently",canvas.will_read_frequently)] {dictionary_set(env,o,name,boolean(env,value));}
+            dictionary_set(env,o,"colorSpace",string(env,"srgb"));dictionary_set(env,o,"colorType",string(env,"unorm8"));
+            let mut tone=ptr::null_mut();(api().create_object)(env,&mut tone);dictionary_set(env,tone,"mode",string(env,"standard"));dictionary_set(env,o,"toneMapping",tone);o
         }
         "isContextLost" => boolean(env, false),
         "isPointInPath" | "isPointInStroke" => {

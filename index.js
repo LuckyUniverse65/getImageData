@@ -31,18 +31,18 @@ function enumValue(value, allowed) {
 }
 function contextOptions(attributes) {
     // OffscreenCanvas accepts an object argument; primitive options are empty.
-    if(!isObject(attributes))return {};
-    const result={};
+    if(!isObject(attributes))return Object.create(null);
+    const result=Object.create(null);
     const enums={colorSpace:['srgb','display-p3'],colorType:['unorm8','float16'],powerPreference:['default','low-power','high-performance']};
     for(const key of ['alpha','antialias','colorSpace','colorType','depth','desynchronized','failIfMajorPerformanceCaveat','powerPreference','premultipliedAlpha','preserveDrawingBuffer','stencil','willReadFrequently','xrCompatible']){
         const value=attributes[key];
-        if(value!==undefined)result[key]=enums[key]?enumValue(value,enums[key]):!!value;
+        if(value!==undefined)result[key]=Object.hasOwn(enums,key)?enumValue(value,enums[key]):!!value;
     }
     return result;
 }
 function imageDataSettings(value) {
     if(value!=null&&!isObject(value))throw new TypeError('Expected ImageData settings dictionary');
-    const result={};
+    const result=Object.create(null);
     for(const [key,allowed] of [['colorSpace',['srgb','display-p3']],['pixelFormat',['rgba-unorm8','rgba-float16']]]){
         const member=value?.[key];
         if(member!==undefined)result[key]=enumValue(member,allowed);
@@ -251,7 +251,8 @@ class OffscreenCanvas {
 
     get height() { return this._height; }
     set height(value) {
-        this._resize(this._width, offscreenDimension(value));
+        const height = offscreenDimension(value);
+        this._resize(this._width, height);
     }
 
     get data() {
@@ -304,7 +305,14 @@ class OffscreenCanvas {
     }
 
     async convertToBlob(options = {}) {
+        if(options!=null&&!isObject(options))throw new TypeError('Expected ImageEncodeOptions dictionary');
+        // Web IDL reads dictionary members alphabetically, before canvas state.
+        const quality=options?.quality;
+        if(quality!==undefined)void +quality; // unrestricted double, including NaN/Infinity
+        const type=options?.type;
+        if(type!==undefined)domString(type);
         if (!this._width || !this._height) throw new DOMException('Canvas has zero size', 'IndexSizeError');
+        if(!this._contexts.size)throw new DOMException('Canvas has no rendering context','InvalidStateError');
         const bytes = encodePng(this._width, this._height, this.data);
         return new Blob([bytes], {type: 'image/png'});
     }
