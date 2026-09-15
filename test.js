@@ -23,8 +23,8 @@ async function capture(script, name) {
     assert.equal(result.browserMode,'user-chrome-cdp');
     const hash=crypto.createHash('sha256').update(fs.readFileSync(path.join(__dirname,script))).digest('hex').toUpperCase();
     assert.equal(result.scriptSHA256,hash,'Browser result must match current test source');
-    // The shared entrypoint also captures a separately reported review suite.
-    if(script==='tests/fourth-round-cases.js')result.value=result.value.fourthRound;
+    // Both suites use the same source and live browser evaluation.
+    if(script==='tests/fourth-round-cases.js')fs.writeFileSync(path.join(__dirname,'out/cdp-fifth-round-browser.json'),JSON.stringify(result)+'\n');
     return result;
 }
 async function main() {
@@ -37,6 +37,30 @@ async function main() {
     const additional=runAdditionalCases(OffscreenCanvas);
     const thirdRound=runThirdRoundCases(OffscreenCanvas);
     const fourthRound=runFourthRoundCases(OffscreenCanvas);
+    const fifthRound=JSON.parse(run(process.execPath,[path.join(__dirname,'tests/compare-fifth-round.cjs'),'--local-child']));
+    const fifthErrors={fillStyleSymbol:'TypeError',getterInvalidReceiver:'TypeError',gradientColorThrowBeforeRange:'RangeError',strokeExplicitUndefined:'TypeError',strokeExplicitNull:'TypeError',contextRepeatedOptionsThrow:'RangeError',contextInvalid_colorSpace:'TypeError',contextInvalid_colorType:'TypeError',imageDataInvalidColorSpace:'TypeError',imageDataInvalidPixelFormat:'TypeError',createImageDataInvalidSettings:'TypeError',imageDataFractionalZero:'IndexSizeError',patternCloseDuringConversion:'InvalidStateError',drawImageCloseDuringConversion:'InvalidStateError',roundRectBadIterator:'TypeError',dashBadIteratorResult:'TypeError',getterWrongNativeReceiver:'TypeError',imageSettingsBeforeZeroSize:'TypeError'};
+    for(const [name,result] of Object.entries(fifthRound)){
+        if(fifthErrors[name])assert.equal(result.error,fifthErrors[name],name);
+        else assert.ok(Object.hasOwn(result,'value'),name+': '+result.error);
+    }
+    assert.deepEqual(fifthRound.contextRepeatedOptions.value,{same:true,calls:1,alpha:true});
+    assert.deepEqual(fifthRound.contextEnumConversionOrder.value,['getColor','convertColor','getType']);
+    assert.deepEqual(fifthRound.imageDataSettingsReadOrder.value,['colorSpace','pixelFormat']);
+    assert.deepEqual(fifthRound.imageSettingsAfterCoordinates.value,{failure:{error:'TypeError'},log:['x']});
+    assert.deepEqual(fifthRound.gradientConversionOrder_2.value,{failure:{error:'IndexSizeError'},log:['offset','color']});
+    assert.deepEqual(fifthRound.setterInvalidReceiverOrder.value,{failure:{error:'TypeError'},calls:0});
+    assert.deepEqual(fifthRound.setterWrongNativeReceiver.value,{failure:{error:'TypeError'},calls:0});
+    assert.deepEqual(fifthRound.numericPropertyReentrantResize.value,{calls:1,width:20,lineWidth:2.5});
+    assert.equal(fifthRound.shadowColor_opaque.value,'#ff0000');
+    assert.equal(fifthRound.shadowColor_alpha.value,'rgba(255, 0, 0, 0.5)');
+    assert.equal(fifthRound.textDirectionSaveRestore.value,'rtl');
+    assert.equal(fifthRound.directionReset.value,'ltr');
+    assert.equal(fifthRound.directionResize.value,'ltr');
+    assert.equal(fifthRound.rtlDrawingAlignment.value,true);
+    assert.equal(fifthRound.textRTLStartBounds.value.left,fifthRound.textRTLStartBounds.value.width);
+    assert.equal(fifthRound.fontMetrics_top.value.fontBoundingBoxAscent,1.6875);
+    assert.equal(fifthRound.fontMetrics_top.value.alphabeticBaseline,-9.3125);
+    assert.equal(fifthRound.metricsSmallFont.value[0][0],1.810546875);
     const fourthErrors={detachedImageData:'InvalidStateError',putImageDataCoordinateOverflow:'TypeError',getImageDataCoordinateOverflow:'TypeError',createImageDataWrappedSize:'TypeError',createImageDataNaN:'TypeError',putImageDataUndefinedCoordinate:'TypeError',transferCanvasWithoutContext:'InvalidStateError',dashStringSequence:'TypeError',strokeInvalidArgument:'TypeError',fillMissingReceiver:'TypeError',imageDataDetachedDuringConversion:'InvalidStateError'};
     for(const [name,result] of Object.entries(fourthRound)){
         if(fourthErrors[name])assert.equal(result.error,fourthErrors[name],name);
@@ -144,9 +168,12 @@ async function main() {
     fs.writeFileSync(path.join(__dirname,'out/cdp-additional-review-local.json'),JSON.stringify(additional,null,2)+'\n');
     fs.writeFileSync(path.join(__dirname,'out/cdp-third-round-local.json'),JSON.stringify(thirdRound,null,2)+'\n');
     fs.writeFileSync(path.join(__dirname,'out/cdp-fourth-round-local.json'),JSON.stringify(fourthRound,null,2)+'\n');
+    fs.writeFileSync(path.join(__dirname,'out/cdp-fifth-round-local.json'),JSON.stringify(fifthRound,null,2)+'\n');
     const report={localCases:Object.keys(local).length,additionalCases:Object.keys(additional).length,thirdRoundCases:Object.keys(thirdRound).length,unicodeColor:true,totalCases:Object.keys(local).length+Object.keys(additional).length+Object.keys(thirdRound).length+1,gradientGC:true,demoValues:demo.length,browserVerified:false};
     report.fourthRoundCases=Object.keys(fourthRound).length;
     report.totalCases+=report.fourthRoundCases;
+    report.fifthRoundCases=Object.keys(fifthRound).length;
+    report.totalCases+=report.fifthRoundCases;
     // A failed CDP connection must not leave an earlier successful report behind.
     fs.writeFileSync(path.join(__dirname,'out/cdp-verification-result.json'),JSON.stringify(report,null,2)+'\n');
     if(!process.argv.includes('--local')) {
@@ -169,11 +196,18 @@ async function main() {
             try{assert.deepEqual(thirdRound[name],browserThird.value[name]);}catch{thirdRoundFailures.push(name);}
         }
         const browserUnicode=await capture('tests/unicode-color-case.js','unicode-color');
-        const browserFourth=await capture('tests/fourth-round-cases.js','fourth-round');
+        const browserBundle=await capture('tests/fourth-round-cases.js','fourth-round');
+        const browserFourth={...browserBundle,value:browserBundle.value.fourthRound};
+        const browserFifth={...browserBundle,value:browserBundle.value.fifthRound};
         assert.deepEqual(Object.keys(browserFourth.value).sort(),Object.keys(fourthRound).sort());
         const fourthRoundFailures=[];
         for(const name of Object.keys(fourthRound)){
             try{assert.deepEqual(fourthRound[name],browserFourth.value[name]);}catch{fourthRoundFailures.push(name);}
+        }
+        assert.deepEqual(Object.keys(browserFifth.value).sort(),Object.keys(fifthRound).sort());
+        const fifthRoundFailures=[];
+        for(const name of Object.keys(fifthRound)){
+            try{assert.deepEqual(fifthRound[name],browserFifth.value[name]);}catch{fifthRoundFailures.push(name);}
         }
         let unicodeColorMatches=false;
         try{assert.deepEqual(unicodeColor,browserUnicode.value);unicodeColorMatches=true;}catch{}
@@ -182,11 +216,13 @@ async function main() {
         Object.assign(report,{browserMode:browser.browserMode,chromeVersion:browser.chromeVersion,caseRunId:browser.runId,additionalRunId:browserAdditional.runId,demoRunId:browserDemo.runId,caseFailures:failures,additionalFailures,demoMismatches:mismatches,browserVerified:failures.length===0&&additionalFailures.length===0&&mismatches===0&&browserDemo.value.length===demo.length});
         Object.assign(report,{thirdRoundRunId:browserThird.runId,unicodeColorRunId:browserUnicode.runId,thirdRoundFailures,unicodeColorMatches,browserVerified:report.browserVerified&&thirdRoundFailures.length===0&&unicodeColorMatches});
         Object.assign(report,{fourthRoundRunId:browserFourth.runId,fourthRoundFailures,browserVerified:report.browserVerified&&fourthRoundFailures.length===0});
+        Object.assign(report,{fifthRoundRunId:browserFifth.runId,fifthRoundFailures,browserVerified:report.browserVerified&&fifthRoundFailures.length===0});
         fs.writeFileSync(path.join(__dirname,'out/cdp-verification-result.json'),JSON.stringify(report,null,2)+'\n');
         assert.deepEqual(failures,[],'Browser compatibility differences');
         assert.deepEqual(additionalFailures,[],'Additional browser compatibility differences');
         assert.deepEqual(thirdRoundFailures,[],'Third-round browser compatibility differences');
         assert.deepEqual(fourthRoundFailures,[],'Fourth-round browser compatibility differences');
+        assert.deepEqual(fifthRoundFailures,[],'Fifth-round browser compatibility differences');
         assert.equal(unicodeColorMatches,true,'Unicode color handling differs');
         assert.equal(browserDemo.value.length,demo.length);assert.equal(mismatches,0,'Demo pixels differ from the existing Chrome over CDP');
     }

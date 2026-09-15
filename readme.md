@@ -2,9 +2,9 @@
 
 Windows 上的 Node.js `OffscreenCanvas` 兼容层。JavaScript 提供 Canvas 外壳，Rust 通过 Node-API 分派接口，C++ 调用 Skia Graphite / Dawn D3D11 绘制和读取像素。
 
-2026-09-15 完成第四轮实时验收：此前 29 个失败用例和新增 12 项边界检查均已通过，共 **216 项**与用户手动打开的 Chrome 153.0.8010.37 一致；demo 的 9216 个 RGBA 值零差异，渐变 GC 检查通过。所有采集复用同一条持久 CDP 连接。详见[最终验收报告](docs/2026-09-15_fourth-round-verification-report.md)。
+2026-09-15 完成第五轮修复与实时验收：此前 27 个失败用例已修复，补充 12 项相关边界后，共 **274 项**与用户手动打开的 Chrome 153.0.8010.37 一致；demo 的 9216 个 RGBA 值零差异，渐变 GC 检查通过。所有采集复用同一条持久 CDP 连接。详见[第五轮修复报告](docs/2026-09-15_fifth-round-fixes-report.md)。
 
-第五轮新增检测发现 **46 项中有 27 项差异**，涉及其他 TextMetrics、RTL 对齐与状态、shadowColor 返回格式、访问器校验及参数转换顺序。这些新增边界尚未修复；原有 216 项仍通过，详见[第五轮检测报告](docs/2026-09-15_fifth-round-review-report.md)。
+[第五轮检测报告](docs/2026-09-15_fifth-round-review-report.md)保留修复前 46 项中 27 项差异的历史证据；[第四轮验收报告](docs/2026-09-15_fourth-round-verification-report.md)保留此前 216 项的实时结果。
 
 [第二轮修复记录](docs/2026-09-14_offscreen-fixes-report.md)和[第三轮修复前检测](docs/2026-09-14_third-round-review-report.md)保留了历史结果及证据。
 
@@ -60,12 +60,13 @@ node capture-cdp.cjs tests/additional-cases.js cdp-additional-review
 node tests/compare-additional.cjs
 ```
 
-`node test.js` 执行四组测试及独立防崩溃检查，共 216 项，另有 demo 和 GC 检查。`out/cdp-verification-result.json` 保存主回归结果，连接前先写入未验证状态，避免 CDP 失败后残留旧的成功报告；`out/cdp-*-browser.json` 保存各组实际浏览器返回值、运行编号、时间、Chrome 版本、测试标签页 ID 和源码 SHA-256。运行 `node tests/compare-additional.cjs`、`node tests/compare-third-round.cjs`、`node tests/compare-fourth-round.cjs` 或 `node tests/compare-unicode-color.cjs` 可生成对应逐项结果；存在差异时比较器退出码为 1。CDP 输出与历史 F12 输出分别保存，`out/` 不提交到 Git。
+`node test.js` 执行五组测试及独立防崩溃检查，共 274 项，另有 demo 和 GC 检查。第四/第五轮通过同一采集入口返回独立结果；第五轮的本地原生访问器及重入检查在子进程运行。`out/cdp-verification-result.json` 保存主回归结果，连接前先写入未验证状态，避免 CDP 失败后残留旧的成功报告；`out/cdp-*-browser.json` 保存各组实际浏览器返回值、运行编号、时间、Chrome 版本、测试标签页 ID 和源码 SHA-256。运行 `node tests/compare-additional.cjs`、`node tests/compare-third-round.cjs`、`node tests/compare-fourth-round.cjs`、`node tests/compare-fifth-round.cjs` 或 `node tests/compare-unicode-color.cjs` 可生成对应逐项结果；存在差异时比较器退出码为 1。CDP 输出与历史 F12 输出分别保存，`out/` 不提交到 Git。
 
 `demo.js` 的渐变没有添加色标，填充按语义透明；有色渐变由独立用例检查。字体回退、Chrome 后端、显卡及驱动变化可能改变像素结果。部分越界读取使用同一 Chrome 的 `willReadFrequently: true` 路径作为规范参照，原因见[此前的修复记录](docs/canvas-fixes.md#chrome-越界读取差异)。
 
 ## 当前修复与支持范围
 
+- 第五轮补齐上下文及 ImageData 字典/枚举校验、异常转换顺序、访问器原生类型校验、shadowColor 序列化、字体盒/基线度量及 RTL 对齐与状态保存。
 - 第四轮补齐 ImageData 只读属性与分离缓冲区检查、可迭代参数转换顺序、颜色及字体字符串转换、alpha 量化/序列化、字体列表选择和 em 基线计算。
 - 非法 Unicode 颜色安全返回；现代 RGB/HSL 颜色、绝对单位字体简写、文本字符串转换及字形实际边界已补齐本轮覆盖行为。
 - 图像绘制支持阴影；图像和 ImageData 入口校验对象身份、重载参数及源状态；矩阵字典与 roundRect 支持本轮验证的转换和异常规则。
@@ -82,7 +83,7 @@ node tests/compare-additional.cjs
 
 Blob 导出支持 PNG；其他 MIME 请求回退为 PNG。位图是本地兼容对象，不是浏览器跨线程 transferable。项目尚未完整覆盖 `CanvasPattern.setTransform`、所有图像源和完整 WebGL pipeline；上下文互斥测试不代表完整 WebGL 绘制能力。图像入口接受项目创建的 Canvas/位图；ImageData 入口接受 Canvas 返回的 ImageData，不再把任意带 data 字段的普通对象当作图像。
 
-字体解析支持常见样式、字体族及 px/pt 等绝对单位，已支持按字体族列表顺序查找已安装字体；尚未实现完整 CSS 语法、相对单位及逐字形回退。文字宽度与实际字形边界已与已测样本一致，全部字体、复杂文字排版和其他 TextMetrics 字段仍未完整验证。颜色解析也不是完整 CSS Color 实现。Canvas 尺寸仍受原生 u32 上限及可用内存限制。当前 216 项与现有 Chrome 实时对照通过，不代表完整 Canvas 标准实现。
+字体解析支持常见样式、字体族及 px/pt 等绝对单位，已支持按字体族列表顺序查找已安装字体；尚未实现完整 CSS 语法、相对单位及逐字形回退。文字宽度、实际字形边界、字体盒和基线已与已测样本一致；RTL 修复覆盖对齐和状态，完整双向文字塑形、全部字体及 BASE 表未全面验证。颜色解析也不是完整 CSS Color 实现；选项枚举校验不代表 display-p3 / float16 渲染已支持，原生路径仍使用 sRGB / 8 位像素。Canvas 尺寸仍受原生 u32 上限及可用内存限制。当前 274 项与现有 Chrome 实时对照通过，不代表完整 Canvas 标准实现。
 
 ## 代码与记录
 
@@ -103,7 +104,7 @@ Blob 导出支持 PNG；其他 MIME 请求回退为 PNG。位图是本地兼容�
 | [tests/png-reader.js](tests/png-reader.js) | 本地独立 PNG 解码；浏览器侧使用 createImageBitmap。 |
 | [test.js](test.js)、[capture-cdp.cjs](capture-cdp.cjs) | 本地断言、现有 Chrome CDP 采集与比较。 |
 | [tests/fourth-round-cases.js](tests/fourth-round-cases.js)、[docs/2026-09-15_fourth-round-verification-report.md](docs/2026-09-15_fourth-round-verification-report.md) | 第四轮 58 项、修复及 216 项最终实时验收。 |
-| [tests/compare-fifth-round.cjs](tests/compare-fifth-round.cjs)、[docs/2026-09-15_fifth-round-review-report.md](docs/2026-09-15_fifth-round-review-report.md) | 第五轮 46 项，通过既有入口独立采集和比较，尚未计入主回归通过数。 |
+| [tests/compare-fifth-round.cjs](tests/compare-fifth-round.cjs)、[docs/2026-09-15_fifth-round-fixes-report.md](docs/2026-09-15_fifth-round-fixes-report.md) | 第五轮 58 项，已纳入 274 项主回归；修复及最终实测证据。 |
 | [visible-f12-demo.ps1](visible-f12-demo.ps1)、[tests/VisibleDevTools.cs](tests/VisibleDevTools.cs) | 历史桌面 F12 采集工具，默认验证不再调用。 |
 | [canvas-task.ps1](canvas-task.ps1) | Build、Test、CDP Capture，以及历史窗口 Inspect 入口。 |
 | [docs/offscreen-compatibility.md](docs/offscreen-compatibility.md) | 本次六类问题的修复与证据。 |

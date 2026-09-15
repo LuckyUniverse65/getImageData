@@ -24,6 +24,36 @@ function convertSequence(value, iteratorMethod, convert) {
     }
 }
 const domString = value => { if (typeof value === 'symbol') throw new TypeError('Cannot convert Symbol to string'); return String(value); };
+function enumValue(value, allowed) {
+    const text=domString(value);
+    if(!allowed.includes(text))throw new TypeError('Invalid enum value: '+text);
+    return text;
+}
+function contextOptions(attributes) {
+    // OffscreenCanvas accepts an object argument; primitive options are empty.
+    if(!isObject(attributes))return {};
+    const result={};
+    const enums={colorSpace:['srgb','display-p3'],colorType:['unorm8','float16'],powerPreference:['default','low-power','high-performance']};
+    for(const key of ['alpha','antialias','colorSpace','colorType','depth','desynchronized','failIfMajorPerformanceCaveat','powerPreference','premultipliedAlpha','preserveDrawingBuffer','stencil','willReadFrequently','xrCompatible']){
+        const value=attributes[key];
+        if(value!==undefined)result[key]=enums[key]?enumValue(value,enums[key]):!!value;
+    }
+    return result;
+}
+function imageDataSettings(value) {
+    if(value!=null&&!isObject(value))throw new TypeError('Expected ImageData settings dictionary');
+    const result={};
+    for(const [key,allowed] of [['colorSpace',['srgb','display-p3']],['pixelFormat',['rgba-unorm8','rgba-float16']]]){
+        const member=value?.[key];
+        if(member!==undefined)result[key]=enumValue(member,allowed);
+    }
+    return result;
+}
+function signedLong(value) {
+    const n=+value;
+    if(!Number.isFinite(n)||Math.trunc(n)<-2147483648||Math.trunc(n)>2147483647)throw new TypeError('Coordinate is outside signed long range');
+    return Math.trunc(n)||0;
+}
 function checkImageSource(source) {
     if (!imageSources.has(source)) throw new TypeError('Expected a Canvas image source');
     if (!source.width || !source.height) throw new DOMException('Image source has no pixels', 'InvalidStateError');
@@ -129,6 +159,12 @@ function adaptContextArguments(context) {
         const method=context[name];
         context[name]=function(...args){
             if(name==='createImageData' && (args.length===0 || (args.length===1&&!imageDataObjects.has(args[0]))))throw new TypeError('Expected ImageData or two dimensions');
+            const count=name==='getImageData'?4:args.length>=2?2:0;
+            if(args.length<count)throw new TypeError('Missing ImageData coordinates');
+            if(count){
+                for(let i=0;i<count;i++)args[i]=signedLong(args[i]);
+                args[count]=imageDataSettings(args[count]);
+            }
             const data=method.apply(this,args);if(data)imageDataObjects.add(data);return data;
         };
     }
@@ -139,9 +175,7 @@ function adaptContextArguments(context) {
         // Complete user conversions before native code obtains a buffer pointer.
         const count=args.length>=7?7:3;
         for(let i=1;i<count;i++){
-            const n=+args[i];
-            if(!Number.isFinite(n)||Math.trunc(n)<-2147483648||Math.trunc(n)>2147483647)throw new TypeError('Coordinate is outside signed long range');
-            args[i]=Math.trunc(n)||0;
+            args[i]=signedLong(args[i]);
         }
         if(args[0].data.buffer.byteLength===0)throw new DOMException('ImageData buffer is detached','InvalidStateError');
         return putImageData.apply(this,args);
@@ -242,6 +276,8 @@ class OffscreenCanvas {
         if (!['2d', 'webgl', 'webgl2', 'bitmaprenderer'].includes(kind)) {
             throw new TypeError('Invalid OffscreenCanvas context type');
         }
+        // Web IDL conversion precedes the implementation's cached-context path.
+        attributes=contextOptions(attributes);
         if (this._contexts.has(kind)) return this._contexts.get(kind);
         // Only a successful context creation locks the canvas to that mode.
         if (this._contexts.size) return null;

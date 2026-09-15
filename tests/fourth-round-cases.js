@@ -111,6 +111,18 @@
         add('roundRectNullRadius',()=>{const g=fresh();g.roundRect(0,0,8,8,null);return g.isPointInPath(1,1);});
         add('roundRectBadIterator',()=>fresh().roundRect(0,0,8,8,{[Symbol.iterator]:2}));
         add('dashBadIteratorResult',()=>fresh().setLineDash({[Symbol.iterator](){return {next(){return 2;}};}}));
+        add('getterWrongNativeReceiver',()=>{const g=fresh();return descriptor(g,'fillStyle').get.call(g.createLinearGradient(0,0,4,0));});
+        add('setterWrongNativeReceiver',()=>{const g=fresh();let calls=0;const failure=attempt(()=>descriptor(g,'lineWidth').set.call(g.createLinearGradient(0,0,4,0),{valueOf(){calls++;return 2;}}));return {failure,calls};});
+        add('numericPropertyReentrantResize',()=>{const g=fresh();let calls=0;g.lineWidth={valueOf(){calls++;g.canvas.width=20;return 2.5;}};return {calls,width:g.canvas.width,lineWidth:g.lineWidth};});
+        add('metricsSmallFont',()=>{const g=fresh();g.font='2px Arial';return ['alphabetic','hanging','ideographic'].map(b=>{g.textBaseline=b;const m=g.measureText('M');return [m.fontBoundingBoxAscent,m.fontBoundingBoxDescent,m.hangingBaseline,m.alphabeticBaseline,m.ideographicBaseline];});});
+        add('metricsFractionalFont',()=>{const g=fresh();g.font='17.3px Arial';return ['top','middle','bottom'].map(b=>{g.textBaseline=b;const m=g.measureText('M');return [m.fontBoundingBoxAscent,m.fontBoundingBoxDescent,m.hangingBaseline,m.alphabeticBaseline,m.ideographicBaseline];});});
+        add('directionReset',()=>{const g=fresh();g.direction='rtl';g.reset();return g.direction;});
+        add('directionResize',()=>{const g=fresh();g.direction='rtl';g.canvas.width=24;return g.direction;});
+        add('rtlDrawingAlignment',()=>{const a=fresh(),b=fresh();a.font=b.font='12px Arial';a.direction='rtl';a.textAlign='start';b.textAlign='right';a.fillText('MM',22,16);b.fillText('MM',22,16);const first=a.getImageData(0,0,24,24).data,second=b.getImageData(0,0,24,24).data;return Array.from(first).every((v,i)=>v===second[i]);});
+        add('shadowModernAlpha',()=>{const g=fresh();g.shadowColor='rgb(255 0 0 / 0.1234)';g.save();g.shadowColor='blue';g.restore();return g.shadowColor;});
+        add('contextEnumConversionOrder',()=>{const log=[];new Canvas(2,2).getContext('2d',{get colorSpace(){log.push('getColor');return {toString(){log.push('convertColor');return 'srgb';}};},get colorType(){log.push('getType');return 'unorm8';}});return log;});
+        add('imageSettingsBeforeZeroSize',()=>fresh().getImageData(0,0,0,1,{colorSpace:'invalid'}));
+        add('imageSettingsAfterCoordinates',()=>{const g=fresh(),log=[];const failure=attempt(()=>g.getImageData({valueOf(){log.push('x');return Infinity;}},0,1,1,{get colorSpace(){log.push('settings');return 'srgb';}}));return {failure,log};});
         return results;
     }
     if(typeof module!=='undefined'&&module.exports){module.exports=runFourthRoundCases;module.exports.runFifthRoundCases=runFifthRoundCases;}
