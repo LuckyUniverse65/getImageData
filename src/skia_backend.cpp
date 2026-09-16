@@ -1,4 +1,5 @@
 #include "include/core/SkCanvas.h"
+#include "include/private/chromium/Slug.h"
 #include "include/core/SkData.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkBlurTypes.h"
@@ -559,6 +560,20 @@ static SkPaint make_shadow_paint(const Canvas* canvas, const SkPaint& source) {
     return paint;
 }
 
+// Image and pattern shadows operate on rendered alpha in device space.
+template <typename DrawProc>
+static void draw_with_filtered_shadow(Canvas* canvas,const SkPaint& source,DrawProc draw) {
+    SkPaint filter_paint;
+    filter_paint.setImageFilter(SkImageFilters::DropShadow(canvas->shadow_offset_x,canvas->shadow_offset_y,
+        canvas->shadow_blur*.5f,canvas->shadow_blur*.5f,canvas->shadow,SkColorSpace::MakeSRGB(),nullptr));
+    auto* target=canvas->surface->getCanvas();
+    const auto ctm=target->getLocalToDevice();
+    target->save();target->resetMatrix();
+    target->saveLayer(nullptr,&filter_paint);target->setMatrix(ctm);
+    draw(target,source);
+    target->restore();target->restore();
+}
+
 template <typename DrawProc>
 static void draw_with_shadow(Canvas* canvas, const Style& style,
                              const SkPaint& source, DrawProc draw,
@@ -566,7 +581,16 @@ static void draw_with_shadow(Canvas* canvas, const Style& style,
     SkCanvas* target = canvas->surface->getCanvas();
     if (canvas->blend_mode == SkBlendMode::kSrc) {
         target->drawColor(canvas->opaque ? SK_ColorBLACK : SK_ColorTRANSPARENT, SkBlendMode::kSrc);
-        draw(target, source);
+        SkPaint copy_source(source);
+        copy_source.setBlendMode(SkBlendMode::kSrc);
+        draw(target, copy_source);
+        // Src can lower destination alpha even on an opaque surface.
+        // Blink restores opacity with black behind the completed draw.
+        if (canvas->opaque) target->drawColor(SK_ColorBLACK, SkBlendMode::kDstOver);
+        return;
+    }
+    if (style.pattern && !shadow_source && has_visible_shadow(canvas) && canvas->global_alpha>0) {
+        draw_with_filtered_shadow(canvas,source,draw);
         return;
     }
     if (has_visible_shadow(canvas) && style_has_visible_alpha(style, canvas->global_alpha)) {
@@ -773,11 +797,11 @@ public:
     }
 
     void spacing(const char* text, size_t length, const TextOptions& options) {
-        double added=0;float total=0;bool saturated=false;
+        double added=0,item_total=0;float total=0;bool saturated=false;
         for(size_t i=0;i<glyphs_.size();i++) {
             const float original_x=positions_[i].fX;
             const float advance=(i+1==glyphs_.size()?position_.fX:positions_[i+1].fX)-original_x;
-            float spaced=advance;
+            double spaced=advance;
             positions_[i].fX+=added;
             if(i+1==glyphs_.size() || clusters_[i]!=clusters_[i+1]) {
                 if(clusters_[i]<length) {
@@ -786,12 +810,18 @@ public:
                     if(!zero_width_control(ch)&&!cursive_script(ch))spacing+=options.letter;
                     if(ch==0xa0 || (ch==' ' && ((levels_[i]&1)?options.space_word_rtl:options.space_word_ltr)))spacing+=options.word;
                     // Blink stores each spaced glyph advance in signed 16.16.
-                    spaced=std::clamp(advance+std::clamp(spacing,-32768.f,32768.f),-32768.f,32768.f);
-                    saturated|=std::abs(spacing)>=32768.f || spaced!=advance+spacing;
+                    spaced=std::clamp(static_cast<double>(advance)+std::clamp(spacing,-32768.f,32768.f),-32768.0,32768.0);
+                    saturated|=std::abs(spacing)>=32768.f || spaced!=static_cast<double>(advance)+spacing;
                     added+=spaced-advance;
                 }
             }
-            total+=spaced;
+            item_total+=spaced;
+            // PlainTextNode measures each word and each ordinary space as a
+            // separate shape. Round the fixed-point item width to float only
+            // at that boundary, then accumulate the item widths.
+            const bool space=clusters_[i]<length && text[clusters_[i]]==' ';
+            const bool next_space=i+1<glyphs_.size() && clusters_[i+1]<length && text[clusters_[i+1]]==' ';
+            if(space || next_space || i+1==glyphs_.size()){total+=static_cast<float>(item_total);item_total=0;}
         }
         position_.fX=saturated?total:static_cast<float>(position_.fX+added);
     }
@@ -1143,7 +1173,7 @@ static sk_sp<SkTextBlob> font_runs_blob(const char* text,size_t length,const cha
         offset+=width+correction;
     }
     if(advance)*advance=offset;
-    if(offset<0)combined.fLeft=std::min(combined.left(),offset);
+    if(offset<0 && offset<combined.left()) {const float width=combined.width()+(combined.left()-offset);combined.fLeft=offset;combined.fRight=offset+width;}
     if(output_bounds){output_bounds[0]=combined.left();output_bounds[1]=combined.top();output_bounds[2]=combined.right();output_bounds[3]=combined.bottom();}
     return builder.make();
 }
@@ -1171,7 +1201,7 @@ void* skia_canvas_create(uint32_t width, uint32_t height, int alpha) {
     const uint32_t surface_flags = runtime_float("CANVAS_DEVICE_INDEPENDENT_FONTS", 0.0f) != 0.0f
         ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag : SkSurfaceProps::kDefault_Flag;
     const int pixel_geometry = std::clamp(
-        static_cast<int>(runtime_float("CANVAS_PIXEL_GEOMETRY", 0.0f)), 0, 4);
+        static_cast<int>(runtime_float("CANVAS_PIXEL_GEOMETRY", canvas->opaque ? 1.0f : 0.0f)), 0, 4);
     // Chromium's Windows Skia build uses SK_GAMMA_SRGB and full text contrast.
     const SkSurfaceProps surface_props(surface_flags, static_cast<SkPixelGeometry>(pixel_geometry),
                                        runtime_float("CANVAS_TEXT_CONTRAST", 1.0f),
@@ -1181,7 +1211,7 @@ void* skia_canvas_create(uint32_t width, uint32_t height, int alpha) {
     const GrSurfaceOrigin surface_origin = runtime_float("CANVAS_GPU_BOTTOM_LEFT", 0.0f) != 0.0f
         ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
     const SkImageInfo image_info = SkImageInfo::Make(
-        width, height, color_type, canvas->opaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType, SkColorSpace::MakeSRGB());
+        width, height, color_type, kPremul_SkAlphaType, SkColorSpace::MakeSRGB());
     if (runtime_float("CANVAS_RASTER_SURFACE", 0.0f) != 0.0f) {
         canvas->surface = SkSurfaces::Raster(image_info, &surface_props);
     } else if (runtime_float("CANVAS_USE_GANESH", 0.0f) == 0.0f) {
@@ -1508,7 +1538,19 @@ void skia_canvas_draw_text(void* value, const char* text, uint32_t length,
                                  : harfbuzz_shaping
                                  ? make_shaped_text_blob(text, length, draw_font, position_font, nullptr, small_caps != 0,options)
                                  : make_positioned_text_blob(text, length, draw_font, position_font);
-                             if (blob) draw_canvas->drawTextBlob(blob, text_x, text_y, paint);
+                             if (blob) {
+                                 if (source_style.pattern) {
+                                     // Chromium prepares glyph strikes before resolving image
+                                     // shaders, using their black fallback for mask luminance.
+                                     // Replay that strike with the actual pattern paint.
+                                     SkPaint analysis(paint);
+                                     analysis.setShader(nullptr);
+                                     auto slug = sktext::gpu::Slug::ConvertBlob(
+                                         draw_canvas, *blob, {text_x, text_y}, analysis);
+                                     if (slug) slug->draw(draw_canvas, paint);
+                                     else draw_canvas->drawTextBlob(blob, text_x, text_y, paint);
+                                 } else draw_canvas->drawTextBlob(blob, text_x, text_y, paint);
+                             }
                          } else {
                              SkTextUtils::Draw(draw_canvas, text, length, SkTextEncoding::kUTF8,
                                                text_x, text_y, draw_font,
@@ -1551,6 +1593,21 @@ void skia_canvas_text_bounds(void* value, const char* text, uint32_t length,
                                const char* family, float size, int weight, int slant, float* output, int small_caps) {
     if (!value || !text || !output) return;
     const auto options=text_layout_options(static_cast<Canvas*>(value),text,length,family,size,weight,slant,small_caps);
+    // Blink shapes ordinary spaces separately. A trailing empty item does
+    // not extend the ink bounds even when its advance is negative.
+    if(length>1 && (options.letter<0 || options.word<0) && std::memchr(text,' ',length) && !has_rtl_text(text,length,options)) {
+        SkRect combined=SkRect::MakeEmpty();float offset=0;
+        for(size_t start=0;start<length;) {
+            size_t end=start+1;if(text[start]!=' ')while(end<length && text[end]!=' ')++end;
+            float bounds[4]{};
+            skia_canvas_text_bounds(value,text+start,static_cast<uint32_t>(end-start),family,size,weight,slant,bounds,small_caps);
+            const float left=bounds[0]+offset;
+            combined.join(SkRect::MakeLTRB(left,bounds[1],left+(bounds[2]-bounds[0]),bounds[3]));
+            offset+=skia_canvas_measure_text(value,text+start,static_cast<uint32_t>(end-start),family,size,weight,slant,small_caps);
+            start=end;
+        }
+        output[0]=combined.left();output[1]=combined.top();output[2]=combined.right();output[3]=combined.bottom();return;
+    }
     SkFont font=resolve_font(family,size,weight,slant,static_cast<Canvas*>(value)->text_options.stretch);
     if(small_caps && needs_caps_layout(font,text,length,options.caps)){font_runs_blob(text,length,family,font,font,nullptr,output,true,false,options);return;}
     if(needs_font_fallback(text,length,font)){font_runs_blob(text,length,family,font,font,nullptr,output,false,small_caps!=0,options);return;}
@@ -1564,7 +1621,7 @@ void skia_canvas_text_bounds(void* value, const char* text, uint32_t length,
     font.getBounds(SkSpan<const SkGlyphID>(glyphs.data(),glyphs.size()),SkSpan<SkRect>(bounds.data(),bounds.size()),nullptr);
     SkRect combined=SkRect::MakeEmpty();
     for(size_t i=0;i<bounds.size();i++) {bounds[i].offset(positions[i]);combined.join(bounds[i]);}
-    if(advance<0)combined.fLeft=std::min(combined.left(),advance);
+    if(advance<0 && advance<combined.left()) {const float width=combined.width()+(combined.left()-advance);combined.fLeft=advance;combined.fRight=advance+width;}
     output[0]=combined.left();output[1]=combined.top();output[2]=combined.right();output[3]=combined.bottom();
 }
 void skia_canvas_font_metrics(void* value, const char* family, float size,
@@ -1665,17 +1722,9 @@ void skia_canvas_draw_rgba_image(void* value, const uint8_t* input, uint32_t ima
         ?SkSamplingOptions(SkCubicResampler::Mitchell())
         :SkSamplingOptions(c->image_smoothing?SkFilterMode::kLinear:SkFilterMode::kNearest);
     if(!image_opaque && c->blend_mode!=SkBlendMode::kSrc && has_visible_shadow(c)) {
-        // Translucent images need a filter over their rendered alpha, rather
-        // than a mask filter over only the destination rectangle.
-        SkPaint filter_paint;
-        filter_paint.setImageFilter(SkImageFilters::DropShadow(c->shadow_offset_x,c->shadow_offset_y,
-            c->shadow_blur*.5f,c->shadow_blur*.5f,c->shadow,SkColorSpace::MakeSRGB(),nullptr));
-        auto* target=c->surface->getCanvas();
-        const auto ctm=target->getLocalToDevice();
-        target->save();target->resetMatrix();
-        target->saveLayer(nullptr,&filter_paint);target->setMatrix(ctm);
-        target->drawImageRect(image.get(),SkRect::MakeXYWH(sx,sy,sw,sh),SkRect::MakeXYWH(dx,dy,dw,dh),sampling,&paint,SkCanvas::kFast_SrcRectConstraint);
-        target->restore();target->restore();
+        draw_with_filtered_shadow(c,paint,[&](SkCanvas* target,const SkPaint& image_paint){
+            target->drawImageRect(image.get(),SkRect::MakeXYWH(sx,sy,sw,sh),SkRect::MakeXYWH(dx,dy,dw,dh),sampling,&image_paint,SkCanvas::kFast_SrcRectConstraint);
+        });
         return;
     }
     Style image_style;

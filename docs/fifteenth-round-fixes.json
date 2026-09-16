@@ -1,0 +1,2190 @@
+{
+  "date": "2026-09-16",
+  "round": 15,
+  "scope": "OffscreenCanvas parsing, spacing, pattern shadows/text, copy composition and CSS named colors",
+  "initial": {
+    "tested": 59,
+    "matched": 45,
+    "differing": 14,
+    "localExitCode": 0,
+    "capture": {
+      "runId": "a7eff63eae5140d993d72275f022b1d7",
+      "capturedAt": "2026-09-16T08:47:26.590Z",
+      "browserMode": "user-chrome-cdp",
+      "chromeVersion": "153.0.8010.48",
+      "browserRevision": "@199a3a541d76237379e353b348e64045584db057",
+      "debuggingPort": 9222,
+      "connectionId": "3f3dfe73-4928-4759-ad39-cd214de31a22",
+      "targetId": "5B3C86564D80CD4855E23F3827C7AB74",
+      "backgroundTarget": true,
+      "script": "tests/fourth-round-cases.js",
+      "scriptSHA256": "AAB61CE9F1EC3B0C5B155BFD6EBEB931EE2314EA36A095DD6ECDAB58AC07636D"
+    },
+    "sha256": {
+      "index.js": "AFC248D06C6B196290A332E87FE130681A21F14D132AB43B5A474E921F8FA16C",
+      "src/webgl_native.rs": "192DE35D5506FFB9C428DB23399ACD9156EBB0E7D54A73F752C9127C8571B9E8",
+      "src/canvas_css.rs": "22071C28F6089C1FAD719E915C089B88DA7A42F264628F54EAA4F20AE862F063",
+      "src/skia_backend.cpp": "22F69345EF19095094BC67611505DFFCEC2B9AD6BDAB6618C0E7A7115E57A48A",
+      "webgl.node": "CB472D15D403235B2FAEAF809683DFC9FCD57D02F1F09445084FE5D82DC4EFA8",
+      "tests/fourth-round-cases.js": "AAB61CE9F1EC3B0C5B155BFD6EBEB931EE2314EA36A095DD6ECDAB58AC07636D"
+    }
+  },
+  "initialDifferences": [
+    {
+      "name": "spacingParsing_1e309px",
+      "local": {
+        "value": [
+          "3px",
+          [
+            26.79345703125,
+            1,
+            23.3388671875,
+            12,
+            0,
+            15,
+            4,
+            12,
+            0,
+            -4
+          ]
+        ]
+      },
+      "browser": {
+        "value": [
+          "3.40282e+38px",
+          [
+            65536,
+            1,
+            32777,
+            12,
+            0,
+            15,
+            4,
+            12,
+            0,
+            -4
+          ]
+        ]
+      }
+    },
+    {
+      "name": "spacingParsing_-1e309px",
+      "local": {
+        "value": [
+          "3px",
+          [
+            26.79345703125,
+            1,
+            23.3388671875,
+            12,
+            0,
+            15,
+            4,
+            12,
+            0,
+            -4
+          ]
+        ]
+      },
+      "browser": {
+        "value": [
+          "-3.40282e+38px",
+          [
+            -65515.20703125,
+            65515.20703125,
+            12,
+            12,
+            0,
+            15,
+            4,
+            12,
+            0,
+            -4
+          ]
+        ]
+      }
+    },
+    {
+      "name": "spacingParsing_2rex",
+      "local": {
+        "value": [
+          "3px",
+          [
+            26.79345703125,
+            1,
+            23.3388671875,
+            12,
+            0,
+            15,
+            4,
+            12,
+            0,
+            -4
+          ]
+        ]
+      },
+      "browser": {
+        "value": [
+          "2rex",
+          [
+            56.05517578125,
+            1,
+            37.9697265625,
+            12,
+            0,
+            15,
+            4,
+            12,
+            0,
+            -4
+          ]
+        ]
+      }
+    },
+    {
+      "name": "spacingParsing_2rch",
+      "local": {
+        "value": [
+          "3px",
+          [
+            26.79345703125,
+            1,
+            23.3388671875,
+            12,
+            0,
+            15,
+            4,
+            12,
+            0,
+            -4
+          ]
+        ]
+      },
+      "browser": {
+        "value": [
+          "2rch",
+          [
+            58.61181640625,
+            1,
+            39.248046875,
+            12,
+            0,
+            15,
+            4,
+            12,
+            0,
+            -4
+          ]
+        ]
+      }
+    },
+    {
+      "name": "spacingParsing_2rcap",
+      "local": {
+        "value": [
+          "3px",
+          [
+            26.79345703125,
+            1,
+            23.3388671875,
+            12,
+            0,
+            15,
+            4,
+            12,
+            0,
+            -4
+          ]
+        ]
+      },
+      "browser": {
+        "value": [
+          "2rcap",
+          [
+            69.50244140625,
+            1,
+            44.693359375,
+            12,
+            0,
+            15,
+            4,
+            12,
+            0,
+            -4
+          ]
+        ]
+      }
+    },
+    {
+      "name": "spacingParsing_2ric",
+      "local": {
+        "value": [
+          "3px",
+          [
+            26.79345703125,
+            1,
+            23.3388671875,
+            12,
+            0,
+            15,
+            4,
+            12,
+            0,
+            -4
+          ]
+        ]
+      },
+      "browser": {
+        "value": [
+          "2ric",
+          [
+            88.79345703125,
+            1,
+            54.3388671875,
+            12,
+            0,
+            15,
+            4,
+            12,
+            0,
+            -4
+          ]
+        ]
+      }
+    },
+    {
+      "name": "unicodeBoundary_\"a\\u000bb\"_0px",
+      "local": {
+        "value": {
+          "metrics": [
+            31.6591796875,
+            0,
+            31.20458984375,
+            12,
+            0,
+            15,
+            4,
+            12,
+            0,
+            -4
+          ],
+          "pixels": {
+            "length": 12800,
+            "sha256": "0B9436172ACA576B8C3CDDD456C44194833FCB68FEC8A61DE2101123CDA2BC07"
+          }
+        }
+      },
+      "browser": {
+        "value": {
+          "metrics": [
+            24.63232421875,
+            0,
+            24.177734375,
+            12,
+            0,
+            15,
+            4,
+            12,
+            0,
+            -4
+          ],
+          "pixels": {
+            "length": 12800,
+            "sha256": "EFBEF5A85CBDA240E94477AA13B987C9CBFBACA5ADA8DA70E72B491F8A34720F"
+          }
+        }
+      }
+    },
+    {
+      "name": "unicodeBoundary_\"a\\u000bb\"_2px",
+      "local": {
+        "value": {
+          "metrics": [
+            37.6591796875,
+            0,
+            35.20458984375,
+            12,
+            0,
+            15,
+            4,
+            12,
+            0,
+            -4
+          ],
+          "pixels": {
+            "length": 12800,
+            "sha256": "70ACA2455647B7E598AE275D1605BB50720C90C007F9E116F4F6FD09186267AF"
+          }
+        }
+      },
+      "browser": {
+        "value": {
+          "metrics": [
+            30.63232421875,
+            0,
+            28.177734375,
+            12,
+            0,
+            15,
+            4,
+            12,
+            0,
+            -4
+          ],
+          "pixels": {
+            "length": 12800,
+            "sha256": "70C1D8586D94819A4CC7CFB735A8EB4B54AA941C0E8B2419DF231FF442B199DB"
+          }
+        }
+      }
+    },
+    {
+      "name": "styleShadow_pattern_fillRect_0",
+      "local": {
+        "value": {
+          "length": 12800,
+          "sha256": "130FAC562E2AC509CDAB0D5574F593979124974CC0825F8FC7629375C2F359F1"
+        }
+      },
+      "browser": {
+        "value": {
+          "length": 12800,
+          "sha256": "7BC1CFC84186990F6C5C41057050E998B620D25FCFC4CF90B5528A53C4E1A082"
+        }
+      }
+    },
+    {
+      "name": "styleShadow_pattern_fillRect_2",
+      "local": {
+        "value": {
+          "length": 12800,
+          "sha256": "5102902D3C755C183A16A1C0F156FFDC7662F7A0BC811BF35B386EE2BE5136C3"
+        }
+      },
+      "browser": {
+        "value": {
+          "length": 12800,
+          "sha256": "80FC2A51A1A44B39A6AE7570536DF9A634AFCD91C07CCC0DF893078ED42EF84A"
+        }
+      }
+    },
+    {
+      "name": "styleShadow_pattern_fill_0",
+      "local": {
+        "value": {
+          "length": 12800,
+          "sha256": "130FAC562E2AC509CDAB0D5574F593979124974CC0825F8FC7629375C2F359F1"
+        }
+      },
+      "browser": {
+        "value": {
+          "length": 12800,
+          "sha256": "7BC1CFC84186990F6C5C41057050E998B620D25FCFC4CF90B5528A53C4E1A082"
+        }
+      }
+    },
+    {
+      "name": "styleShadow_pattern_fill_2",
+      "local": {
+        "value": {
+          "length": 12800,
+          "sha256": "FBF33AAAE18DCA1E9D8D1342CE565A6A1ED04887A677B267CC242D4C8A45AFF8"
+        }
+      },
+      "browser": {
+        "value": {
+          "length": 12800,
+          "sha256": "80FC2A51A1A44B39A6AE7570536DF9A634AFCD91C07CCC0DF893078ED42EF84A"
+        }
+      }
+    },
+    {
+      "name": "styleShadow_pattern_stroke_0",
+      "local": {
+        "value": {
+          "length": 12800,
+          "sha256": "92C51EEBACFCEE676AC85F1EB51EA58028BA0125ED78E3979C32E56495205BA4"
+        }
+      },
+      "browser": {
+        "value": {
+          "length": 12800,
+          "sha256": "B321374C828B6F6CBF983B86D578C6C5E32F98595F9517983623CA3612A9BE4F"
+        }
+      }
+    },
+    {
+      "name": "styleShadow_pattern_stroke_2",
+      "local": {
+        "value": {
+          "length": 12800,
+          "sha256": "55F2FA9E455ED6EBB00551B0BCDAE05BC7FBD303AAFA93FA38BA0613010D1889"
+        }
+      },
+      "browser": {
+        "value": {
+          "length": 12800,
+          "sha256": "D701605FE4CD4C35909BB3BAB2ECC187CCC2D4BB860BD26EC679C92CBE05A196"
+        }
+      }
+    }
+  ],
+  "final": {
+    "tested": 271,
+    "matched": 271,
+    "differing": 0,
+    "localExitCode": 0,
+    "capture": {
+      "runId": "8584fe7516c54c9fb216d0abec383366",
+      "capturedAt": "2026-09-16T09:26:30.505Z",
+      "browserMode": "user-chrome-cdp",
+      "chromeVersion": "153.0.8010.48",
+      "browserRevision": "@199a3a541d76237379e353b348e64045584db057",
+      "debuggingPort": 9222,
+      "connectionId": "3f3dfe73-4928-4759-ad39-cd214de31a22",
+      "targetId": "0CE1F9A9C140E207F227D48D4A442E1F",
+      "backgroundTarget": true,
+      "script": "tests/fourth-round-cases.js",
+      "scriptSHA256": "C0D657CDB186539918AEAB4DA23BC52D62DDB58730D2BD6D5BFD7A6039C9EAB1"
+    },
+    "sha256": {
+      "index.js": "F0094B5B161F154EEA7D8BB8231D3F0A64A9312D797C7812052E870F24992036",
+      "src/webgl_native.rs": "92C5F1F95B343FB50CF60BBB924B471075FF93DCFA82BF01EDF530823B72D65C",
+      "src/canvas_css.rs": "70B929982E50EC98F35B05B0D9E2B6FB1870419C9223EDB698FAE03C9548EB1E",
+      "src/skia_backend.cpp": "DDE8566E398D635E026C19569B040FA0F9D068DCCB073C4C29CD36EA64D91AF8",
+      "webgl.node": "60F67F14AF2BCCD522EFCF8A5B77CADA50D156B571359F0B56F8B427B0812027",
+      "tests/fourth-round-cases.js": "C0D657CDB186539918AEAB4DA23BC52D62DDB58730D2BD6D5BFD7A6039C9EAB1"
+    },
+    "matches": [
+      "emptyMetrics_alphabetic_\"\"",
+      "emptyMetrics_alphabetic_\" \"",
+      "emptyMetrics_alphabetic_\"​\"",
+      "emptyMetrics_top_\"\"",
+      "emptyMetrics_top_\" \"",
+      "emptyMetrics_top_\"​\"",
+      "emptyMetrics_middle_\"\"",
+      "emptyMetrics_middle_\" \"",
+      "emptyMetrics_middle_\"​\"",
+      "emptyMetrics_bottom_\"\"",
+      "emptyMetrics_bottom_\" \"",
+      "emptyMetrics_bottom_\"​\"",
+      "emptyMetrics_hanging_\"\"",
+      "emptyMetrics_hanging_\" \"",
+      "emptyMetrics_hanging_\"​\"",
+      "emptyMetrics_ideographic_\"\"",
+      "emptyMetrics_ideographic_\" \"",
+      "emptyMetrics_ideographic_\"​\"",
+      "spacingParsing_2PX",
+      "spacingParsing_+2px",
+      "spacingParsing_2 px",
+      "spacingParsing_2px ",
+      "spacingParsing_ 2px",
+      "spacingParsing_2/*x*/px",
+      "spacingParsing_calc(1px + 2px)",
+      "spacingParsing_1e309px",
+      "spacingParsing_-1e309px",
+      "spacingParsing_2rex",
+      "spacingParsing_2rch",
+      "spacingParsing_2rcap",
+      "spacingParsing_2ric",
+      "unicodeBoundary_\"a‌b\"_0px",
+      "unicodeBoundary_\"a‌b\"_2px",
+      "unicodeBoundary_\"a⁠b\"_0px",
+      "unicodeBoundary_\"a⁠b\"_2px",
+      "unicodeBoundary_\"a b\"_0px",
+      "unicodeBoundary_\"a b\"_2px",
+      "unicodeBoundary_\"a b\"_0px",
+      "unicodeBoundary_\"a b\"_2px",
+      "unicodeBoundary_\"a\\u000bb\"_0px",
+      "unicodeBoundary_\"a\\u000bb\"_2px",
+      "unicodeBoundary_\"a\\fb\"_0px",
+      "unicodeBoundary_\"a\\fb\"_2px",
+      "styleShadow_pattern_fillRect_0",
+      "styleShadow_pattern_fillRect_2",
+      "styleShadow_pattern_fill_0",
+      "styleShadow_pattern_fill_2",
+      "styleShadow_pattern_stroke_0",
+      "styleShadow_pattern_stroke_2",
+      "styleShadow_gradient_fillRect_0",
+      "styleShadow_gradient_fillRect_2",
+      "styleShadow_gradient_fill_0",
+      "styleShadow_gradient_fill_2",
+      "styleShadow_gradient_stroke_0",
+      "styleShadow_gradient_stroke_2",
+      "fractionalCaps_12.5_all-small-caps",
+      "fractionalCaps_12.5_unicase",
+      "fractionalCaps_17.25_all-small-caps",
+      "fractionalCaps_17.25_unicase",
+      "patternShadowBoundary_scale",
+      "patternShadowBoundary_rotate",
+      "patternShadowBoundary_alpha",
+      "patternShadowBoundary_clip",
+      "patternShadowBoundary_text",
+      "patternShadowBoundary_strokeText",
+      "patternShadowBoundary_opaqueSource",
+      "saturatedWords_\"AB\"_1e309px",
+      "saturatedWords_\"AB\"_-1e309px",
+      "saturatedWords_\"Abc\"_1e309px",
+      "saturatedWords_\"Abc\"_-1e309px",
+      "saturatedWords_\"AB CD\"_1e309px",
+      "saturatedWords_\"AB CD\"_-1e309px",
+      "saturatedWords_\" AB \"_1e309px",
+      "saturatedWords_\" AB \"_-1e309px",
+      "saturatedWords_\"A B\"_1e309px",
+      "saturatedWords_\"A B\"_-1e309px",
+      "rootUnitFontChange_rex",
+      "rootUnitFontChange_rch",
+      "rootUnitFontChange_rcap",
+      "rootUnitFontChange_ric",
+      "overflowOtherProperties",
+      "textPaintIsolation_fillText_none",
+      "textPaintIsolation_fillText_offset",
+      "textPaintIsolation_fillText_gradient",
+      "textPaintIsolation_strokeText_none",
+      "textPaintIsolation_strokeText_offset",
+      "textPaintIsolation_strokeText_gradient",
+      "patternTextBoundary_fillText_opaque",
+      "patternTextBoundary_fillText_white",
+      "patternTextBoundary_fillText_alpha",
+      "patternTextBoundary_fillText_rotate",
+      "patternTextBoundary_fillText_scale",
+      "patternTextBoundary_fillText_clip",
+      "patternTextBoundary_fillText_noRepeat",
+      "patternTextBoundary_fillText_bitmap",
+      "patternTextBoundary_fillText_copy",
+      "patternTextBoundary_fillText_fallback",
+      "patternTextBoundary_fillText_caps",
+      "patternTextBoundary_fillText_dash",
+      "patternTextBoundary_strokeText_opaque",
+      "patternTextBoundary_strokeText_white",
+      "patternTextBoundary_strokeText_alpha",
+      "patternTextBoundary_strokeText_rotate",
+      "patternTextBoundary_strokeText_scale",
+      "patternTextBoundary_strokeText_clip",
+      "patternTextBoundary_strokeText_noRepeat",
+      "patternTextBoundary_strokeText_bitmap",
+      "patternTextBoundary_strokeText_copy",
+      "patternTextBoundary_strokeText_fallback",
+      "patternTextBoundary_strokeText_caps",
+      "patternTextBoundary_strokeText_dash",
+      "copyTextOverlap_solid_false_false",
+      "copyTextOverlap_solid_false_true",
+      "copyTextOverlap_solid_true_false",
+      "copyTextOverlap_solid_true_true",
+      "copyTextOverlap_gradient_false_false",
+      "copyTextOverlap_gradient_false_true",
+      "copyTextOverlap_gradient_true_false",
+      "copyTextOverlap_gradient_true_true",
+      "copyTextOverlap_pattern_false_false",
+      "copyTextOverlap_pattern_false_true",
+      "copyTextOverlap_pattern_true_false",
+      "copyTextOverlap_pattern_true_true",
+      "namedColor_aliceblue",
+      "namedColor_antiquewhite",
+      "namedColor_aqua",
+      "namedColor_aquamarine",
+      "namedColor_azure",
+      "namedColor_beige",
+      "namedColor_bisque",
+      "namedColor_black",
+      "namedColor_blanchedalmond",
+      "namedColor_blue",
+      "namedColor_blueviolet",
+      "namedColor_brown",
+      "namedColor_burlywood",
+      "namedColor_cadetblue",
+      "namedColor_chartreuse",
+      "namedColor_chocolate",
+      "namedColor_coral",
+      "namedColor_cornflowerblue",
+      "namedColor_cornsilk",
+      "namedColor_crimson",
+      "namedColor_cyan",
+      "namedColor_darkblue",
+      "namedColor_darkcyan",
+      "namedColor_darkgoldenrod",
+      "namedColor_darkgray",
+      "namedColor_darkgreen",
+      "namedColor_darkgrey",
+      "namedColor_darkkhaki",
+      "namedColor_darkmagenta",
+      "namedColor_darkolivegreen",
+      "namedColor_darkorange",
+      "namedColor_darkorchid",
+      "namedColor_darkred",
+      "namedColor_darksalmon",
+      "namedColor_darkseagreen",
+      "namedColor_darkslateblue",
+      "namedColor_darkslategray",
+      "namedColor_darkslategrey",
+      "namedColor_darkturquoise",
+      "namedColor_darkviolet",
+      "namedColor_deeppink",
+      "namedColor_deepskyblue",
+      "namedColor_dimgray",
+      "namedColor_dimgrey",
+      "namedColor_dodgerblue",
+      "namedColor_firebrick",
+      "namedColor_floralwhite",
+      "namedColor_forestgreen",
+      "namedColor_fuchsia",
+      "namedColor_gainsboro",
+      "namedColor_ghostwhite",
+      "namedColor_gold",
+      "namedColor_goldenrod",
+      "namedColor_gray",
+      "namedColor_green",
+      "namedColor_greenyellow",
+      "namedColor_grey",
+      "namedColor_honeydew",
+      "namedColor_hotpink",
+      "namedColor_indianred",
+      "namedColor_indigo",
+      "namedColor_ivory",
+      "namedColor_khaki",
+      "namedColor_lavender",
+      "namedColor_lavenderblush",
+      "namedColor_lawngreen",
+      "namedColor_lemonchiffon",
+      "namedColor_lightblue",
+      "namedColor_lightcoral",
+      "namedColor_lightcyan",
+      "namedColor_lightgoldenrodyellow",
+      "namedColor_lightgray",
+      "namedColor_lightgreen",
+      "namedColor_lightgrey",
+      "namedColor_lightpink",
+      "namedColor_lightsalmon",
+      "namedColor_lightseagreen",
+      "namedColor_lightskyblue",
+      "namedColor_lightslategray",
+      "namedColor_lightslategrey",
+      "namedColor_lightsteelblue",
+      "namedColor_lightyellow",
+      "namedColor_lime",
+      "namedColor_limegreen",
+      "namedColor_linen",
+      "namedColor_magenta",
+      "namedColor_maroon",
+      "namedColor_mediumaquamarine",
+      "namedColor_mediumblue",
+      "namedColor_mediumorchid",
+      "namedColor_mediumpurple",
+      "namedColor_mediumseagreen",
+      "namedColor_mediumslateblue",
+      "namedColor_mediumspringgreen",
+      "namedColor_mediumturquoise",
+      "namedColor_mediumvioletred",
+      "namedColor_midnightblue",
+      "namedColor_mintcream",
+      "namedColor_mistyrose",
+      "namedColor_moccasin",
+      "namedColor_navajowhite",
+      "namedColor_navy",
+      "namedColor_oldlace",
+      "namedColor_olive",
+      "namedColor_olivedrab",
+      "namedColor_orange",
+      "namedColor_orangered",
+      "namedColor_orchid",
+      "namedColor_palegoldenrod",
+      "namedColor_palegreen",
+      "namedColor_paleturquoise",
+      "namedColor_palevioletred",
+      "namedColor_papayawhip",
+      "namedColor_peachpuff",
+      "namedColor_peru",
+      "namedColor_pink",
+      "namedColor_plum",
+      "namedColor_powderblue",
+      "namedColor_purple",
+      "namedColor_rebeccapurple",
+      "namedColor_red",
+      "namedColor_rosybrown",
+      "namedColor_royalblue",
+      "namedColor_saddlebrown",
+      "namedColor_salmon",
+      "namedColor_sandybrown",
+      "namedColor_seagreen",
+      "namedColor_seashell",
+      "namedColor_sienna",
+      "namedColor_silver",
+      "namedColor_skyblue",
+      "namedColor_slateblue",
+      "namedColor_slategray",
+      "namedColor_slategrey",
+      "namedColor_snow",
+      "namedColor_springgreen",
+      "namedColor_steelblue",
+      "namedColor_tan",
+      "namedColor_teal",
+      "namedColor_thistle",
+      "namedColor_tomato",
+      "namedColor_turquoise",
+      "namedColor_violet",
+      "namedColor_wheat",
+      "namedColor_white",
+      "namedColor_whitesmoke",
+      "namedColor_yellow",
+      "namedColor_yellowgreen"
+    ],
+    "differences": []
+  },
+  "fullRegression": {
+    "localCases": 47,
+    "additionalCases": 45,
+    "thirdRoundCases": 65,
+    "unicodeColor": true,
+    "totalCases": 1245,
+    "gradientGC": true,
+    "patternGC": true,
+    "demoValues": 9216,
+    "browserVerified": true,
+    "fourthRoundCases": 58,
+    "fifthRoundCases": 58,
+    "sixthRoundCases": 52,
+    "seventhRoundCases": 35,
+    "eighthRoundCases": 72,
+    "ninthRoundCases": 70,
+    "tenthRoundCases": 75,
+    "eleventhRoundCases": 54,
+    "twelfthRoundCases": 70,
+    "thirteenthRoundCases": 92,
+    "fourteenthRoundCases": 180,
+    "fifteenthRoundCases": 271,
+    "browserMode": "user-chrome-cdp",
+    "chromeVersion": "153.0.8010.48",
+    "caseRunId": "51d264f8f6f542d89123d6ea10b5f153",
+    "additionalRunId": "56e82458a0264586bda816be01de8174",
+    "demoRunId": "cdf512d4a2e540b1b72e4e6cae6b3535",
+    "caseFailures": [],
+    "additionalFailures": [],
+    "demoMismatches": 0,
+    "thirdRoundRunId": "d9f926dc14cc4c55bb3510a7c6c5dcf1",
+    "unicodeColorRunId": "eee4ca4a86a7480097bb3d46498524ac",
+    "thirdRoundFailures": [],
+    "unicodeColorMatches": true,
+    "fourthRoundRunId": "8584fe7516c54c9fb216d0abec383366",
+    "fourthRoundFailures": [],
+    "fifthRoundRunId": "8584fe7516c54c9fb216d0abec383366",
+    "fifthRoundFailures": [],
+    "sixthRoundRunId": "8584fe7516c54c9fb216d0abec383366",
+    "sixthRoundFailures": [],
+    "seventhRoundRunId": "8584fe7516c54c9fb216d0abec383366",
+    "seventhRoundFailures": [],
+    "eighthRoundRunId": "8584fe7516c54c9fb216d0abec383366",
+    "eighthRoundFailures": [],
+    "ninthRoundRunId": "8584fe7516c54c9fb216d0abec383366",
+    "ninthRoundFailures": [],
+    "tenthRoundRunId": "8584fe7516c54c9fb216d0abec383366",
+    "tenthRoundFailures": [],
+    "eleventhRoundRunId": "8584fe7516c54c9fb216d0abec383366",
+    "eleventhRoundFailures": [],
+    "twelfthRoundRunId": "8584fe7516c54c9fb216d0abec383366",
+    "twelfthRoundFailures": [],
+    "thirteenthRoundRunId": "8584fe7516c54c9fb216d0abec383366",
+    "thirteenthRoundFailures": [],
+    "fourteenthRoundRunId": "8584fe7516c54c9fb216d0abec383366",
+    "fourteenthRoundFailures": [],
+    "fifteenthRoundRunId": "8584fe7516c54c9fb216d0abec383366",
+    "fifteenthRoundFailures": []
+  },
+  "results": {
+    "emptyMetrics_alphabetic_\"\"": {
+      "equal": true,
+      "localSHA256": "FC44EA509DCE274D489B8638A73EE5A48E3682E82092B05AD93328C595643002",
+      "browserSHA256": "FC44EA509DCE274D489B8638A73EE5A48E3682E82092B05AD93328C595643002"
+    },
+    "emptyMetrics_alphabetic_\" \"": {
+      "equal": true,
+      "localSHA256": "31EDD7E4B6DEE569D83DFA1424A89D07357F378F132646038A51C933E8C22602",
+      "browserSHA256": "31EDD7E4B6DEE569D83DFA1424A89D07357F378F132646038A51C933E8C22602"
+    },
+    "emptyMetrics_alphabetic_\"​\"": {
+      "equal": true,
+      "localSHA256": "FC44EA509DCE274D489B8638A73EE5A48E3682E82092B05AD93328C595643002",
+      "browserSHA256": "FC44EA509DCE274D489B8638A73EE5A48E3682E82092B05AD93328C595643002"
+    },
+    "emptyMetrics_top_\"\"": {
+      "equal": true,
+      "localSHA256": "06CE8E11927B117DE6F67B19A2DDC5003CB3739335317A8D61585B637E38DAC7",
+      "browserSHA256": "06CE8E11927B117DE6F67B19A2DDC5003CB3739335317A8D61585B637E38DAC7"
+    },
+    "emptyMetrics_top_\" \"": {
+      "equal": true,
+      "localSHA256": "92215DDB3B2DF95E701309C66E5AFD2A70AB233ACCBDFBEA08E6A21712461BE9",
+      "browserSHA256": "92215DDB3B2DF95E701309C66E5AFD2A70AB233ACCBDFBEA08E6A21712461BE9"
+    },
+    "emptyMetrics_top_\"​\"": {
+      "equal": true,
+      "localSHA256": "06CE8E11927B117DE6F67B19A2DDC5003CB3739335317A8D61585B637E38DAC7",
+      "browserSHA256": "06CE8E11927B117DE6F67B19A2DDC5003CB3739335317A8D61585B637E38DAC7"
+    },
+    "emptyMetrics_middle_\"\"": {
+      "equal": true,
+      "localSHA256": "D45260F29FEE6AFEA83D2BEA1FD5665C991385723EFD7C1BC7F3815D597A3345",
+      "browserSHA256": "D45260F29FEE6AFEA83D2BEA1FD5665C991385723EFD7C1BC7F3815D597A3345"
+    },
+    "emptyMetrics_middle_\" \"": {
+      "equal": true,
+      "localSHA256": "6869BB2B1CB8BD6045B8E0FAF2758A74530F887BE29D8F62C954265D300CEB32",
+      "browserSHA256": "6869BB2B1CB8BD6045B8E0FAF2758A74530F887BE29D8F62C954265D300CEB32"
+    },
+    "emptyMetrics_middle_\"​\"": {
+      "equal": true,
+      "localSHA256": "D45260F29FEE6AFEA83D2BEA1FD5665C991385723EFD7C1BC7F3815D597A3345",
+      "browserSHA256": "D45260F29FEE6AFEA83D2BEA1FD5665C991385723EFD7C1BC7F3815D597A3345"
+    },
+    "emptyMetrics_bottom_\"\"": {
+      "equal": true,
+      "localSHA256": "CBD690E42E1AE8759F4BEE93CEFF360D313B94C59B85A4844D36B9F8C15331FD",
+      "browserSHA256": "CBD690E42E1AE8759F4BEE93CEFF360D313B94C59B85A4844D36B9F8C15331FD"
+    },
+    "emptyMetrics_bottom_\" \"": {
+      "equal": true,
+      "localSHA256": "9E2605A1412589537E5F5A18567F23497EC4C9873BC01A9A77172B9209D5655A",
+      "browserSHA256": "9E2605A1412589537E5F5A18567F23497EC4C9873BC01A9A77172B9209D5655A"
+    },
+    "emptyMetrics_bottom_\"​\"": {
+      "equal": true,
+      "localSHA256": "CBD690E42E1AE8759F4BEE93CEFF360D313B94C59B85A4844D36B9F8C15331FD",
+      "browserSHA256": "CBD690E42E1AE8759F4BEE93CEFF360D313B94C59B85A4844D36B9F8C15331FD"
+    },
+    "emptyMetrics_hanging_\"\"": {
+      "equal": true,
+      "localSHA256": "7B5DB840454C49E56B45C8C164507EF28ACB9351C7FA72E7F9FAE51A8C36A99F",
+      "browserSHA256": "7B5DB840454C49E56B45C8C164507EF28ACB9351C7FA72E7F9FAE51A8C36A99F"
+    },
+    "emptyMetrics_hanging_\" \"": {
+      "equal": true,
+      "localSHA256": "36FCFA9B1BD66BB88D9FC569B8538E0B94B7C66A03C0B0813067B7ACDC7BF41A",
+      "browserSHA256": "36FCFA9B1BD66BB88D9FC569B8538E0B94B7C66A03C0B0813067B7ACDC7BF41A"
+    },
+    "emptyMetrics_hanging_\"​\"": {
+      "equal": true,
+      "localSHA256": "7B5DB840454C49E56B45C8C164507EF28ACB9351C7FA72E7F9FAE51A8C36A99F",
+      "browserSHA256": "7B5DB840454C49E56B45C8C164507EF28ACB9351C7FA72E7F9FAE51A8C36A99F"
+    },
+    "emptyMetrics_ideographic_\"\"": {
+      "equal": true,
+      "localSHA256": "75C640B00205C5CE9EFC3B22D1D1F62F0BE7E2FE39FB0C9A7D37C67D15A329FA",
+      "browserSHA256": "75C640B00205C5CE9EFC3B22D1D1F62F0BE7E2FE39FB0C9A7D37C67D15A329FA"
+    },
+    "emptyMetrics_ideographic_\" \"": {
+      "equal": true,
+      "localSHA256": "31A9BEF522A9B9089F3422CB11F1B8FB849F801081AFD39F0569B322EE0DAE7E",
+      "browserSHA256": "31A9BEF522A9B9089F3422CB11F1B8FB849F801081AFD39F0569B322EE0DAE7E"
+    },
+    "emptyMetrics_ideographic_\"​\"": {
+      "equal": true,
+      "localSHA256": "75C640B00205C5CE9EFC3B22D1D1F62F0BE7E2FE39FB0C9A7D37C67D15A329FA",
+      "browserSHA256": "75C640B00205C5CE9EFC3B22D1D1F62F0BE7E2FE39FB0C9A7D37C67D15A329FA"
+    },
+    "spacingParsing_2PX": {
+      "equal": true,
+      "localSHA256": "BAF3F0BDCAC76C66925491AE9D5E776A9CC255757E412E0D77F516E607C1B876",
+      "browserSHA256": "BAF3F0BDCAC76C66925491AE9D5E776A9CC255757E412E0D77F516E607C1B876"
+    },
+    "spacingParsing_+2px": {
+      "equal": true,
+      "localSHA256": "BAF3F0BDCAC76C66925491AE9D5E776A9CC255757E412E0D77F516E607C1B876",
+      "browserSHA256": "BAF3F0BDCAC76C66925491AE9D5E776A9CC255757E412E0D77F516E607C1B876"
+    },
+    "spacingParsing_2 px": {
+      "equal": true,
+      "localSHA256": "4BF5B6872FB8EE416B21B7C7D69FB67C9602CC762F7BFAD8137530F78C1D3AA2",
+      "browserSHA256": "4BF5B6872FB8EE416B21B7C7D69FB67C9602CC762F7BFAD8137530F78C1D3AA2"
+    },
+    "spacingParsing_2px ": {
+      "equal": true,
+      "localSHA256": "4BF5B6872FB8EE416B21B7C7D69FB67C9602CC762F7BFAD8137530F78C1D3AA2",
+      "browserSHA256": "4BF5B6872FB8EE416B21B7C7D69FB67C9602CC762F7BFAD8137530F78C1D3AA2"
+    },
+    "spacingParsing_ 2px": {
+      "equal": true,
+      "localSHA256": "4BF5B6872FB8EE416B21B7C7D69FB67C9602CC762F7BFAD8137530F78C1D3AA2",
+      "browserSHA256": "4BF5B6872FB8EE416B21B7C7D69FB67C9602CC762F7BFAD8137530F78C1D3AA2"
+    },
+    "spacingParsing_2/*x*/px": {
+      "equal": true,
+      "localSHA256": "4BF5B6872FB8EE416B21B7C7D69FB67C9602CC762F7BFAD8137530F78C1D3AA2",
+      "browserSHA256": "4BF5B6872FB8EE416B21B7C7D69FB67C9602CC762F7BFAD8137530F78C1D3AA2"
+    },
+    "spacingParsing_calc(1px + 2px)": {
+      "equal": true,
+      "localSHA256": "4BF5B6872FB8EE416B21B7C7D69FB67C9602CC762F7BFAD8137530F78C1D3AA2",
+      "browserSHA256": "4BF5B6872FB8EE416B21B7C7D69FB67C9602CC762F7BFAD8137530F78C1D3AA2"
+    },
+    "spacingParsing_1e309px": {
+      "equal": true,
+      "localSHA256": "58B76FBA7603F51614DF14264476D7AF67CF27C0C255C24CE0BD131820355160",
+      "browserSHA256": "58B76FBA7603F51614DF14264476D7AF67CF27C0C255C24CE0BD131820355160"
+    },
+    "spacingParsing_-1e309px": {
+      "equal": true,
+      "localSHA256": "7FD562FA9F7DDA0E60227F31B275EC59B98FB8B4BB46959393004254BC9C9AFD",
+      "browserSHA256": "7FD562FA9F7DDA0E60227F31B275EC59B98FB8B4BB46959393004254BC9C9AFD"
+    },
+    "spacingParsing_2rex": {
+      "equal": true,
+      "localSHA256": "B144A32840F6B67D23B6B5BFE10871442961F52E1DF17D416648C1328C6FCAA5",
+      "browserSHA256": "B144A32840F6B67D23B6B5BFE10871442961F52E1DF17D416648C1328C6FCAA5"
+    },
+    "spacingParsing_2rch": {
+      "equal": true,
+      "localSHA256": "CF9A1F2D1314647CA27E95E179E9C339B645F0759D1C0059512565BB1F10091F",
+      "browserSHA256": "CF9A1F2D1314647CA27E95E179E9C339B645F0759D1C0059512565BB1F10091F"
+    },
+    "spacingParsing_2rcap": {
+      "equal": true,
+      "localSHA256": "1410606F29B16D8B815A195F1619C86806B19F6BFC8EBA1359FB6B321DC01746",
+      "browserSHA256": "1410606F29B16D8B815A195F1619C86806B19F6BFC8EBA1359FB6B321DC01746"
+    },
+    "spacingParsing_2ric": {
+      "equal": true,
+      "localSHA256": "1C73310FBE391C6820BA491F2F25EADBCA5E83A5F0C2BF5D7B2A4BD8D33FCE97",
+      "browserSHA256": "1C73310FBE391C6820BA491F2F25EADBCA5E83A5F0C2BF5D7B2A4BD8D33FCE97"
+    },
+    "unicodeBoundary_\"a‌b\"_0px": {
+      "equal": true,
+      "localSHA256": "CD1F30C81E2B023B5837EF5D233E5A38ADACF873162EF5D27B248DF45E42D5B8",
+      "browserSHA256": "CD1F30C81E2B023B5837EF5D233E5A38ADACF873162EF5D27B248DF45E42D5B8"
+    },
+    "unicodeBoundary_\"a‌b\"_2px": {
+      "equal": true,
+      "localSHA256": "21938BBE0F7C7DABE170B36CA182365EF37FE851A4799958B81A7D0A5A41666C",
+      "browserSHA256": "21938BBE0F7C7DABE170B36CA182365EF37FE851A4799958B81A7D0A5A41666C"
+    },
+    "unicodeBoundary_\"a⁠b\"_0px": {
+      "equal": true,
+      "localSHA256": "CD1F30C81E2B023B5837EF5D233E5A38ADACF873162EF5D27B248DF45E42D5B8",
+      "browserSHA256": "CD1F30C81E2B023B5837EF5D233E5A38ADACF873162EF5D27B248DF45E42D5B8"
+    },
+    "unicodeBoundary_\"a⁠b\"_2px": {
+      "equal": true,
+      "localSHA256": "21938BBE0F7C7DABE170B36CA182365EF37FE851A4799958B81A7D0A5A41666C",
+      "browserSHA256": "21938BBE0F7C7DABE170B36CA182365EF37FE851A4799958B81A7D0A5A41666C"
+    },
+    "unicodeBoundary_\"a b\"_0px": {
+      "equal": true,
+      "localSHA256": "9F3E070C536515094D81E5F166D34184E3D8D85A206BD2228BA1CD9DEB2B3EFE",
+      "browserSHA256": "9F3E070C536515094D81E5F166D34184E3D8D85A206BD2228BA1CD9DEB2B3EFE"
+    },
+    "unicodeBoundary_\"a b\"_2px": {
+      "equal": true,
+      "localSHA256": "EA79618F28AAC1031EE8936A1DD51B6D7164D97C493BA9CF2311B2FDC3471873",
+      "browserSHA256": "EA79618F28AAC1031EE8936A1DD51B6D7164D97C493BA9CF2311B2FDC3471873"
+    },
+    "unicodeBoundary_\"a b\"_0px": {
+      "equal": true,
+      "localSHA256": "6B7D2287DF565B358CB6A4C69D2BD9744BACC7F9C0C8B05156C385AB4434041A",
+      "browserSHA256": "6B7D2287DF565B358CB6A4C69D2BD9744BACC7F9C0C8B05156C385AB4434041A"
+    },
+    "unicodeBoundary_\"a b\"_2px": {
+      "equal": true,
+      "localSHA256": "1F4AA2ACC952326A4F04BEF66704B7DDF15896620617499A62FC20038E207AD3",
+      "browserSHA256": "1F4AA2ACC952326A4F04BEF66704B7DDF15896620617499A62FC20038E207AD3"
+    },
+    "unicodeBoundary_\"a\\u000bb\"_0px": {
+      "equal": true,
+      "localSHA256": "9F3E070C536515094D81E5F166D34184E3D8D85A206BD2228BA1CD9DEB2B3EFE",
+      "browserSHA256": "9F3E070C536515094D81E5F166D34184E3D8D85A206BD2228BA1CD9DEB2B3EFE"
+    },
+    "unicodeBoundary_\"a\\u000bb\"_2px": {
+      "equal": true,
+      "localSHA256": "EA79618F28AAC1031EE8936A1DD51B6D7164D97C493BA9CF2311B2FDC3471873",
+      "browserSHA256": "EA79618F28AAC1031EE8936A1DD51B6D7164D97C493BA9CF2311B2FDC3471873"
+    },
+    "unicodeBoundary_\"a\\fb\"_0px": {
+      "equal": true,
+      "localSHA256": "9F3E070C536515094D81E5F166D34184E3D8D85A206BD2228BA1CD9DEB2B3EFE",
+      "browserSHA256": "9F3E070C536515094D81E5F166D34184E3D8D85A206BD2228BA1CD9DEB2B3EFE"
+    },
+    "unicodeBoundary_\"a\\fb\"_2px": {
+      "equal": true,
+      "localSHA256": "EA79618F28AAC1031EE8936A1DD51B6D7164D97C493BA9CF2311B2FDC3471873",
+      "browserSHA256": "EA79618F28AAC1031EE8936A1DD51B6D7164D97C493BA9CF2311B2FDC3471873"
+    },
+    "styleShadow_pattern_fillRect_0": {
+      "equal": true,
+      "localSHA256": "B9D3F1D69F9CE34AEA636E0136B636FB022E2A9353C6E61958E44F32AEF16E42",
+      "browserSHA256": "B9D3F1D69F9CE34AEA636E0136B636FB022E2A9353C6E61958E44F32AEF16E42"
+    },
+    "styleShadow_pattern_fillRect_2": {
+      "equal": true,
+      "localSHA256": "0AD143925667F3E61D5F03B9D34D0A3D586F52EB142D4D4F2733C199407EF693",
+      "browserSHA256": "0AD143925667F3E61D5F03B9D34D0A3D586F52EB142D4D4F2733C199407EF693"
+    },
+    "styleShadow_pattern_fill_0": {
+      "equal": true,
+      "localSHA256": "B9D3F1D69F9CE34AEA636E0136B636FB022E2A9353C6E61958E44F32AEF16E42",
+      "browserSHA256": "B9D3F1D69F9CE34AEA636E0136B636FB022E2A9353C6E61958E44F32AEF16E42"
+    },
+    "styleShadow_pattern_fill_2": {
+      "equal": true,
+      "localSHA256": "0AD143925667F3E61D5F03B9D34D0A3D586F52EB142D4D4F2733C199407EF693",
+      "browserSHA256": "0AD143925667F3E61D5F03B9D34D0A3D586F52EB142D4D4F2733C199407EF693"
+    },
+    "styleShadow_pattern_stroke_0": {
+      "equal": true,
+      "localSHA256": "F6F7047BFDCE9347D4960151015ED190F2F46F77FAC5CD4AAE021FB45BE7A2D6",
+      "browserSHA256": "F6F7047BFDCE9347D4960151015ED190F2F46F77FAC5CD4AAE021FB45BE7A2D6"
+    },
+    "styleShadow_pattern_stroke_2": {
+      "equal": true,
+      "localSHA256": "6E9EF055BCEEA7A9BBFEE36CF0267B8736CCC9A560CD2D1AE987E7119680EE70",
+      "browserSHA256": "6E9EF055BCEEA7A9BBFEE36CF0267B8736CCC9A560CD2D1AE987E7119680EE70"
+    },
+    "styleShadow_gradient_fillRect_0": {
+      "equal": true,
+      "localSHA256": "DE9E6997A156481EF3F5EEDF226E4A2DB0991A3C3DE0D70E82B002CEABD2FC3D",
+      "browserSHA256": "DE9E6997A156481EF3F5EEDF226E4A2DB0991A3C3DE0D70E82B002CEABD2FC3D"
+    },
+    "styleShadow_gradient_fillRect_2": {
+      "equal": true,
+      "localSHA256": "B8F011C6D2CA0089BE4D92FEE9E4EB97AA3AE166CC1E66FDCE40507C5721F046",
+      "browserSHA256": "B8F011C6D2CA0089BE4D92FEE9E4EB97AA3AE166CC1E66FDCE40507C5721F046"
+    },
+    "styleShadow_gradient_fill_0": {
+      "equal": true,
+      "localSHA256": "DE9E6997A156481EF3F5EEDF226E4A2DB0991A3C3DE0D70E82B002CEABD2FC3D",
+      "browserSHA256": "DE9E6997A156481EF3F5EEDF226E4A2DB0991A3C3DE0D70E82B002CEABD2FC3D"
+    },
+    "styleShadow_gradient_fill_2": {
+      "equal": true,
+      "localSHA256": "F5D727E9A63C7B963DA0689831FB8B0CC23B226BAC5187FAE7BAF1AC28186860",
+      "browserSHA256": "F5D727E9A63C7B963DA0689831FB8B0CC23B226BAC5187FAE7BAF1AC28186860"
+    },
+    "styleShadow_gradient_stroke_0": {
+      "equal": true,
+      "localSHA256": "18EBC137F18F3AD322732BCE53DC9E418A26D931B4EDBE3B3FBAB459E8E20D5E",
+      "browserSHA256": "18EBC137F18F3AD322732BCE53DC9E418A26D931B4EDBE3B3FBAB459E8E20D5E"
+    },
+    "styleShadow_gradient_stroke_2": {
+      "equal": true,
+      "localSHA256": "B5A2D62F45F055F70D46170BCD6950D28E7551A8706E5FDE16C43E22FB21602B",
+      "browserSHA256": "B5A2D62F45F055F70D46170BCD6950D28E7551A8706E5FDE16C43E22FB21602B"
+    },
+    "fractionalCaps_12.5_all-small-caps": {
+      "equal": true,
+      "localSHA256": "55801CD06D5DCC6E22CF643756D676110E6DE8FBB410B84C11EEE187A131FC27",
+      "browserSHA256": "55801CD06D5DCC6E22CF643756D676110E6DE8FBB410B84C11EEE187A131FC27"
+    },
+    "fractionalCaps_12.5_unicase": {
+      "equal": true,
+      "localSHA256": "7A9A211600A5F0050EA476684A2B6C8B9986B4B7F318BE8859288E0EF0142D83",
+      "browserSHA256": "7A9A211600A5F0050EA476684A2B6C8B9986B4B7F318BE8859288E0EF0142D83"
+    },
+    "fractionalCaps_17.25_all-small-caps": {
+      "equal": true,
+      "localSHA256": "1A78B2FDD3224D0B8458EDF125C4286E85CFB2E8E23B0F56E5D4DDE10342C150",
+      "browserSHA256": "1A78B2FDD3224D0B8458EDF125C4286E85CFB2E8E23B0F56E5D4DDE10342C150"
+    },
+    "fractionalCaps_17.25_unicase": {
+      "equal": true,
+      "localSHA256": "F299AC78594E46DDEFC5BAFDC8DFF365E069333FC5D1A54DE6EC433AC5A92E63",
+      "browserSHA256": "F299AC78594E46DDEFC5BAFDC8DFF365E069333FC5D1A54DE6EC433AC5A92E63"
+    },
+    "patternShadowBoundary_scale": {
+      "equal": true,
+      "localSHA256": "42C360AD9468F2F00B3DBADCDC0DDA9079BD9975EA924DC77B14DEBCBB288293",
+      "browserSHA256": "42C360AD9468F2F00B3DBADCDC0DDA9079BD9975EA924DC77B14DEBCBB288293"
+    },
+    "patternShadowBoundary_rotate": {
+      "equal": true,
+      "localSHA256": "30BFE9A40FE233CEC99BB5C94D69BFBD372462141A96B732309C8EAC62D8E017",
+      "browserSHA256": "30BFE9A40FE233CEC99BB5C94D69BFBD372462141A96B732309C8EAC62D8E017"
+    },
+    "patternShadowBoundary_alpha": {
+      "equal": true,
+      "localSHA256": "EE2B26D4AEB5BF670ED0B633469C31F002052584481535D122D141C0F6AE35BE",
+      "browserSHA256": "EE2B26D4AEB5BF670ED0B633469C31F002052584481535D122D141C0F6AE35BE"
+    },
+    "patternShadowBoundary_clip": {
+      "equal": true,
+      "localSHA256": "0EF6AE1861016E692F65A8A81B0C712476077A5775174B6849DDA4401EFEDCD3",
+      "browserSHA256": "0EF6AE1861016E692F65A8A81B0C712476077A5775174B6849DDA4401EFEDCD3"
+    },
+    "patternShadowBoundary_text": {
+      "equal": true,
+      "localSHA256": "DAE2158E262C6C36264A4353811E4A56CABDFEE13570E607A8411A8F6FD96C96",
+      "browserSHA256": "DAE2158E262C6C36264A4353811E4A56CABDFEE13570E607A8411A8F6FD96C96"
+    },
+    "patternShadowBoundary_strokeText": {
+      "equal": true,
+      "localSHA256": "8AC788286C51CD2F05C6194B92D2369F64D8730A4D90CCE807D69DA13ACC4055",
+      "browserSHA256": "8AC788286C51CD2F05C6194B92D2369F64D8730A4D90CCE807D69DA13ACC4055"
+    },
+    "patternShadowBoundary_opaqueSource": {
+      "equal": true,
+      "localSHA256": "34C255CFA9068942CA676CA462EFC14F2662BEA537C9EA383BA167A235DAF0E0",
+      "browserSHA256": "34C255CFA9068942CA676CA462EFC14F2662BEA537C9EA383BA167A235DAF0E0"
+    },
+    "saturatedWords_\"AB\"_1e309px": {
+      "equal": true,
+      "localSHA256": "E6B151AD2D1C40E1EEAC7024EB985DA3FC9F1B7778895A50E85150F10CF8FFC0",
+      "browserSHA256": "E6B151AD2D1C40E1EEAC7024EB985DA3FC9F1B7778895A50E85150F10CF8FFC0"
+    },
+    "saturatedWords_\"AB\"_-1e309px": {
+      "equal": true,
+      "localSHA256": "8116F158B583D63807BBF6184E4C529F6BF4E0DE4EE8AFEFB583A6E42CE50C19",
+      "browserSHA256": "8116F158B583D63807BBF6184E4C529F6BF4E0DE4EE8AFEFB583A6E42CE50C19"
+    },
+    "saturatedWords_\"Abc\"_1e309px": {
+      "equal": true,
+      "localSHA256": "C221C77071C15BA60B59703CF0E4F9CC0A5548145409E1634A3C8ABACAC3C842",
+      "browserSHA256": "C221C77071C15BA60B59703CF0E4F9CC0A5548145409E1634A3C8ABACAC3C842"
+    },
+    "saturatedWords_\"Abc\"_-1e309px": {
+      "equal": true,
+      "localSHA256": "1A9D8AA3DA934A316C488C1B8C7D57BD61B3130685EB818806E6542C5D791B79",
+      "browserSHA256": "1A9D8AA3DA934A316C488C1B8C7D57BD61B3130685EB818806E6542C5D791B79"
+    },
+    "saturatedWords_\"AB CD\"_1e309px": {
+      "equal": true,
+      "localSHA256": "0C872EC632ED620588E5368F050F2485F5B8350D1CDCF6BA9FFF41103EFDA60B",
+      "browserSHA256": "0C872EC632ED620588E5368F050F2485F5B8350D1CDCF6BA9FFF41103EFDA60B"
+    },
+    "saturatedWords_\"AB CD\"_-1e309px": {
+      "equal": true,
+      "localSHA256": "D89BE27F83910A1AD23CD4B8D7B41D70FF79212CB750A2BD016FA4557381B819",
+      "browserSHA256": "D89BE27F83910A1AD23CD4B8D7B41D70FF79212CB750A2BD016FA4557381B819"
+    },
+    "saturatedWords_\" AB \"_1e309px": {
+      "equal": true,
+      "localSHA256": "33C9ADE22CA18E69127DBDFD9E29FCB85EB2A7F1887ED781E7DF450B13000FF7",
+      "browserSHA256": "33C9ADE22CA18E69127DBDFD9E29FCB85EB2A7F1887ED781E7DF450B13000FF7"
+    },
+    "saturatedWords_\" AB \"_-1e309px": {
+      "equal": true,
+      "localSHA256": "1CF20955DD6CF455BD16B029BF70D88EBB63954F7B917A250DE602559A709406",
+      "browserSHA256": "1CF20955DD6CF455BD16B029BF70D88EBB63954F7B917A250DE602559A709406"
+    },
+    "saturatedWords_\"A B\"_1e309px": {
+      "equal": true,
+      "localSHA256": "538092CEFF08DF3D786E6077CF401747E0EFAB578E6D41CD8FBFE72E56EA5722",
+      "browserSHA256": "538092CEFF08DF3D786E6077CF401747E0EFAB578E6D41CD8FBFE72E56EA5722"
+    },
+    "saturatedWords_\"A B\"_-1e309px": {
+      "equal": true,
+      "localSHA256": "014CEF335D43FA9B9C4E20DD82D7E2BA641694FFC7F23CA979B92B8A973D5023",
+      "browserSHA256": "014CEF335D43FA9B9C4E20DD82D7E2BA641694FFC7F23CA979B92B8A973D5023"
+    },
+    "rootUnitFontChange_rex": {
+      "equal": true,
+      "localSHA256": "F64F1D53344DD3A3CA360D5A4FCA3EEE36235431B3192E799D4454C18D9AC538",
+      "browserSHA256": "F64F1D53344DD3A3CA360D5A4FCA3EEE36235431B3192E799D4454C18D9AC538"
+    },
+    "rootUnitFontChange_rch": {
+      "equal": true,
+      "localSHA256": "57545B10207055C975D7FCBEA577D222ABF5EAE0A10ECF32A6B2F1A8A9FFF0F6",
+      "browserSHA256": "57545B10207055C975D7FCBEA577D222ABF5EAE0A10ECF32A6B2F1A8A9FFF0F6"
+    },
+    "rootUnitFontChange_rcap": {
+      "equal": true,
+      "localSHA256": "A9C403E53CA860D8B5EB3548F34C6C09B3FE5A2E8844F44C724B80FC5F909ADF",
+      "browserSHA256": "A9C403E53CA860D8B5EB3548F34C6C09B3FE5A2E8844F44C724B80FC5F909ADF"
+    },
+    "rootUnitFontChange_ric": {
+      "equal": true,
+      "localSHA256": "7B75FA82CF5661229F7043DC1447357CA4A81B13C059AD5E3AEB5CD5386C770C",
+      "browserSHA256": "7B75FA82CF5661229F7043DC1447357CA4A81B13C059AD5E3AEB5CD5386C770C"
+    },
+    "overflowOtherProperties": {
+      "equal": true,
+      "localSHA256": "2B048D24266746D9390AE9A7B8336BA006250BB9E44EAF656F15F5BF94AB3024",
+      "browserSHA256": "2B048D24266746D9390AE9A7B8336BA006250BB9E44EAF656F15F5BF94AB3024"
+    },
+    "textPaintIsolation_fillText_none": {
+      "equal": true,
+      "localSHA256": "5FC44DE1171CBBD86BE252C76DAFEB32EB95FDC5F033086A50687F2A0CE8A35E",
+      "browserSHA256": "5FC44DE1171CBBD86BE252C76DAFEB32EB95FDC5F033086A50687F2A0CE8A35E"
+    },
+    "textPaintIsolation_fillText_offset": {
+      "equal": true,
+      "localSHA256": "473AFEAE72E4CF33DBE1B25920EC5A3AE7988EDBAA8F65B057089948F8B1FD1C",
+      "browserSHA256": "473AFEAE72E4CF33DBE1B25920EC5A3AE7988EDBAA8F65B057089948F8B1FD1C"
+    },
+    "textPaintIsolation_fillText_gradient": {
+      "equal": true,
+      "localSHA256": "7439770CFC6BE47011C8F52A801E72F7993E029AE7FD28AE9B7BE25402F8B534",
+      "browserSHA256": "7439770CFC6BE47011C8F52A801E72F7993E029AE7FD28AE9B7BE25402F8B534"
+    },
+    "textPaintIsolation_strokeText_none": {
+      "equal": true,
+      "localSHA256": "9AE9ADB3DA1A089663183F5A68A543E7438F403EF29BE3831C1469D9399D228A",
+      "browserSHA256": "9AE9ADB3DA1A089663183F5A68A543E7438F403EF29BE3831C1469D9399D228A"
+    },
+    "textPaintIsolation_strokeText_offset": {
+      "equal": true,
+      "localSHA256": "F99C4056C22FD54AD979491DEC69F50B86939C0966371330B4207BB5429A40F0",
+      "browserSHA256": "F99C4056C22FD54AD979491DEC69F50B86939C0966371330B4207BB5429A40F0"
+    },
+    "textPaintIsolation_strokeText_gradient": {
+      "equal": true,
+      "localSHA256": "2D91596B765090CB7A3CFCFBA3E9CEAE396E1E3789331B4E00F79F9D2E6A80A1",
+      "browserSHA256": "2D91596B765090CB7A3CFCFBA3E9CEAE396E1E3789331B4E00F79F9D2E6A80A1"
+    },
+    "patternTextBoundary_fillText_opaque": {
+      "equal": true,
+      "localSHA256": "C10310F0D901F3D04D74AC7EBFB4B0258EFEA27452AD491883794F41CAFF9488",
+      "browserSHA256": "C10310F0D901F3D04D74AC7EBFB4B0258EFEA27452AD491883794F41CAFF9488"
+    },
+    "patternTextBoundary_fillText_white": {
+      "equal": true,
+      "localSHA256": "8D84D9599360C5D4072BEC2C62F45D9396D07259BB4E04E7C30720B431CAA7F0",
+      "browserSHA256": "8D84D9599360C5D4072BEC2C62F45D9396D07259BB4E04E7C30720B431CAA7F0"
+    },
+    "patternTextBoundary_fillText_alpha": {
+      "equal": true,
+      "localSHA256": "0DFC8F8C9323173C7F74EEA103E5C7B8D8A1A3A0CCAC498E421AD393E2562269",
+      "browserSHA256": "0DFC8F8C9323173C7F74EEA103E5C7B8D8A1A3A0CCAC498E421AD393E2562269"
+    },
+    "patternTextBoundary_fillText_rotate": {
+      "equal": true,
+      "localSHA256": "F293DDB32981BB2D2FE42F7E9B4C3DF59D7A0BD290A1D27CE11099D515D9E534",
+      "browserSHA256": "F293DDB32981BB2D2FE42F7E9B4C3DF59D7A0BD290A1D27CE11099D515D9E534"
+    },
+    "patternTextBoundary_fillText_scale": {
+      "equal": true,
+      "localSHA256": "E02FE73A24864D4F8C6C03F47E7CBA338D7807B2A053762356E6B9ECA7A08CE0",
+      "browserSHA256": "E02FE73A24864D4F8C6C03F47E7CBA338D7807B2A053762356E6B9ECA7A08CE0"
+    },
+    "patternTextBoundary_fillText_clip": {
+      "equal": true,
+      "localSHA256": "93897CC622E2FF6ACA04E25D561C5EC236D5250EE1C038DD25080668DB7E7E05",
+      "browserSHA256": "93897CC622E2FF6ACA04E25D561C5EC236D5250EE1C038DD25080668DB7E7E05"
+    },
+    "patternTextBoundary_fillText_noRepeat": {
+      "equal": true,
+      "localSHA256": "9E1019F0E9A83CB3E106FB5747983AE26B29085D4CAE675C959D27571FFA6A44",
+      "browserSHA256": "9E1019F0E9A83CB3E106FB5747983AE26B29085D4CAE675C959D27571FFA6A44"
+    },
+    "patternTextBoundary_fillText_bitmap": {
+      "equal": true,
+      "localSHA256": "75EC00DF05B3245AF80D5888EC3C24843F78BE353D3E5346BB2516E86C3A94CD",
+      "browserSHA256": "75EC00DF05B3245AF80D5888EC3C24843F78BE353D3E5346BB2516E86C3A94CD"
+    },
+    "patternTextBoundary_fillText_copy": {
+      "equal": true,
+      "localSHA256": "ECA91B5DF7E9DD043071E7BC7A1E80E1C3706A4344A2040DE3FB61968B8396C2",
+      "browserSHA256": "ECA91B5DF7E9DD043071E7BC7A1E80E1C3706A4344A2040DE3FB61968B8396C2"
+    },
+    "patternTextBoundary_fillText_fallback": {
+      "equal": true,
+      "localSHA256": "2C66E4825382352DE4D3451E23AEFB2616C9446E834C20932CD67E89A3975CC9",
+      "browserSHA256": "2C66E4825382352DE4D3451E23AEFB2616C9446E834C20932CD67E89A3975CC9"
+    },
+    "patternTextBoundary_fillText_caps": {
+      "equal": true,
+      "localSHA256": "27D9B9686D483424FD12D9A5CA3116145C6046DEDA447819C12D30BFFD249FE8",
+      "browserSHA256": "27D9B9686D483424FD12D9A5CA3116145C6046DEDA447819C12D30BFFD249FE8"
+    },
+    "patternTextBoundary_fillText_dash": {
+      "equal": true,
+      "localSHA256": "75EC00DF05B3245AF80D5888EC3C24843F78BE353D3E5346BB2516E86C3A94CD",
+      "browserSHA256": "75EC00DF05B3245AF80D5888EC3C24843F78BE353D3E5346BB2516E86C3A94CD"
+    },
+    "patternTextBoundary_strokeText_opaque": {
+      "equal": true,
+      "localSHA256": "F59495752052D7E2B2A00924DDE490E12C3FCB358A5662C159535B383CC50703",
+      "browserSHA256": "F59495752052D7E2B2A00924DDE490E12C3FCB358A5662C159535B383CC50703"
+    },
+    "patternTextBoundary_strokeText_white": {
+      "equal": true,
+      "localSHA256": "111D7E39E6A6D328A6E3D48DD4C8E4D62E7C5C35E6F924339D064CC050C3B3BC",
+      "browserSHA256": "111D7E39E6A6D328A6E3D48DD4C8E4D62E7C5C35E6F924339D064CC050C3B3BC"
+    },
+    "patternTextBoundary_strokeText_alpha": {
+      "equal": true,
+      "localSHA256": "53E05C69D2F6EDF524E02FC89AF79964AEF740A4C8B69F63149D896AD5865DC4",
+      "browserSHA256": "53E05C69D2F6EDF524E02FC89AF79964AEF740A4C8B69F63149D896AD5865DC4"
+    },
+    "patternTextBoundary_strokeText_rotate": {
+      "equal": true,
+      "localSHA256": "E5F0826F64FF8159BBA5E913857E7F53A80007B2F42AF33096A4454ACCC1CA0F",
+      "browserSHA256": "E5F0826F64FF8159BBA5E913857E7F53A80007B2F42AF33096A4454ACCC1CA0F"
+    },
+    "patternTextBoundary_strokeText_scale": {
+      "equal": true,
+      "localSHA256": "8C7EAF0CEEA0A87E7862EC6F4A7204D4BA8CC07A2DA6A94B385A49A3AB2D28E9",
+      "browserSHA256": "8C7EAF0CEEA0A87E7862EC6F4A7204D4BA8CC07A2DA6A94B385A49A3AB2D28E9"
+    },
+    "patternTextBoundary_strokeText_clip": {
+      "equal": true,
+      "localSHA256": "4CCD272A96D1C39179503586E01E8F1D5AC939174CCE0F6D558DDB2F95F4B093",
+      "browserSHA256": "4CCD272A96D1C39179503586E01E8F1D5AC939174CCE0F6D558DDB2F95F4B093"
+    },
+    "patternTextBoundary_strokeText_noRepeat": {
+      "equal": true,
+      "localSHA256": "9E1019F0E9A83CB3E106FB5747983AE26B29085D4CAE675C959D27571FFA6A44",
+      "browserSHA256": "9E1019F0E9A83CB3E106FB5747983AE26B29085D4CAE675C959D27571FFA6A44"
+    },
+    "patternTextBoundary_strokeText_bitmap": {
+      "equal": true,
+      "localSHA256": "97AE2AA0137BF00F3737D48ABBAC8E064CDB73880B6709AADBB67CC23C98F86F",
+      "browserSHA256": "97AE2AA0137BF00F3737D48ABBAC8E064CDB73880B6709AADBB67CC23C98F86F"
+    },
+    "patternTextBoundary_strokeText_copy": {
+      "equal": true,
+      "localSHA256": "CF29FBC05A812AD4CAE39877192F6F5A8B8D64F5F330655E5167743C4491FC11",
+      "browserSHA256": "CF29FBC05A812AD4CAE39877192F6F5A8B8D64F5F330655E5167743C4491FC11"
+    },
+    "patternTextBoundary_strokeText_fallback": {
+      "equal": true,
+      "localSHA256": "CBF9B580786DBEA37C08FFBBEA29B04AD14480242B7D6AE639CE835B7A7F0090",
+      "browserSHA256": "CBF9B580786DBEA37C08FFBBEA29B04AD14480242B7D6AE639CE835B7A7F0090"
+    },
+    "patternTextBoundary_strokeText_caps": {
+      "equal": true,
+      "localSHA256": "F5D714DF3BC43FD9982508262C793DB0B1A1109A340C8C610CCD7E8F28AF1DB8",
+      "browserSHA256": "F5D714DF3BC43FD9982508262C793DB0B1A1109A340C8C610CCD7E8F28AF1DB8"
+    },
+    "patternTextBoundary_strokeText_dash": {
+      "equal": true,
+      "localSHA256": "8855C6E5BBECCCC26700EC02767A8A6AEF9C36696E34C98EA06B81C543F4C7F8",
+      "browserSHA256": "8855C6E5BBECCCC26700EC02767A8A6AEF9C36696E34C98EA06B81C543F4C7F8"
+    },
+    "copyTextOverlap_solid_false_false": {
+      "equal": true,
+      "localSHA256": "BEA3C01A30D3F6A0367B82BF0B807BFA42987FF1E1AB153605BE68332F0C34A1",
+      "browserSHA256": "BEA3C01A30D3F6A0367B82BF0B807BFA42987FF1E1AB153605BE68332F0C34A1"
+    },
+    "copyTextOverlap_solid_false_true": {
+      "equal": true,
+      "localSHA256": "C3A7A1E9FFD2A713C98AEB6AF406EF66DDF69834675054A0B24590761310C22E",
+      "browserSHA256": "C3A7A1E9FFD2A713C98AEB6AF406EF66DDF69834675054A0B24590761310C22E"
+    },
+    "copyTextOverlap_solid_true_false": {
+      "equal": true,
+      "localSHA256": "3254D26A5D367092EDE27E2EA662F9FCF3DF4C37A98EDF8A348CA74FFECE29A4",
+      "browserSHA256": "3254D26A5D367092EDE27E2EA662F9FCF3DF4C37A98EDF8A348CA74FFECE29A4"
+    },
+    "copyTextOverlap_solid_true_true": {
+      "equal": true,
+      "localSHA256": "BFC25652AD732882E89ABC82A4BAA45500C05F5CD9E38A468E3D0461CB981CBD",
+      "browserSHA256": "BFC25652AD732882E89ABC82A4BAA45500C05F5CD9E38A468E3D0461CB981CBD"
+    },
+    "copyTextOverlap_gradient_false_false": {
+      "equal": true,
+      "localSHA256": "54FCBD0F71E147BF739405B1C8E2F65EF766A10FD2D1DE0BF28D06E70EAB34E4",
+      "browserSHA256": "54FCBD0F71E147BF739405B1C8E2F65EF766A10FD2D1DE0BF28D06E70EAB34E4"
+    },
+    "copyTextOverlap_gradient_false_true": {
+      "equal": true,
+      "localSHA256": "27B40ED985EBE3E6C7A06A837EFA7538CF015CE67B2A598E97F1FA23F98C6659",
+      "browserSHA256": "27B40ED985EBE3E6C7A06A837EFA7538CF015CE67B2A598E97F1FA23F98C6659"
+    },
+    "copyTextOverlap_gradient_true_false": {
+      "equal": true,
+      "localSHA256": "F278433B4135C0D613C8BF8EA820C26248A78D6AF536A2FF5FFB98484E9B356A",
+      "browserSHA256": "F278433B4135C0D613C8BF8EA820C26248A78D6AF536A2FF5FFB98484E9B356A"
+    },
+    "copyTextOverlap_gradient_true_true": {
+      "equal": true,
+      "localSHA256": "31DC02E4C8E0F45384173E48E155CB9CC528619C0164AC280FA2E542A0BB6DAC",
+      "browserSHA256": "31DC02E4C8E0F45384173E48E155CB9CC528619C0164AC280FA2E542A0BB6DAC"
+    },
+    "copyTextOverlap_pattern_false_false": {
+      "equal": true,
+      "localSHA256": "3B51B6C186F49A295D6633761739E0CF22479CD5778084B31DA4FD5A1D702245",
+      "browserSHA256": "3B51B6C186F49A295D6633761739E0CF22479CD5778084B31DA4FD5A1D702245"
+    },
+    "copyTextOverlap_pattern_false_true": {
+      "equal": true,
+      "localSHA256": "876FD475F141138C0302570B7A42D40473E9EE72F0435501438145C122C0DE66",
+      "browserSHA256": "876FD475F141138C0302570B7A42D40473E9EE72F0435501438145C122C0DE66"
+    },
+    "copyTextOverlap_pattern_true_false": {
+      "equal": true,
+      "localSHA256": "8F077DF6E29637225054EBA117B20019FC9B853ABD62CED05B88B55D57C5BC04",
+      "browserSHA256": "8F077DF6E29637225054EBA117B20019FC9B853ABD62CED05B88B55D57C5BC04"
+    },
+    "copyTextOverlap_pattern_true_true": {
+      "equal": true,
+      "localSHA256": "F451E26ACE90784F21FCEA47C8C62A272ECBC223E0E6CE58BD7D5F87D7414F2A",
+      "browserSHA256": "F451E26ACE90784F21FCEA47C8C62A272ECBC223E0E6CE58BD7D5F87D7414F2A"
+    },
+    "namedColor_aliceblue": {
+      "equal": true,
+      "localSHA256": "63657859AECD1743C28B84026BE47922E517079D3D4163B8EC84A7733D91536E",
+      "browserSHA256": "63657859AECD1743C28B84026BE47922E517079D3D4163B8EC84A7733D91536E"
+    },
+    "namedColor_antiquewhite": {
+      "equal": true,
+      "localSHA256": "F26A5C698B94B503BB44AC2BC03395046F9DD61FDCAA1538AB6FDCDAA90D8D10",
+      "browserSHA256": "F26A5C698B94B503BB44AC2BC03395046F9DD61FDCAA1538AB6FDCDAA90D8D10"
+    },
+    "namedColor_aqua": {
+      "equal": true,
+      "localSHA256": "2734302D035480EE3AABFB598FE3721D27DDE6E503F098FC0224188F3866105F",
+      "browserSHA256": "2734302D035480EE3AABFB598FE3721D27DDE6E503F098FC0224188F3866105F"
+    },
+    "namedColor_aquamarine": {
+      "equal": true,
+      "localSHA256": "9F7BC7141CA8D2453D550C9FE5DA2F6A38022FB00107FF94603C80A45094518A",
+      "browserSHA256": "9F7BC7141CA8D2453D550C9FE5DA2F6A38022FB00107FF94603C80A45094518A"
+    },
+    "namedColor_azure": {
+      "equal": true,
+      "localSHA256": "885A6FF50FAF261B5AD203ED0AF771E868827F20769DF1DFC34CD691BFD8A1C0",
+      "browserSHA256": "885A6FF50FAF261B5AD203ED0AF771E868827F20769DF1DFC34CD691BFD8A1C0"
+    },
+    "namedColor_beige": {
+      "equal": true,
+      "localSHA256": "42FAEAED708084AD7C3B8E402B56804180E42E3B16A2A37886F8DA9756727586",
+      "browserSHA256": "42FAEAED708084AD7C3B8E402B56804180E42E3B16A2A37886F8DA9756727586"
+    },
+    "namedColor_bisque": {
+      "equal": true,
+      "localSHA256": "E12ADE29437ADF78CD9F13C39B273611B1CD796D47748CE80624DC410C4194CB",
+      "browserSHA256": "E12ADE29437ADF78CD9F13C39B273611B1CD796D47748CE80624DC410C4194CB"
+    },
+    "namedColor_black": {
+      "equal": true,
+      "localSHA256": "42B3DAC8F0A8BFE422BDFEFED83F969F4506FF38C69F4EF1879A19068ED11E4B",
+      "browserSHA256": "42B3DAC8F0A8BFE422BDFEFED83F969F4506FF38C69F4EF1879A19068ED11E4B"
+    },
+    "namedColor_blanchedalmond": {
+      "equal": true,
+      "localSHA256": "3119AA5AE95DA034C48304BAF18BD4BDCC310D43F1148E8229DD3EEB0E79FDE0",
+      "browserSHA256": "3119AA5AE95DA034C48304BAF18BD4BDCC310D43F1148E8229DD3EEB0E79FDE0"
+    },
+    "namedColor_blue": {
+      "equal": true,
+      "localSHA256": "02E8468E13F98B27493977ED4E30EF3771343027C3404FF4C940A151A80767A6",
+      "browserSHA256": "02E8468E13F98B27493977ED4E30EF3771343027C3404FF4C940A151A80767A6"
+    },
+    "namedColor_blueviolet": {
+      "equal": true,
+      "localSHA256": "FDFEBFCA62E2ED490DF274CE880F93C6BC3CF3224F876DD51B5B5539F3B265E6",
+      "browserSHA256": "FDFEBFCA62E2ED490DF274CE880F93C6BC3CF3224F876DD51B5B5539F3B265E6"
+    },
+    "namedColor_brown": {
+      "equal": true,
+      "localSHA256": "CA54F09A005AC7C2CA4BD2EA9A5A30187F733760E82D69B2C6FBEC722AA88106",
+      "browserSHA256": "CA54F09A005AC7C2CA4BD2EA9A5A30187F733760E82D69B2C6FBEC722AA88106"
+    },
+    "namedColor_burlywood": {
+      "equal": true,
+      "localSHA256": "553DBB5B514D0EB35EBA63A1F3CE93983B29A9FA6BE4853BD6FA8A585FC5F279",
+      "browserSHA256": "553DBB5B514D0EB35EBA63A1F3CE93983B29A9FA6BE4853BD6FA8A585FC5F279"
+    },
+    "namedColor_cadetblue": {
+      "equal": true,
+      "localSHA256": "EAB6E1302DC1577628AEB049957CEEED9147EA6BCEC0D817B1D63B2EA3C2A82B",
+      "browserSHA256": "EAB6E1302DC1577628AEB049957CEEED9147EA6BCEC0D817B1D63B2EA3C2A82B"
+    },
+    "namedColor_chartreuse": {
+      "equal": true,
+      "localSHA256": "1DC676AFE434381F6C40F3B8DFBB46E3E60148F90621DF088F4E58419FB468D7",
+      "browserSHA256": "1DC676AFE434381F6C40F3B8DFBB46E3E60148F90621DF088F4E58419FB468D7"
+    },
+    "namedColor_chocolate": {
+      "equal": true,
+      "localSHA256": "C14A5F775974D0F0EC01D101E71C1C463DD52430EE3EA0889DFBAEEA4E17446D",
+      "browserSHA256": "C14A5F775974D0F0EC01D101E71C1C463DD52430EE3EA0889DFBAEEA4E17446D"
+    },
+    "namedColor_coral": {
+      "equal": true,
+      "localSHA256": "EA71262753E16E17732B365BF6C0FEC6DD499DC53597091BB111795EC1467E41",
+      "browserSHA256": "EA71262753E16E17732B365BF6C0FEC6DD499DC53597091BB111795EC1467E41"
+    },
+    "namedColor_cornflowerblue": {
+      "equal": true,
+      "localSHA256": "48064974DB95F9F2073D587D3A31273FB83FE1D918BF658F70C2B0CC56DF118A",
+      "browserSHA256": "48064974DB95F9F2073D587D3A31273FB83FE1D918BF658F70C2B0CC56DF118A"
+    },
+    "namedColor_cornsilk": {
+      "equal": true,
+      "localSHA256": "30A121EA55420036C206F4989405EAA9F8763319893403958DC71F0179DA122A",
+      "browserSHA256": "30A121EA55420036C206F4989405EAA9F8763319893403958DC71F0179DA122A"
+    },
+    "namedColor_crimson": {
+      "equal": true,
+      "localSHA256": "8FA379A74011E8D3E71B32E4B837BDCB9912303622F899A46137E6DFED7AFB79",
+      "browserSHA256": "8FA379A74011E8D3E71B32E4B837BDCB9912303622F899A46137E6DFED7AFB79"
+    },
+    "namedColor_cyan": {
+      "equal": true,
+      "localSHA256": "2734302D035480EE3AABFB598FE3721D27DDE6E503F098FC0224188F3866105F",
+      "browserSHA256": "2734302D035480EE3AABFB598FE3721D27DDE6E503F098FC0224188F3866105F"
+    },
+    "namedColor_darkblue": {
+      "equal": true,
+      "localSHA256": "6A44EDCC2AA8A95C1FAE04A29C375257BA9B93CAD50D35460806BEF3E6F25646",
+      "browserSHA256": "6A44EDCC2AA8A95C1FAE04A29C375257BA9B93CAD50D35460806BEF3E6F25646"
+    },
+    "namedColor_darkcyan": {
+      "equal": true,
+      "localSHA256": "E62810B4C285ED71BBB81675A2EFA0F0492964D5D125607BA42DFD699195A179",
+      "browserSHA256": "E62810B4C285ED71BBB81675A2EFA0F0492964D5D125607BA42DFD699195A179"
+    },
+    "namedColor_darkgoldenrod": {
+      "equal": true,
+      "localSHA256": "D506ED446DBA0D785985E49C8B22017ECBC6A9F5B2DF66F34779F5BD7E8A79B4",
+      "browserSHA256": "D506ED446DBA0D785985E49C8B22017ECBC6A9F5B2DF66F34779F5BD7E8A79B4"
+    },
+    "namedColor_darkgray": {
+      "equal": true,
+      "localSHA256": "6BCAF2DA89ADCE86989E20F8E8C58A1E731AF34DB53A87CC0F9057331BB5B9BE",
+      "browserSHA256": "6BCAF2DA89ADCE86989E20F8E8C58A1E731AF34DB53A87CC0F9057331BB5B9BE"
+    },
+    "namedColor_darkgreen": {
+      "equal": true,
+      "localSHA256": "4EE7EC54440A2BD6FA06D110AB31491FCC3529BF7F8F42580F67AE80E944B269",
+      "browserSHA256": "4EE7EC54440A2BD6FA06D110AB31491FCC3529BF7F8F42580F67AE80E944B269"
+    },
+    "namedColor_darkgrey": {
+      "equal": true,
+      "localSHA256": "6BCAF2DA89ADCE86989E20F8E8C58A1E731AF34DB53A87CC0F9057331BB5B9BE",
+      "browserSHA256": "6BCAF2DA89ADCE86989E20F8E8C58A1E731AF34DB53A87CC0F9057331BB5B9BE"
+    },
+    "namedColor_darkkhaki": {
+      "equal": true,
+      "localSHA256": "81A12414E82FAA9726A0CE48812668848DFD11E36DD1B24EA416CD6024A296E9",
+      "browserSHA256": "81A12414E82FAA9726A0CE48812668848DFD11E36DD1B24EA416CD6024A296E9"
+    },
+    "namedColor_darkmagenta": {
+      "equal": true,
+      "localSHA256": "8518FA3899677D17E25FFF18F5DD6798E287183D339FD67DD47E2A876F95B162",
+      "browserSHA256": "8518FA3899677D17E25FFF18F5DD6798E287183D339FD67DD47E2A876F95B162"
+    },
+    "namedColor_darkolivegreen": {
+      "equal": true,
+      "localSHA256": "2AAFC66BA629D20F029C6CDE2870E0623B3A7E5ED29E5ABB819D0F6257C12F46",
+      "browserSHA256": "2AAFC66BA629D20F029C6CDE2870E0623B3A7E5ED29E5ABB819D0F6257C12F46"
+    },
+    "namedColor_darkorange": {
+      "equal": true,
+      "localSHA256": "A050EE449AA9A299BF4AF6C307024B7A9F9F38A61724224916E206F36770BA31",
+      "browserSHA256": "A050EE449AA9A299BF4AF6C307024B7A9F9F38A61724224916E206F36770BA31"
+    },
+    "namedColor_darkorchid": {
+      "equal": true,
+      "localSHA256": "B154454FBDABA085C249E14359BA1DD1D3DFF312922932748F85B075A00E497A",
+      "browserSHA256": "B154454FBDABA085C249E14359BA1DD1D3DFF312922932748F85B075A00E497A"
+    },
+    "namedColor_darkred": {
+      "equal": true,
+      "localSHA256": "A820679EC121DB2BE995737C0E6D671CCAE1958FB6B233B60C894A622EC2F642",
+      "browserSHA256": "A820679EC121DB2BE995737C0E6D671CCAE1958FB6B233B60C894A622EC2F642"
+    },
+    "namedColor_darksalmon": {
+      "equal": true,
+      "localSHA256": "40571C736C7CDAAB08DF608F021A56536C10EE3ADB1ABFD23A73294027C354C2",
+      "browserSHA256": "40571C736C7CDAAB08DF608F021A56536C10EE3ADB1ABFD23A73294027C354C2"
+    },
+    "namedColor_darkseagreen": {
+      "equal": true,
+      "localSHA256": "66C8C78D56532D351E37E0247D9379B09D0162892476528B098174B8299B9A3A",
+      "browserSHA256": "66C8C78D56532D351E37E0247D9379B09D0162892476528B098174B8299B9A3A"
+    },
+    "namedColor_darkslateblue": {
+      "equal": true,
+      "localSHA256": "D451A06B862FB56DB011DE1B19482F25C20823ADD151655C69E905FC3E9281A7",
+      "browserSHA256": "D451A06B862FB56DB011DE1B19482F25C20823ADD151655C69E905FC3E9281A7"
+    },
+    "namedColor_darkslategray": {
+      "equal": true,
+      "localSHA256": "1630DD7E4FD373E9A412DD1D49A7168F464F4A709E83E1887875094B59BEBE7F",
+      "browserSHA256": "1630DD7E4FD373E9A412DD1D49A7168F464F4A709E83E1887875094B59BEBE7F"
+    },
+    "namedColor_darkslategrey": {
+      "equal": true,
+      "localSHA256": "1630DD7E4FD373E9A412DD1D49A7168F464F4A709E83E1887875094B59BEBE7F",
+      "browserSHA256": "1630DD7E4FD373E9A412DD1D49A7168F464F4A709E83E1887875094B59BEBE7F"
+    },
+    "namedColor_darkturquoise": {
+      "equal": true,
+      "localSHA256": "1DFBEAB55D99DAF9EAE4F97556E8E2FB68D2AE88FD16BBCB501289C2873489DE",
+      "browserSHA256": "1DFBEAB55D99DAF9EAE4F97556E8E2FB68D2AE88FD16BBCB501289C2873489DE"
+    },
+    "namedColor_darkviolet": {
+      "equal": true,
+      "localSHA256": "FAB7FFC592F495F1890A00467202764FAAD04F51748BC2459C458F41651FFFC5",
+      "browserSHA256": "FAB7FFC592F495F1890A00467202764FAAD04F51748BC2459C458F41651FFFC5"
+    },
+    "namedColor_deeppink": {
+      "equal": true,
+      "localSHA256": "8D8B87421571083A78A5A4182E87C0B842F45AC2E26420200A0A9D3BAF33C522",
+      "browserSHA256": "8D8B87421571083A78A5A4182E87C0B842F45AC2E26420200A0A9D3BAF33C522"
+    },
+    "namedColor_deepskyblue": {
+      "equal": true,
+      "localSHA256": "B836814F2B680C71209998EDC8E355A654B7C9E29E806F912D941F3042D13256",
+      "browserSHA256": "B836814F2B680C71209998EDC8E355A654B7C9E29E806F912D941F3042D13256"
+    },
+    "namedColor_dimgray": {
+      "equal": true,
+      "localSHA256": "8AC34A22B9103219959D29FC7165E33E20CF9107438C8F488B7F74F1F98E3040",
+      "browserSHA256": "8AC34A22B9103219959D29FC7165E33E20CF9107438C8F488B7F74F1F98E3040"
+    },
+    "namedColor_dimgrey": {
+      "equal": true,
+      "localSHA256": "8AC34A22B9103219959D29FC7165E33E20CF9107438C8F488B7F74F1F98E3040",
+      "browserSHA256": "8AC34A22B9103219959D29FC7165E33E20CF9107438C8F488B7F74F1F98E3040"
+    },
+    "namedColor_dodgerblue": {
+      "equal": true,
+      "localSHA256": "975DA2F80CE9193AC10F64467D0FD74F476830B4D065AA79BE9DBC6B5E923FA9",
+      "browserSHA256": "975DA2F80CE9193AC10F64467D0FD74F476830B4D065AA79BE9DBC6B5E923FA9"
+    },
+    "namedColor_firebrick": {
+      "equal": true,
+      "localSHA256": "AFDDF7CC280646A2194961FC3D3384B9CE2AF40AC90779AF812E3A5FC753147C",
+      "browserSHA256": "AFDDF7CC280646A2194961FC3D3384B9CE2AF40AC90779AF812E3A5FC753147C"
+    },
+    "namedColor_floralwhite": {
+      "equal": true,
+      "localSHA256": "B28E29D404E126100053CE86D1D56A9D8038DC72DD2FED6CAC07AF2DBA2CA999",
+      "browserSHA256": "B28E29D404E126100053CE86D1D56A9D8038DC72DD2FED6CAC07AF2DBA2CA999"
+    },
+    "namedColor_forestgreen": {
+      "equal": true,
+      "localSHA256": "18A2400077F49753E9D9F9D5E2197C1734B5390D4B9197789F0F93D340A08BAE",
+      "browserSHA256": "18A2400077F49753E9D9F9D5E2197C1734B5390D4B9197789F0F93D340A08BAE"
+    },
+    "namedColor_fuchsia": {
+      "equal": true,
+      "localSHA256": "FB30D9C71CEA6A7605320C4200E328E940B8383C29E18AF22EE56CF1625715A2",
+      "browserSHA256": "FB30D9C71CEA6A7605320C4200E328E940B8383C29E18AF22EE56CF1625715A2"
+    },
+    "namedColor_gainsboro": {
+      "equal": true,
+      "localSHA256": "36114BA03783F320DBDD0293A56DEBE0B76E1F392BCF83DF1AC922CBCFFEB5CA",
+      "browserSHA256": "36114BA03783F320DBDD0293A56DEBE0B76E1F392BCF83DF1AC922CBCFFEB5CA"
+    },
+    "namedColor_ghostwhite": {
+      "equal": true,
+      "localSHA256": "A1E43933E72D76C1D7457C78A2E81A09CF32072DAE6E72FF0F70609AB1FCCD4D",
+      "browserSHA256": "A1E43933E72D76C1D7457C78A2E81A09CF32072DAE6E72FF0F70609AB1FCCD4D"
+    },
+    "namedColor_gold": {
+      "equal": true,
+      "localSHA256": "BC72CFF073B0A3F264DE091B92D71A2111A0385105F06698BBF231407911B149",
+      "browserSHA256": "BC72CFF073B0A3F264DE091B92D71A2111A0385105F06698BBF231407911B149"
+    },
+    "namedColor_goldenrod": {
+      "equal": true,
+      "localSHA256": "E1DB519869AA71BEFA357FDAC8DAF738DA22A6F4555B15312E064AC143BD2EA5",
+      "browserSHA256": "E1DB519869AA71BEFA357FDAC8DAF738DA22A6F4555B15312E064AC143BD2EA5"
+    },
+    "namedColor_gray": {
+      "equal": true,
+      "localSHA256": "634A68DCCC78FEC6FFAD9E7A6B7B32395A532ED59350CAF6980D64642A101BF0",
+      "browserSHA256": "634A68DCCC78FEC6FFAD9E7A6B7B32395A532ED59350CAF6980D64642A101BF0"
+    },
+    "namedColor_green": {
+      "equal": true,
+      "localSHA256": "17620EE2797F6A885FC18B738A53B4C7F6BA0E6EC347AD7751B308BC5B281CD6",
+      "browserSHA256": "17620EE2797F6A885FC18B738A53B4C7F6BA0E6EC347AD7751B308BC5B281CD6"
+    },
+    "namedColor_greenyellow": {
+      "equal": true,
+      "localSHA256": "F2496960BC011AEE2E8CC877190321D21DDDCEE49D86540F462C1642CFF4EE8E",
+      "browserSHA256": "F2496960BC011AEE2E8CC877190321D21DDDCEE49D86540F462C1642CFF4EE8E"
+    },
+    "namedColor_grey": {
+      "equal": true,
+      "localSHA256": "634A68DCCC78FEC6FFAD9E7A6B7B32395A532ED59350CAF6980D64642A101BF0",
+      "browserSHA256": "634A68DCCC78FEC6FFAD9E7A6B7B32395A532ED59350CAF6980D64642A101BF0"
+    },
+    "namedColor_honeydew": {
+      "equal": true,
+      "localSHA256": "87978BF89EF3C9F35D24A620CE27CEAAAB5BA01B162C750F2857AE0724C685C7",
+      "browserSHA256": "87978BF89EF3C9F35D24A620CE27CEAAAB5BA01B162C750F2857AE0724C685C7"
+    },
+    "namedColor_hotpink": {
+      "equal": true,
+      "localSHA256": "6D77B48EE66147E1EF9D7ACA0924C300F87DAB553C82965F7CE1B7E1E63F1EC7",
+      "browserSHA256": "6D77B48EE66147E1EF9D7ACA0924C300F87DAB553C82965F7CE1B7E1E63F1EC7"
+    },
+    "namedColor_indianred": {
+      "equal": true,
+      "localSHA256": "38CBC3A8176B0B4D9397B8F6F4D4B2E8FA4672E022F074A6C2495D89C07B90F4",
+      "browserSHA256": "38CBC3A8176B0B4D9397B8F6F4D4B2E8FA4672E022F074A6C2495D89C07B90F4"
+    },
+    "namedColor_indigo": {
+      "equal": true,
+      "localSHA256": "7EEDAB8926F07847A797292662A03D5D46B862A785279F110D8AEBE4123B80B0",
+      "browserSHA256": "7EEDAB8926F07847A797292662A03D5D46B862A785279F110D8AEBE4123B80B0"
+    },
+    "namedColor_ivory": {
+      "equal": true,
+      "localSHA256": "F480D9B0BCE132A328A8B324ED96FA7C9D689BF9012714A5ED23A2A5215DF69B",
+      "browserSHA256": "F480D9B0BCE132A328A8B324ED96FA7C9D689BF9012714A5ED23A2A5215DF69B"
+    },
+    "namedColor_khaki": {
+      "equal": true,
+      "localSHA256": "762AA49A335B1964D0FC95E594DA763178F3FA675D17212CCE053B7906E432AD",
+      "browserSHA256": "762AA49A335B1964D0FC95E594DA763178F3FA675D17212CCE053B7906E432AD"
+    },
+    "namedColor_lavender": {
+      "equal": true,
+      "localSHA256": "35F627CDF063EF05B573C2AE19003BA4474C996F3412C6D4E5FB39B4A03A1AA3",
+      "browserSHA256": "35F627CDF063EF05B573C2AE19003BA4474C996F3412C6D4E5FB39B4A03A1AA3"
+    },
+    "namedColor_lavenderblush": {
+      "equal": true,
+      "localSHA256": "3EB116257C94A1658EB41405F4E10C8CA81F0EEFB9B2577B837A7A82AB9C470E",
+      "browserSHA256": "3EB116257C94A1658EB41405F4E10C8CA81F0EEFB9B2577B837A7A82AB9C470E"
+    },
+    "namedColor_lawngreen": {
+      "equal": true,
+      "localSHA256": "2D4E0AC09B34DFE83EE9D42B287ADC6AC2A4D5BCB1AD3EB9952F0D7F5CD4606C",
+      "browserSHA256": "2D4E0AC09B34DFE83EE9D42B287ADC6AC2A4D5BCB1AD3EB9952F0D7F5CD4606C"
+    },
+    "namedColor_lemonchiffon": {
+      "equal": true,
+      "localSHA256": "E7F34A21383EABC54FC81B99D55B93312674FA6DC2E5782C6376763D5DFDD4E3",
+      "browserSHA256": "E7F34A21383EABC54FC81B99D55B93312674FA6DC2E5782C6376763D5DFDD4E3"
+    },
+    "namedColor_lightblue": {
+      "equal": true,
+      "localSHA256": "6D7F3DFD3FAE055FC83A88348BF48D4E2DC1134D50FC97AA707C8EFD14FF9B85",
+      "browserSHA256": "6D7F3DFD3FAE055FC83A88348BF48D4E2DC1134D50FC97AA707C8EFD14FF9B85"
+    },
+    "namedColor_lightcoral": {
+      "equal": true,
+      "localSHA256": "77EE6563D0A54FBEBB7E3AA8BDE9E0CA3A54F92DAE0E455226BC22BE53744F53",
+      "browserSHA256": "77EE6563D0A54FBEBB7E3AA8BDE9E0CA3A54F92DAE0E455226BC22BE53744F53"
+    },
+    "namedColor_lightcyan": {
+      "equal": true,
+      "localSHA256": "EE6F2B6FCDD965DB1FCA0762E411AC41D8374429E9E40910A0073B029E3EE77E",
+      "browserSHA256": "EE6F2B6FCDD965DB1FCA0762E411AC41D8374429E9E40910A0073B029E3EE77E"
+    },
+    "namedColor_lightgoldenrodyellow": {
+      "equal": true,
+      "localSHA256": "BF9525CD7F87E2BB5B298F372D813EB3B66FA5990799F6FE4555338130E4ABA9",
+      "browserSHA256": "BF9525CD7F87E2BB5B298F372D813EB3B66FA5990799F6FE4555338130E4ABA9"
+    },
+    "namedColor_lightgray": {
+      "equal": true,
+      "localSHA256": "D77A8543111CA10D0447775332F8F53A1784C86546D605D6597A1473F06FF719",
+      "browserSHA256": "D77A8543111CA10D0447775332F8F53A1784C86546D605D6597A1473F06FF719"
+    },
+    "namedColor_lightgreen": {
+      "equal": true,
+      "localSHA256": "1771E0A3264BD829F51B02C7F18F2409E1BBB2AE7773E5C9083317A0692AD853",
+      "browserSHA256": "1771E0A3264BD829F51B02C7F18F2409E1BBB2AE7773E5C9083317A0692AD853"
+    },
+    "namedColor_lightgrey": {
+      "equal": true,
+      "localSHA256": "D77A8543111CA10D0447775332F8F53A1784C86546D605D6597A1473F06FF719",
+      "browserSHA256": "D77A8543111CA10D0447775332F8F53A1784C86546D605D6597A1473F06FF719"
+    },
+    "namedColor_lightpink": {
+      "equal": true,
+      "localSHA256": "22C5F382807785DE446AC1FE86F0C0769B59F5F21D102CD594C39610F6211FDF",
+      "browserSHA256": "22C5F382807785DE446AC1FE86F0C0769B59F5F21D102CD594C39610F6211FDF"
+    },
+    "namedColor_lightsalmon": {
+      "equal": true,
+      "localSHA256": "39E0E2831D889AEA6824C90303A1D5130929385D57F453F272287A16B664D90E",
+      "browserSHA256": "39E0E2831D889AEA6824C90303A1D5130929385D57F453F272287A16B664D90E"
+    },
+    "namedColor_lightseagreen": {
+      "equal": true,
+      "localSHA256": "51B20ACA132CA7A9E20BFA450914F5DA0E191642F48C1E874762B181238F304E",
+      "browserSHA256": "51B20ACA132CA7A9E20BFA450914F5DA0E191642F48C1E874762B181238F304E"
+    },
+    "namedColor_lightskyblue": {
+      "equal": true,
+      "localSHA256": "E4AB0C9F57A89A16E15D7B9F24039DE568B91C48728AB714C2B2416507C2A750",
+      "browserSHA256": "E4AB0C9F57A89A16E15D7B9F24039DE568B91C48728AB714C2B2416507C2A750"
+    },
+    "namedColor_lightslategray": {
+      "equal": true,
+      "localSHA256": "BDAD191E9E8D285724F4988A742FBA002EC2809035D560C5A329166248BD1F5E",
+      "browserSHA256": "BDAD191E9E8D285724F4988A742FBA002EC2809035D560C5A329166248BD1F5E"
+    },
+    "namedColor_lightslategrey": {
+      "equal": true,
+      "localSHA256": "BDAD191E9E8D285724F4988A742FBA002EC2809035D560C5A329166248BD1F5E",
+      "browserSHA256": "BDAD191E9E8D285724F4988A742FBA002EC2809035D560C5A329166248BD1F5E"
+    },
+    "namedColor_lightsteelblue": {
+      "equal": true,
+      "localSHA256": "7BC9F7B13DB33AAB78E70911CACCEC0CBE785A3B2A2BB9C5410D573AEF535680",
+      "browserSHA256": "7BC9F7B13DB33AAB78E70911CACCEC0CBE785A3B2A2BB9C5410D573AEF535680"
+    },
+    "namedColor_lightyellow": {
+      "equal": true,
+      "localSHA256": "245C224A839F4BC5F4A2AD47A42BF7BF60BEAD58B9C32453AD8F93419F9D3E6E",
+      "browserSHA256": "245C224A839F4BC5F4A2AD47A42BF7BF60BEAD58B9C32453AD8F93419F9D3E6E"
+    },
+    "namedColor_lime": {
+      "equal": true,
+      "localSHA256": "E5224BCEAC15EDD2AD315FAB804D2AC398F5121C51C93DA463A622B4164A26BD",
+      "browserSHA256": "E5224BCEAC15EDD2AD315FAB804D2AC398F5121C51C93DA463A622B4164A26BD"
+    },
+    "namedColor_limegreen": {
+      "equal": true,
+      "localSHA256": "B66A75A8B4A0167F1C893E8D1609FED06E493B8B6B7C002D6F1F78D93CC1BA82",
+      "browserSHA256": "B66A75A8B4A0167F1C893E8D1609FED06E493B8B6B7C002D6F1F78D93CC1BA82"
+    },
+    "namedColor_linen": {
+      "equal": true,
+      "localSHA256": "21A1096F2502035E0F013A04DAE7C1FF90C95C323312816E836FBBA489E7222F",
+      "browserSHA256": "21A1096F2502035E0F013A04DAE7C1FF90C95C323312816E836FBBA489E7222F"
+    },
+    "namedColor_magenta": {
+      "equal": true,
+      "localSHA256": "FB30D9C71CEA6A7605320C4200E328E940B8383C29E18AF22EE56CF1625715A2",
+      "browserSHA256": "FB30D9C71CEA6A7605320C4200E328E940B8383C29E18AF22EE56CF1625715A2"
+    },
+    "namedColor_maroon": {
+      "equal": true,
+      "localSHA256": "999D896489A366B4CB2E1ED71E430FF44C160B2C29A2CC4B969207071258FBE7",
+      "browserSHA256": "999D896489A366B4CB2E1ED71E430FF44C160B2C29A2CC4B969207071258FBE7"
+    },
+    "namedColor_mediumaquamarine": {
+      "equal": true,
+      "localSHA256": "DD13F25E34B8511D19F688C8BC10DEA597BE68C742A686C6BB3D914B9D36DDA0",
+      "browserSHA256": "DD13F25E34B8511D19F688C8BC10DEA597BE68C742A686C6BB3D914B9D36DDA0"
+    },
+    "namedColor_mediumblue": {
+      "equal": true,
+      "localSHA256": "7796664F230A94788EBDDFB2B5CED2B07DFA719C400BC7F7B87FB490E8558F47",
+      "browserSHA256": "7796664F230A94788EBDDFB2B5CED2B07DFA719C400BC7F7B87FB490E8558F47"
+    },
+    "namedColor_mediumorchid": {
+      "equal": true,
+      "localSHA256": "778CEDFD39E51906CDA12FAA209554F0EDF49809D6D160E4B50921B797A9713F",
+      "browserSHA256": "778CEDFD39E51906CDA12FAA209554F0EDF49809D6D160E4B50921B797A9713F"
+    },
+    "namedColor_mediumpurple": {
+      "equal": true,
+      "localSHA256": "622E8B184A1A542AC6DD1D70F66F193AD92D8ACE2630AA020B8F639FAF227BAF",
+      "browserSHA256": "622E8B184A1A542AC6DD1D70F66F193AD92D8ACE2630AA020B8F639FAF227BAF"
+    },
+    "namedColor_mediumseagreen": {
+      "equal": true,
+      "localSHA256": "04BB068198218C20F5038A46FC7D7A49F38D538D530A0E734C06FCDD52ADAE53",
+      "browserSHA256": "04BB068198218C20F5038A46FC7D7A49F38D538D530A0E734C06FCDD52ADAE53"
+    },
+    "namedColor_mediumslateblue": {
+      "equal": true,
+      "localSHA256": "72FC2311970A7A6CE833EA2B58BCE0821E4CEE409AE5FB46BD98CAAF0EA48E84",
+      "browserSHA256": "72FC2311970A7A6CE833EA2B58BCE0821E4CEE409AE5FB46BD98CAAF0EA48E84"
+    },
+    "namedColor_mediumspringgreen": {
+      "equal": true,
+      "localSHA256": "7480DBEB6D76985CB32D465F9115A1C77CBCB06C851F6862612A53015B338BB5",
+      "browserSHA256": "7480DBEB6D76985CB32D465F9115A1C77CBCB06C851F6862612A53015B338BB5"
+    },
+    "namedColor_mediumturquoise": {
+      "equal": true,
+      "localSHA256": "7BF74A1579C287B1B14ABF0FEA16BFA58BBF9B96642CCCA214C22C10856C16F4",
+      "browserSHA256": "7BF74A1579C287B1B14ABF0FEA16BFA58BBF9B96642CCCA214C22C10856C16F4"
+    },
+    "namedColor_mediumvioletred": {
+      "equal": true,
+      "localSHA256": "9121EE4D545387F92B32468531B60D286319669D5BCDC7AEA02B68385754B033",
+      "browserSHA256": "9121EE4D545387F92B32468531B60D286319669D5BCDC7AEA02B68385754B033"
+    },
+    "namedColor_midnightblue": {
+      "equal": true,
+      "localSHA256": "5D11084D9B54F88C4F25DE0F14AFD0036340324213E4F43EEBB9746914FEA516",
+      "browserSHA256": "5D11084D9B54F88C4F25DE0F14AFD0036340324213E4F43EEBB9746914FEA516"
+    },
+    "namedColor_mintcream": {
+      "equal": true,
+      "localSHA256": "57AF147547ED9517AEF6CC5B5BAA053A0420B68613E1C4F315B78D1FCB058A6D",
+      "browserSHA256": "57AF147547ED9517AEF6CC5B5BAA053A0420B68613E1C4F315B78D1FCB058A6D"
+    },
+    "namedColor_mistyrose": {
+      "equal": true,
+      "localSHA256": "B6E247501CC501E7CEA2FBC5A0E7A93E02D26CD9A27BA002BE26E3C19DB2697A",
+      "browserSHA256": "B6E247501CC501E7CEA2FBC5A0E7A93E02D26CD9A27BA002BE26E3C19DB2697A"
+    },
+    "namedColor_moccasin": {
+      "equal": true,
+      "localSHA256": "E6421FE711A5402FA1620111A0ED0340D9DBAAE3DF1E8D6BBDF7379050D47905",
+      "browserSHA256": "E6421FE711A5402FA1620111A0ED0340D9DBAAE3DF1E8D6BBDF7379050D47905"
+    },
+    "namedColor_navajowhite": {
+      "equal": true,
+      "localSHA256": "9E77C635E8A456CB721C5A052449473BAF4AC39F1F924703A1FFFF3D04E0DCD9",
+      "browserSHA256": "9E77C635E8A456CB721C5A052449473BAF4AC39F1F924703A1FFFF3D04E0DCD9"
+    },
+    "namedColor_navy": {
+      "equal": true,
+      "localSHA256": "73397F6C4A8D5530008BEDC67DB6EEEFC33ECD1F1561F2621BD3E406BD858811",
+      "browserSHA256": "73397F6C4A8D5530008BEDC67DB6EEEFC33ECD1F1561F2621BD3E406BD858811"
+    },
+    "namedColor_oldlace": {
+      "equal": true,
+      "localSHA256": "80B99FF94C5C548F0C722EFED33FE1B0BC43106EBC94E92A9A2D7F88B184572D",
+      "browserSHA256": "80B99FF94C5C548F0C722EFED33FE1B0BC43106EBC94E92A9A2D7F88B184572D"
+    },
+    "namedColor_olive": {
+      "equal": true,
+      "localSHA256": "281EC7258487FBCC28B034F9287FBE631BE52A310AB8215D5A8DF3C99CB0E2EE",
+      "browserSHA256": "281EC7258487FBCC28B034F9287FBE631BE52A310AB8215D5A8DF3C99CB0E2EE"
+    },
+    "namedColor_olivedrab": {
+      "equal": true,
+      "localSHA256": "CB0023DBE6827A2B783A5B2375659EF48E8A7C7071270F4B00802E6E98CE035D",
+      "browserSHA256": "CB0023DBE6827A2B783A5B2375659EF48E8A7C7071270F4B00802E6E98CE035D"
+    },
+    "namedColor_orange": {
+      "equal": true,
+      "localSHA256": "34C11B471D0D100C6449CDEF1FE98A8468A8C12B221505407BAB0B448EAD37EE",
+      "browserSHA256": "34C11B471D0D100C6449CDEF1FE98A8468A8C12B221505407BAB0B448EAD37EE"
+    },
+    "namedColor_orangered": {
+      "equal": true,
+      "localSHA256": "72586B7C64872B5297A0366FFF586A4586E172D8917C13A58AD0159D56DC02AD",
+      "browserSHA256": "72586B7C64872B5297A0366FFF586A4586E172D8917C13A58AD0159D56DC02AD"
+    },
+    "namedColor_orchid": {
+      "equal": true,
+      "localSHA256": "4CEF64488BFADAA36B35B99337AF042AB99CF7783C36DA3603E8FECEE1345A29",
+      "browserSHA256": "4CEF64488BFADAA36B35B99337AF042AB99CF7783C36DA3603E8FECEE1345A29"
+    },
+    "namedColor_palegoldenrod": {
+      "equal": true,
+      "localSHA256": "2E4EDC20EF9296A47C487B5651D37071F7005511B25433FCF7312D44B1701682",
+      "browserSHA256": "2E4EDC20EF9296A47C487B5651D37071F7005511B25433FCF7312D44B1701682"
+    },
+    "namedColor_palegreen": {
+      "equal": true,
+      "localSHA256": "A1877A03E6A25AEFC2BCD36E838C4D4DBCFEEDCB1384DB5573A6BC57723B8758",
+      "browserSHA256": "A1877A03E6A25AEFC2BCD36E838C4D4DBCFEEDCB1384DB5573A6BC57723B8758"
+    },
+    "namedColor_paleturquoise": {
+      "equal": true,
+      "localSHA256": "4BC139A79427AF5949443482AC6E11476B23A0FF84274EFD0F2B1337BD21419A",
+      "browserSHA256": "4BC139A79427AF5949443482AC6E11476B23A0FF84274EFD0F2B1337BD21419A"
+    },
+    "namedColor_palevioletred": {
+      "equal": true,
+      "localSHA256": "CAF8CBD56D581D7D0C56ADC85BDC4614391EAD0EFB33A644639A2CF9D9A7BDD2",
+      "browserSHA256": "CAF8CBD56D581D7D0C56ADC85BDC4614391EAD0EFB33A644639A2CF9D9A7BDD2"
+    },
+    "namedColor_papayawhip": {
+      "equal": true,
+      "localSHA256": "2272902625424BBEB13E6352B1006A7D59A5449FD77E96BD699F161C74FF6229",
+      "browserSHA256": "2272902625424BBEB13E6352B1006A7D59A5449FD77E96BD699F161C74FF6229"
+    },
+    "namedColor_peachpuff": {
+      "equal": true,
+      "localSHA256": "CFFBFBD3F6F47AD8BA24EC83A899536FE291FE6C70777D7EAE290B38AD5FB757",
+      "browserSHA256": "CFFBFBD3F6F47AD8BA24EC83A899536FE291FE6C70777D7EAE290B38AD5FB757"
+    },
+    "namedColor_peru": {
+      "equal": true,
+      "localSHA256": "C1E55F8EE2D28C90D6715DA6637B51DE65FB03B8C1A0BF76351C49A61A2D2388",
+      "browserSHA256": "C1E55F8EE2D28C90D6715DA6637B51DE65FB03B8C1A0BF76351C49A61A2D2388"
+    },
+    "namedColor_pink": {
+      "equal": true,
+      "localSHA256": "3F4802D0A3D47696574DE9502743440B4CE4C23FFA628CF6C1E56B4D86C55E31",
+      "browserSHA256": "3F4802D0A3D47696574DE9502743440B4CE4C23FFA628CF6C1E56B4D86C55E31"
+    },
+    "namedColor_plum": {
+      "equal": true,
+      "localSHA256": "C62344010FB216AF97561D25C4C9223AFF1E896A9E1A226A95FBEC1C314B374B",
+      "browserSHA256": "C62344010FB216AF97561D25C4C9223AFF1E896A9E1A226A95FBEC1C314B374B"
+    },
+    "namedColor_powderblue": {
+      "equal": true,
+      "localSHA256": "71C4D2608233958D454EAF83B83E0C55E2CF93A836F3D0236EBAE6931007EFD5",
+      "browserSHA256": "71C4D2608233958D454EAF83B83E0C55E2CF93A836F3D0236EBAE6931007EFD5"
+    },
+    "namedColor_purple": {
+      "equal": true,
+      "localSHA256": "8C5097651ABD2E6F9EF9E35D35166C2141A128F10484C94019AD3FFD81BEA38A",
+      "browserSHA256": "8C5097651ABD2E6F9EF9E35D35166C2141A128F10484C94019AD3FFD81BEA38A"
+    },
+    "namedColor_rebeccapurple": {
+      "equal": true,
+      "localSHA256": "785C31BC6941DA7E1D56FA394F93A2BA51524231AD34185C6BBC05406D250DC5",
+      "browserSHA256": "785C31BC6941DA7E1D56FA394F93A2BA51524231AD34185C6BBC05406D250DC5"
+    },
+    "namedColor_red": {
+      "equal": true,
+      "localSHA256": "60B70895770DDF34C949D34DF8D7900521D240D9A4C9BCA35A7E2DD0543CEF93",
+      "browserSHA256": "60B70895770DDF34C949D34DF8D7900521D240D9A4C9BCA35A7E2DD0543CEF93"
+    },
+    "namedColor_rosybrown": {
+      "equal": true,
+      "localSHA256": "94F94B62E8001518B7AC23946C79FF38FF423089B0F8459F81DC09511A8304CB",
+      "browserSHA256": "94F94B62E8001518B7AC23946C79FF38FF423089B0F8459F81DC09511A8304CB"
+    },
+    "namedColor_royalblue": {
+      "equal": true,
+      "localSHA256": "343FD23E7EE6E599FB6BB7093F79AACF54E5C17E99E5E2046CD1439A93C2BE85",
+      "browserSHA256": "343FD23E7EE6E599FB6BB7093F79AACF54E5C17E99E5E2046CD1439A93C2BE85"
+    },
+    "namedColor_saddlebrown": {
+      "equal": true,
+      "localSHA256": "640DE898555ED756C75C75333D58B9522A13684AC896D8E8FFDE8ABDE170580D",
+      "browserSHA256": "640DE898555ED756C75C75333D58B9522A13684AC896D8E8FFDE8ABDE170580D"
+    },
+    "namedColor_salmon": {
+      "equal": true,
+      "localSHA256": "5BA69917BA1C7C07DF14B9157113C32E04AF184F8D6942205A05F49379A1B9F2",
+      "browserSHA256": "5BA69917BA1C7C07DF14B9157113C32E04AF184F8D6942205A05F49379A1B9F2"
+    },
+    "namedColor_sandybrown": {
+      "equal": true,
+      "localSHA256": "6ADCF81091A1F6BA4A811E0E255D4EEE3E0EF143A76DE0B820F922AF35335BEC",
+      "browserSHA256": "6ADCF81091A1F6BA4A811E0E255D4EEE3E0EF143A76DE0B820F922AF35335BEC"
+    },
+    "namedColor_seagreen": {
+      "equal": true,
+      "localSHA256": "64897E8C38DD7088F089A7EBCCA7C0748C90B8BBD80742C9B59B4809EF985ACA",
+      "browserSHA256": "64897E8C38DD7088F089A7EBCCA7C0748C90B8BBD80742C9B59B4809EF985ACA"
+    },
+    "namedColor_seashell": {
+      "equal": true,
+      "localSHA256": "22E979FD5D48D2E85411120C75A62CC47F3233995DED1A2B2956512E2A8986D0",
+      "browserSHA256": "22E979FD5D48D2E85411120C75A62CC47F3233995DED1A2B2956512E2A8986D0"
+    },
+    "namedColor_sienna": {
+      "equal": true,
+      "localSHA256": "E663B08AD666FD28BF33CEBE43E8864710C5C53BFC7A8D9F0D49E195E37FD48D",
+      "browserSHA256": "E663B08AD666FD28BF33CEBE43E8864710C5C53BFC7A8D9F0D49E195E37FD48D"
+    },
+    "namedColor_silver": {
+      "equal": true,
+      "localSHA256": "C0B4D11EBB09EA1C7E13ED8575D4DB18BFB8DB1A4AC302E47E837D575B89BE05",
+      "browserSHA256": "C0B4D11EBB09EA1C7E13ED8575D4DB18BFB8DB1A4AC302E47E837D575B89BE05"
+    },
+    "namedColor_skyblue": {
+      "equal": true,
+      "localSHA256": "0FF26F2EEA555956AE23D03047B4D7F37EE9C040DA4B9E6D1D665988D85AB705",
+      "browserSHA256": "0FF26F2EEA555956AE23D03047B4D7F37EE9C040DA4B9E6D1D665988D85AB705"
+    },
+    "namedColor_slateblue": {
+      "equal": true,
+      "localSHA256": "A77A8342F8762142D4EA277166F202C81E5F53F973806B14019C778CFDF9CB5E",
+      "browserSHA256": "A77A8342F8762142D4EA277166F202C81E5F53F973806B14019C778CFDF9CB5E"
+    },
+    "namedColor_slategray": {
+      "equal": true,
+      "localSHA256": "6D8DEB409759BEB0DAE9BC4166EB916641FD4055C1993DE1B5F02F43670468BB",
+      "browserSHA256": "6D8DEB409759BEB0DAE9BC4166EB916641FD4055C1993DE1B5F02F43670468BB"
+    },
+    "namedColor_slategrey": {
+      "equal": true,
+      "localSHA256": "6D8DEB409759BEB0DAE9BC4166EB916641FD4055C1993DE1B5F02F43670468BB",
+      "browserSHA256": "6D8DEB409759BEB0DAE9BC4166EB916641FD4055C1993DE1B5F02F43670468BB"
+    },
+    "namedColor_snow": {
+      "equal": true,
+      "localSHA256": "BE31A5C3E0C06D034DF6496DC883FC0FF3594F1B22885CC360354AD75833ACD2",
+      "browserSHA256": "BE31A5C3E0C06D034DF6496DC883FC0FF3594F1B22885CC360354AD75833ACD2"
+    },
+    "namedColor_springgreen": {
+      "equal": true,
+      "localSHA256": "741240F90CC218B1D5633AE55A05CA6C7C587DE0B4E0EFBE4B1FA89B0C96D34F",
+      "browserSHA256": "741240F90CC218B1D5633AE55A05CA6C7C587DE0B4E0EFBE4B1FA89B0C96D34F"
+    },
+    "namedColor_steelblue": {
+      "equal": true,
+      "localSHA256": "CE1E27DBD30B6B079DE2D6D9FE67601EC44A994D60C07AE68C15AFAC0059D708",
+      "browserSHA256": "CE1E27DBD30B6B079DE2D6D9FE67601EC44A994D60C07AE68C15AFAC0059D708"
+    },
+    "namedColor_tan": {
+      "equal": true,
+      "localSHA256": "99F3760468C7C40D4E30C29C7536CB3CF33D78031454D6A5CAECC1980E15F599",
+      "browserSHA256": "99F3760468C7C40D4E30C29C7536CB3CF33D78031454D6A5CAECC1980E15F599"
+    },
+    "namedColor_teal": {
+      "equal": true,
+      "localSHA256": "DC0B43EE25595597959C4182701B0FB9E3DB267C2A0AC6524BBB3E5A0F17CA6C",
+      "browserSHA256": "DC0B43EE25595597959C4182701B0FB9E3DB267C2A0AC6524BBB3E5A0F17CA6C"
+    },
+    "namedColor_thistle": {
+      "equal": true,
+      "localSHA256": "BF43CF55C75968480754B95816BA6005D532E01E980B2BC652FB69489B16C037",
+      "browserSHA256": "BF43CF55C75968480754B95816BA6005D532E01E980B2BC652FB69489B16C037"
+    },
+    "namedColor_tomato": {
+      "equal": true,
+      "localSHA256": "7EA7E48899028D9A8DF826F9C83D99DC5426564A947EA1E3DF132FDD0D78FEE2",
+      "browserSHA256": "7EA7E48899028D9A8DF826F9C83D99DC5426564A947EA1E3DF132FDD0D78FEE2"
+    },
+    "namedColor_turquoise": {
+      "equal": true,
+      "localSHA256": "031264EA48A84BE65FFAC0A8E59E2D6CAAE73B6B74ECD5BCBFE5642542BBA7A9",
+      "browserSHA256": "031264EA48A84BE65FFAC0A8E59E2D6CAAE73B6B74ECD5BCBFE5642542BBA7A9"
+    },
+    "namedColor_violet": {
+      "equal": true,
+      "localSHA256": "049EF987BD4C5F6EBC90FE5D31AB1F16D433383725903368852008A57834E6C3",
+      "browserSHA256": "049EF987BD4C5F6EBC90FE5D31AB1F16D433383725903368852008A57834E6C3"
+    },
+    "namedColor_wheat": {
+      "equal": true,
+      "localSHA256": "9582B22C0F76DCC73FF13FB2C811D9B07BD6A7D0D4B4141D69FDA0798D2FABFB",
+      "browserSHA256": "9582B22C0F76DCC73FF13FB2C811D9B07BD6A7D0D4B4141D69FDA0798D2FABFB"
+    },
+    "namedColor_white": {
+      "equal": true,
+      "localSHA256": "02BB4F037B9BDEF1A26FAF3393BF85ED012D4415D977989B88501F5F200F4708",
+      "browserSHA256": "02BB4F037B9BDEF1A26FAF3393BF85ED012D4415D977989B88501F5F200F4708"
+    },
+    "namedColor_whitesmoke": {
+      "equal": true,
+      "localSHA256": "0F5272391AE65631F35A3EFA8B166472614F139E8C951D766244D4A5F19FEE9D",
+      "browserSHA256": "0F5272391AE65631F35A3EFA8B166472614F139E8C951D766244D4A5F19FEE9D"
+    },
+    "namedColor_yellow": {
+      "equal": true,
+      "localSHA256": "04082A5067EC398F42370BC572385BC7DC5208D9A48BF8544F30BC56C7C7D338",
+      "browserSHA256": "04082A5067EC398F42370BC572385BC7DC5208D9A48BF8544F30BC56C7C7D338"
+    },
+    "namedColor_yellowgreen": {
+      "equal": true,
+      "localSHA256": "2B536D885A765744CA039152556FCFDDA66C998E2732D1F84B68FDEC097DF7D4",
+      "browserSHA256": "2B536D885A765744CA039152556FCFDDA66C998E2732D1F84B68FDEC097DF7D4"
+    }
+  },
+  "sha256": {
+    "index.js": "F0094B5B161F154EEA7D8BB8231D3F0A64A9312D797C7812052E870F24992036",
+    "src/canvas_css.rs": "70B929982E50EC98F35B05B0D9E2B6FB1870419C9223EDB698FAE03C9548EB1E",
+    "src/webgl_native.rs": "92C5F1F95B343FB50CF60BBB924B471075FF93DCFA82BF01EDF530823B72D65C",
+    "src/skia_backend.cpp": "DDE8566E398D635E026C19569B040FA0F9D068DCCB073C4C29CD36EA64D91AF8",
+    "test.js": "3BE092360277B974E82AAD8D2EE70B43EF1CC9831E72AE1BFFF9501F62961B06",
+    "tests/fourth-round-cases.js": "C0D657CDB186539918AEAB4DA23BC52D62DDB58730D2BD6D5BFD7A6039C9EAB1",
+    "tests/compare-fifteenth-round.cjs": "CBB67E2BB384C1453320F20B3D9588D260A214798D0B6418F436412AD61FE48B",
+    "webgl.node": "60F67F14AF2BCCD522EFCF8A5B77CADA50D156B571359F0B56F8B427B0812027",
+    "demo.js": "FEA443544EEFDB59C29593EAEC43BBA59CECADCF104A69B99B189B6206F9300E"
+  },
+  "references": [
+    {
+      "path": "out/canvas_2d_recorder_context.h",
+      "sha256": "A084E711C2E4752DD1EF8E483C7BCC11750FDE46382C3EFB043B1E675408AE74"
+    },
+    {
+      "path": "out/paint_op.cc",
+      "sha256": "8F96908285DC07E4D3FC9A7F9F3690DD143BBFAA91889E4EF620ABE1A9E815AD"
+    },
+    {
+      "path": "out/paint_shader.cc",
+      "sha256": "F48FA2C65695A665A7AD071E0BDAC28A206F5B3AC60328642CCAA5B80D645CAF"
+    },
+    {
+      "path": "out/plain_text_node.cc",
+      "sha256": "2F860297A65EBF2D1AB697C4E3961080DAFB042289516D93838D779DCF64BB99"
+    },
+    {
+      "path": "third_party/chromium_reference/canvas_rendering_context_2d_state.cc",
+      "sha256": "4854C69D618864AA92FDA1C288BF939EB5FB6B2197889DB0B368A042A7B6CFDB"
+    },
+    {
+      "path": "third_party/skia/src/utils/SkParseColor.cpp",
+      "sha256": "201933FB00828EB597E9C7DC5694FFD0B8C740B4DA59DDAEA8104F56E5EC4D36"
+    }
+  ],
+  "limits": [
+    "No remaining differences in tested scenarios; not proof of full Canvas conformance.",
+    "Current Windows fonts, Graphite/Dawn backend, Chrome 153.0.8010.48."
+  ]
+}

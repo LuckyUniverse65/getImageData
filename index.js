@@ -168,7 +168,7 @@ function adaptContextArguments(context) {
         const method=context[name],count=name==='measureText'?1:3;
         context[name]=function(...args){
             if(args.length<count)throw new TypeError(`${name} requires ${count} arguments`);
-            args[0]=domString(args[0]).replace(/[\t\n\f\r]/g,' ');
+            args[0]=domString(args[0]).replace(/[\t\n\v\f\r]/g,' ');
             if(count===3){args[1]=+args[1];args[2]=+args[2];if(args[3]!==undefined)args[3]=+args[3];}
             return method.apply(this,args);
         };

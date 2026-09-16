@@ -247,6 +247,8 @@ struct Canvas2D {
     image_quality: String,
     letter_spacing: String,
     word_spacing: String,
+    letter_spacing_from_font: bool,
+    word_spacing_from_font: bool,
     font_kerning: String,
     font_stretch: String,
     font_variant_caps: String,
@@ -280,6 +282,8 @@ struct CanvasState {
     image_quality: String,
     letter_spacing: String,
     word_spacing: String,
+    letter_spacing_from_font: bool,
+    word_spacing_from_font: bool,
     font_kerning: String,
     font_stretch: String,
     font_variant_caps: String,
@@ -623,11 +627,7 @@ fn parse_color(value: &str) -> Option<[u8; 4]> {
     if function.starts_with("hsl") || function.starts_with("rgb(")||function.starts_with("rgba(") {
         return canvas_css::function_color(function);
     }
-    let named = match value.as_str() {
-        "black" => Some([0, 0, 0, 255]), "white" => Some([255, 255, 255, 255]),
-        "red" => Some([255, 0, 0, 255]), "green" => Some([0, 128, 0, 255]),
-        "yellow"=>Some([255,255,0,255]), "aqua"|"cyan"=>Some([0,255,255,255]), "fuchsia"|"magenta"=>Some([255,0,255,255]), "lime"=>Some([0,255,0,255]), "gray"|"grey"=>Some([128,128,128,255]), "silver"=>Some([192,192,192,255]), "maroon"=>Some([128,0,0,255]), "olive"=>Some([128,128,0,255]), "purple"=>Some([128,0,128,255]), "teal"=>Some([0,128,128,255]), "navy"=>Some([0,0,128,255]), "blue" => Some([0, 0, 255, 255]), "transparent" => Some([0, 0, 0, 0]), _ => None,
-    };
+    let named = canvas_css::named_color(&value);
     if named.is_some() { return named; }
     let hex = value.strip_prefix('#')?;
     // Validate bytes before slicing UTF-8: malformed CSS must never panic.
@@ -778,7 +778,7 @@ unsafe fn canvas_2d(width: usize, height: usize, env: NapiEnv, alpha: bool, desy
         width, height, pixels: vec![0; length], fill: Style::Color([0, 0, 0, 255]),
         stroke: Style::Color([0, 0, 0, 255]), shadow: Style::Color([0, 0, 0, 0]), shadow_blur: 0.0, shadow_offset_x: 0.0, shadow_offset_y: 0.0,
         transform: [1.0, 0.0, 0.0, 1.0, 0.0, 0.0], path: Vec::new(), current_path: None,
-        line_width: 1.0, line_cap: "butt".to_string(), line_join: "miter".to_string(), miter_limit: 10.0, line_dash_offset: 0.0, global_alpha: 1.0, composite_copy: false, image_smoothing: true, image_quality:"low".into(), letter_spacing:"0px".into(), word_spacing:"0px".into(), font_kerning:"auto".into(),font_stretch:"normal".into(),font_variant_caps:"normal".into(),text_rendering:"auto".into(),
+        line_width: 1.0, line_cap: "butt".to_string(), line_join: "miter".to_string(), miter_limit: 10.0, line_dash_offset: 0.0, global_alpha: 1.0, composite_copy: false, image_smoothing: true, image_quality:"low".into(), letter_spacing:"0px".into(), word_spacing:"0px".into(), letter_spacing_from_font:false,word_spacing_from_font:false, font_kerning:"auto".into(),font_stretch:"normal".into(),font_variant_caps:"normal".into(),text_rendering:"auto".into(),
         font: "10px sans-serif".to_string(), text_align: "start".to_string(),
         text_baseline: "alphabetic".to_string(), direction: "inherit".to_string(), line_dash: Vec::new(),
         state_stack: Vec::new(), clip: Vec::new(),
@@ -891,16 +891,17 @@ unsafe fn sync_native_paint(canvas: &Canvas2D) {
 
 fn text_context(canvas:&Canvas2D)->*mut c_void {if canvas.native.is_null(){canvas.text_cache.context}else{canvas.native}}
 unsafe fn sync_native_text(canvas:&Canvas2D, font:&FontSpec) {
-    let resolve=|value:&str| {
+    let resolve=|value:&str,from_font:bool| {
         let n=canvas_css::spacing(value,font.size).map_or(0.0,|(_,n)|n);
         if value.ends_with("ex") || value.ends_with("ch") || value.ends_with("cap") {
+            if from_font{return if value.ends_with("ex"){value[..value.len()-if value.ends_with("rex"){3}else{2}].parse::<f64>().unwrap_or(0.0)*font.size*0.5}else{0.0};}
             let unit=if value.ends_with("cap"){2}else{value.ends_with("ch") as i32};
-            let suffix=if unit==2{3}else{2};
+            let suffix=(if unit==2{3}else{2})+if value.ends_with("rcap")||value.ends_with("rex")||value.ends_with("rch"){1}else{0};
             value[..value.len()-suffix].parse::<f64>().unwrap_or(0.0)*skia_canvas_spacing_unit(font.family.as_ptr(),font.size as f32,font.weight,font.slant,unit) as f64
         }else{n}
     };
-    let letter=resolve(&canvas.letter_spacing);
-    let word=resolve(&canvas.word_spacing);
+    let letter=resolve(&canvas.letter_spacing,canvas.letter_spacing_from_font);
+    let word=resolve(&canvas.word_spacing,canvas.word_spacing_from_font);
     skia_canvas_set_text_options(text_context(canvas),letter as f32,word as f32,(canvas.font_kerning!="none") as i32,(canvas.direction=="rtl") as i32,font.slant);
     let stretch=["ultra-condensed","extra-condensed","condensed","semi-condensed","normal","semi-expanded","expanded","extra-expanded","ultra-expanded"].iter().position(|v|*v==canvas.font_stretch).unwrap_or(4)+1;
     let caps=["normal","small-caps","all-small-caps","petite-caps","all-petite-caps","unicase","titling-caps"].iter().position(|v|*v==canvas.font_variant_caps).unwrap_or(0);
@@ -1071,7 +1072,7 @@ unsafe extern "C" fn set_canvas_property(env: NapiEnv, info: NapiCallbackInfo) -
             let n = prepared_number.unwrap();
             if n.is_finite() && (0.0..=1.0).contains(&n) { c.global_alpha = n; }
         },
-        6 => if let Some(s) = prepared.clone() { if let Some(font) = canvas_css::font(&s) { c.font_variant_caps=if font_spec(&font).small_caps!=0{"small-caps"}else{"normal"}.into();c.font_stretch="normal".into();c.font = font; } },
+        6 => if let Some(s) = prepared.clone() { if let Some(font) = canvas_css::font(&s) { c.font_variant_caps=if font_spec(&font).small_caps!=0{"small-caps"}else{"normal"}.into();c.font_stretch="normal".into();c.font = font;c.letter_spacing_from_font=true;c.word_spacing_from_font=true; } },
         7 => if let Some(s) = prepared.clone() { if ["left", "right", "center", "start", "end"].contains(&s.as_str()) { c.text_align = s; } }, 8 => if let Some(s) = prepared.clone() { if ["top", "hanging", "middle", "alphabetic", "ideographic", "bottom"].contains(&s.as_str()) { c.text_baseline = s; } },
         9 => if let Some(s) = prepared.clone() { if s == "source-over" || s == "copy" { c.composite_copy = s == "copy"; } },
         12 => if let Some(s) = prepared.clone() { if ["butt", "round", "square"].contains(&s.as_str()) { c.line_cap = s; } },
@@ -1079,7 +1080,7 @@ unsafe extern "C" fn set_canvas_property(env: NapiEnv, info: NapiCallbackInfo) -
         17 => if let Some(s) = prepared.clone() { if ["inherit", "ltr", "rtl"].contains(&s.as_str()) { c.direction = s; } },
         14 => { let n = prepared_number.unwrap(); if n.is_finite() && n > 0.0 { c.miter_limit = n; } },
         15 => { let n = prepared_number.unwrap(); if n.is_finite() { c.line_dash_offset = n; } },
-        18 | 19 => {if let Some((text,_))=canvas_css::spacing(prepared.as_deref().unwrap_or(""),font_spec(&c.font).size){if data==18{c.letter_spacing=text;}else{c.word_spacing=text;}}},
+        18 | 19 => {if let Some((text,_))=canvas_css::spacing(prepared.as_deref().unwrap_or(""),font_spec(&c.font).size){if data==18{if text!=c.letter_spacing{c.letter_spacing_from_font=false;c.letter_spacing=text;}}else if text!=c.word_spacing{c.word_spacing_from_font=false;c.word_spacing=text;}}},
         20 => {let v=prepared.as_deref().unwrap_or("");if matches!(v,"auto"|"normal"|"none"){c.font_kerning=v.into();}},
         21 => {let v=prepared.as_deref().unwrap_or("");if matches!(v,"low"|"medium"|"high"){c.image_quality=v.into();}},
         22 => {let v=prepared.as_deref().unwrap_or("");if ["ultra-condensed","extra-condensed","condensed","semi-condensed","normal","semi-expanded","expanded","extra-expanded","ultra-expanded"].contains(&v){c.font_stretch=v.into();}},
@@ -1178,7 +1179,7 @@ fn shadow_paths(c: &mut Canvas2D, paths: &[Path], stroke: bool) {
 
 impl Canvas2D {
     fn clone_for_raster(&self) -> Canvas2D {
-        Canvas2D { text_cache:self.text_cache.clone(),native:ptr::null_mut(),alpha:self.alpha,desynchronized:self.desynchronized,will_read_frequently:self.will_read_frequently,width:self.width,height:self.height,pixels:self.pixels.clone(),fill:self.fill.clone(),stroke:self.stroke.clone(),shadow:self.shadow.clone(),shadow_blur:self.shadow_blur,shadow_offset_x:self.shadow_offset_x,shadow_offset_y:self.shadow_offset_y,transform:self.transform,path:self.path.clone(),current_path:self.current_path,line_width:self.line_width,line_cap:self.line_cap.clone(),line_join:self.line_join.clone(),miter_limit:self.miter_limit,line_dash_offset:self.line_dash_offset,global_alpha:self.global_alpha,composite_copy:self.composite_copy,image_smoothing:self.image_smoothing,image_quality:self.image_quality.clone(),letter_spacing:self.letter_spacing.clone(),word_spacing:self.word_spacing.clone(),font_kerning:self.font_kerning.clone(),font_stretch:self.font_stretch.clone(),font_variant_caps:self.font_variant_caps.clone(),text_rendering:self.text_rendering.clone(),font:self.font.clone(),text_align:self.text_align.clone(),text_baseline:self.text_baseline.clone(),direction:self.direction.clone(),line_dash:self.line_dash.clone(),state_stack:Vec::new(),clip:self.clip.clone() }
+        Canvas2D { text_cache:self.text_cache.clone(),native:ptr::null_mut(),alpha:self.alpha,desynchronized:self.desynchronized,will_read_frequently:self.will_read_frequently,width:self.width,height:self.height,pixels:self.pixels.clone(),fill:self.fill.clone(),stroke:self.stroke.clone(),shadow:self.shadow.clone(),shadow_blur:self.shadow_blur,shadow_offset_x:self.shadow_offset_x,shadow_offset_y:self.shadow_offset_y,transform:self.transform,path:self.path.clone(),current_path:self.current_path,line_width:self.line_width,line_cap:self.line_cap.clone(),line_join:self.line_join.clone(),miter_limit:self.miter_limit,line_dash_offset:self.line_dash_offset,global_alpha:self.global_alpha,composite_copy:self.composite_copy,image_smoothing:self.image_smoothing,image_quality:self.image_quality.clone(),letter_spacing:self.letter_spacing.clone(),word_spacing:self.word_spacing.clone(),letter_spacing_from_font:self.letter_spacing_from_font,word_spacing_from_font:self.word_spacing_from_font,font_kerning:self.font_kerning.clone(),font_stretch:self.font_stretch.clone(),font_variant_caps:self.font_variant_caps.clone(),text_rendering:self.text_rendering.clone(),font:self.font.clone(),text_align:self.text_align.clone(),text_baseline:self.text_baseline.clone(),direction:self.direction.clone(),line_dash:self.line_dash.clone(),state_stack:Vec::new(),clip:self.clip.clone() }
     }
 }
 
@@ -1219,7 +1220,7 @@ unsafe fn create_pattern(env:NapiEnv, pattern:Pattern)->NapiValue {
 }
 
 unsafe fn reset_canvas_state(canvas: &mut Canvas2D) {
- canvas.fill=Style::Color([0,0,0,255]); canvas.stroke=Style::Color([0,0,0,255]); canvas.shadow=Style::Color([0,0,0,0]); canvas.shadow_blur=0.0; canvas.shadow_offset_x=0.0; canvas.shadow_offset_y=0.0; canvas.transform=[1.0,0.0,0.0,1.0,0.0,0.0]; canvas.path.clear(); canvas.current_path=None; canvas.line_width=1.0; canvas.line_cap="butt".to_string(); canvas.line_join="miter".to_string(); canvas.miter_limit=10.0; canvas.line_dash.clear(); canvas.line_dash_offset=0.0; canvas.global_alpha=1.0; canvas.composite_copy=false; canvas.image_smoothing=true;canvas.image_quality="low".into();canvas.letter_spacing="0px".into();canvas.word_spacing="0px".into();canvas.font_kerning="auto".into();canvas.font_stretch="normal".into();canvas.font_variant_caps="normal".into();canvas.text_rendering="auto".into(); canvas.font="10px sans-serif".to_string(); canvas.text_align="start".to_string(); canvas.text_baseline="alphabetic".to_string(); canvas.direction="inherit".to_string(); canvas.state_stack.clear(); canvas.clip.clear(); if !canvas.native.is_null(){skia_canvas_reset(canvas.native);}  canvas.pixels.fill(0);
+ canvas.fill=Style::Color([0,0,0,255]); canvas.stroke=Style::Color([0,0,0,255]); canvas.shadow=Style::Color([0,0,0,0]); canvas.shadow_blur=0.0; canvas.shadow_offset_x=0.0; canvas.shadow_offset_y=0.0; canvas.transform=[1.0,0.0,0.0,1.0,0.0,0.0]; canvas.path.clear(); canvas.current_path=None; canvas.line_width=1.0; canvas.line_cap="butt".to_string(); canvas.line_join="miter".to_string(); canvas.miter_limit=10.0; canvas.line_dash.clear(); canvas.line_dash_offset=0.0; canvas.global_alpha=1.0; canvas.composite_copy=false; canvas.image_smoothing=true;canvas.image_quality="low".into();canvas.letter_spacing="0px".into();canvas.word_spacing="0px".into();canvas.letter_spacing_from_font=false;canvas.word_spacing_from_font=false;canvas.font_kerning="auto".into();canvas.font_stretch="normal".into();canvas.font_variant_caps="normal".into();canvas.text_rendering="auto".into(); canvas.font="10px sans-serif".to_string(); canvas.text_align="start".to_string(); canvas.text_baseline="alphabetic".to_string(); canvas.direction="inherit".to_string(); canvas.state_stack.clear(); canvas.clip.clear(); if !canvas.native.is_null(){skia_canvas_reset(canvas.native);}  canvas.pixels.fill(0);
 }
 
 unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> NapiValue {
@@ -1376,8 +1377,8 @@ unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> N
             canvas.line_dash=dash;
             undefined(env)
         }
-        "save" => { canvas.state_stack.push(CanvasState{fill:canvas.fill.clone(),stroke:canvas.stroke.clone(),shadow:canvas.shadow.clone(),shadow_blur:canvas.shadow_blur,shadow_offset_x:canvas.shadow_offset_x,shadow_offset_y:canvas.shadow_offset_y,transform:canvas.transform,line_width:canvas.line_width,line_cap:canvas.line_cap.clone(),line_join:canvas.line_join.clone(),miter_limit:canvas.miter_limit,line_dash_offset:canvas.line_dash_offset,global_alpha:canvas.global_alpha,composite_copy:canvas.composite_copy,image_smoothing:canvas.image_smoothing,image_quality:canvas.image_quality.clone(),letter_spacing:canvas.letter_spacing.clone(),word_spacing:canvas.word_spacing.clone(),font_kerning:canvas.font_kerning.clone(),font_stretch:canvas.font_stretch.clone(),font_variant_caps:canvas.font_variant_caps.clone(),text_rendering:canvas.text_rendering.clone(),font:canvas.font.clone(),text_align:canvas.text_align.clone(),text_baseline:canvas.text_baseline.clone(),direction:canvas.direction.clone(),line_dash:canvas.line_dash.clone(),clip:canvas.clip.clone()}); if !canvas.native.is_null(){skia_canvas_save(canvas.native);} undefined(env) }
-        "restore" => { if let Some(s)=canvas.state_stack.pop(){canvas.fill=s.fill;canvas.stroke=s.stroke;canvas.shadow=s.shadow;canvas.shadow_blur=s.shadow_blur;canvas.shadow_offset_x=s.shadow_offset_x;canvas.shadow_offset_y=s.shadow_offset_y;canvas.transform=s.transform;canvas.line_width=s.line_width;canvas.line_cap=s.line_cap;canvas.line_join=s.line_join;canvas.miter_limit=s.miter_limit;canvas.line_dash_offset=s.line_dash_offset;canvas.global_alpha=s.global_alpha;canvas.composite_copy=s.composite_copy;canvas.image_smoothing=s.image_smoothing;canvas.image_quality=s.image_quality;canvas.letter_spacing=s.letter_spacing;canvas.word_spacing=s.word_spacing;canvas.font_kerning=s.font_kerning;canvas.font_stretch=s.font_stretch;canvas.font_variant_caps=s.font_variant_caps;canvas.text_rendering=s.text_rendering;canvas.font=s.font;canvas.text_align=s.text_align;canvas.text_baseline=s.text_baseline;canvas.direction=s.direction;canvas.line_dash=s.line_dash;canvas.clip=s.clip;} if !canvas.native.is_null(){skia_canvas_restore(canvas.native);} undefined(env) }
+        "save" => { canvas.state_stack.push(CanvasState{fill:canvas.fill.clone(),stroke:canvas.stroke.clone(),shadow:canvas.shadow.clone(),shadow_blur:canvas.shadow_blur,shadow_offset_x:canvas.shadow_offset_x,shadow_offset_y:canvas.shadow_offset_y,transform:canvas.transform,line_width:canvas.line_width,line_cap:canvas.line_cap.clone(),line_join:canvas.line_join.clone(),miter_limit:canvas.miter_limit,line_dash_offset:canvas.line_dash_offset,global_alpha:canvas.global_alpha,composite_copy:canvas.composite_copy,image_smoothing:canvas.image_smoothing,image_quality:canvas.image_quality.clone(),letter_spacing:canvas.letter_spacing.clone(),word_spacing:canvas.word_spacing.clone(),letter_spacing_from_font:canvas.letter_spacing_from_font,word_spacing_from_font:canvas.word_spacing_from_font,font_kerning:canvas.font_kerning.clone(),font_stretch:canvas.font_stretch.clone(),font_variant_caps:canvas.font_variant_caps.clone(),text_rendering:canvas.text_rendering.clone(),font:canvas.font.clone(),text_align:canvas.text_align.clone(),text_baseline:canvas.text_baseline.clone(),direction:canvas.direction.clone(),line_dash:canvas.line_dash.clone(),clip:canvas.clip.clone()}); if !canvas.native.is_null(){skia_canvas_save(canvas.native);} undefined(env) }
+        "restore" => { if let Some(s)=canvas.state_stack.pop(){canvas.fill=s.fill;canvas.stroke=s.stroke;canvas.shadow=s.shadow;canvas.shadow_blur=s.shadow_blur;canvas.shadow_offset_x=s.shadow_offset_x;canvas.shadow_offset_y=s.shadow_offset_y;canvas.transform=s.transform;canvas.line_width=s.line_width;canvas.line_cap=s.line_cap;canvas.line_join=s.line_join;canvas.miter_limit=s.miter_limit;canvas.line_dash_offset=s.line_dash_offset;canvas.global_alpha=s.global_alpha;canvas.composite_copy=s.composite_copy;canvas.image_smoothing=s.image_smoothing;canvas.image_quality=s.image_quality;canvas.letter_spacing=s.letter_spacing;canvas.word_spacing=s.word_spacing;canvas.letter_spacing_from_font=s.letter_spacing_from_font;canvas.word_spacing_from_font=s.word_spacing_from_font;canvas.font_kerning=s.font_kerning;canvas.font_stretch=s.font_stretch;canvas.font_variant_caps=s.font_variant_caps;canvas.text_rendering=s.text_rendering;canvas.font=s.font;canvas.text_align=s.text_align;canvas.text_baseline=s.text_baseline;canvas.direction=s.direction;canvas.line_dash=s.line_dash;canvas.clip=s.clip;} if !canvas.native.is_null(){skia_canvas_restore(canvas.native);} undefined(env) }
         "fillText" | "strokeText" => {
             if args.len()<3{return type_error(env,"Text drawing requires text, x and y");}
             let text=value_string(env,args[0]).unwrap_or_default();
