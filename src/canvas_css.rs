@@ -281,3 +281,12 @@ pub fn function_color(value:&str)->Option<[u8;4]>{
     let rgb=match h as u32{0=>[c,x,0.0],1=>[x,c,0.0],2=>[0.0,c,x],3=>[0.0,x,c],4=>[x,0.0,c],_=>[c,0.0,x]};
     Some([((rgb[0]+m)*255.0).round() as u8,((rgb[1]+m)*255.0).round() as u8,((rgb[2]+m)*255.0).round() as u8,alpha])
 }
+
+// Canvas spacing accepts CSS lengths, retaining the unit for the getter.
+pub fn spacing(value:&str, font_size:f64)->Option<(String,f64)> {
+    let value=value.to_ascii_lowercase();
+    for (unit,scale) in [("rem",font_size),("ex",font_size),("ch",font_size),("vw",0.0),("vh",0.0),("vmin",0.0),("vmax",0.0),("px",1.0),("pt",96.0/72.0),("pc",16.0),("in",96.0),("cm",96.0/2.54),("mm",96.0/25.4),("q",96.0/101.6),("em",font_size)] {
+        if let Some(prefix)=value.strip_suffix(unit) {let n=number(prefix)?;return Some((format!("{}{}",if n==0.0{0.0}else{n},unit),n*scale));}
+    }
+    None
+}

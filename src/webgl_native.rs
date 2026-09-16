@@ -67,6 +67,8 @@ extern "C" {
     fn skia_canvas_set_line_dash(canvas: *mut c_void, values: *const f32, count: u32, offset: f32);
     fn skia_canvas_set_global_alpha(canvas: *mut c_void, alpha: f32);
     fn skia_canvas_set_composite(canvas: *mut c_void, copy: i32);
+    fn skia_canvas_spacing_unit(family:*const c_char,size:f32,weight:i32,slant:i32,ch:i32)->f32;
+    fn skia_canvas_set_text_options(canvas:*mut c_void, letter:f32, word:f32, kern:i32, rtl:i32, slant:i32);
     fn skia_canvas_set_image_smoothing(canvas: *mut c_void, enabled: i32);
     fn skia_canvas_draw_text(canvas: *mut c_void, text: *const u8, length: u32, family: *const c_char, x: f32, y: f32, size: f32, stroke: i32, weight: i32, slant: i32, small_caps: i32);
     fn skia_canvas_measure_text(canvas: *mut c_void, text: *const u8, length: u32, family: *const c_char, size: f32, weight: i32, slant: i32, small_caps: i32) -> f32;
@@ -230,6 +232,10 @@ struct Canvas2D {
     global_alpha: f64,
     composite_copy: bool,
     image_smoothing: bool,
+    image_quality: String,
+    letter_spacing: String,
+    word_spacing: String,
+    font_kerning: String,
     font: String,
     text_align: String,
     text_baseline: String,
@@ -256,6 +262,10 @@ struct CanvasState {
     global_alpha: f64,
     composite_copy: bool,
     image_smoothing: bool,
+    image_quality: String,
+    letter_spacing: String,
+    word_spacing: String,
+    font_kerning: String,
     font: String,
     text_align: String,
     text_baseline: String,
@@ -746,7 +756,7 @@ unsafe fn canvas_2d(width: usize, height: usize, env: NapiEnv, alpha: bool, desy
         width, height, pixels: vec![0; length], fill: Style::Color([0, 0, 0, 255]),
         stroke: Style::Color([0, 0, 0, 255]), shadow: Style::Color([0, 0, 0, 0]), shadow_blur: 0.0, shadow_offset_x: 0.0, shadow_offset_y: 0.0,
         transform: [1.0, 0.0, 0.0, 1.0, 0.0, 0.0], path: Vec::new(), current_path: None,
-        line_width: 1.0, line_cap: "butt".to_string(), line_join: "miter".to_string(), miter_limit: 10.0, line_dash_offset: 0.0, global_alpha: 1.0, composite_copy: false, image_smoothing: true,
+        line_width: 1.0, line_cap: "butt".to_string(), line_join: "miter".to_string(), miter_limit: 10.0, line_dash_offset: 0.0, global_alpha: 1.0, composite_copy: false, image_smoothing: true, image_quality:"low".into(), letter_spacing:"0px".into(), word_spacing:"0px".into(), font_kerning:"auto".into(),
         font: "10px sans-serif".to_string(), text_align: "start".to_string(),
         text_baseline: "alphabetic".to_string(), direction: "inherit".to_string(), line_dash: Vec::new(),
         state_stack: Vec::new(), clip: Vec::new(),
@@ -763,7 +773,7 @@ unsafe fn canvas_2d(width: usize, height: usize, env: NapiEnv, alpha: bool, desy
         ("fillStyle", 0usize), ("strokeStyle", 1), ("shadowColor", 2), ("shadowBlur", 3), ("shadowOffsetX", 10), ("shadowOffsetY", 11),
         ("lineWidth", 4), ("globalAlpha", 5), ("font", 6), ("textAlign", 7),
         ("textBaseline", 8), ("globalCompositeOperation", 9), ("imageSmoothingEnabled", 16), ("lineCap", 12), ("lineJoin", 13), ("miterLimit", 14), ("lineDashOffset", 15),
-        ("direction", 17),
+        ("direction", 17), ("letterSpacing",18), ("wordSpacing",19), ("fontKerning",20), ("imageSmoothingQuality",21),
     ];
     let descriptors: Vec<NapiPropertyDescriptor> = props.iter().map(|(name, index)| NapiPropertyDescriptor {
         utf8name: CString::new(*name).unwrap().into_raw(), name: ptr::null_mut(), method: None,
@@ -856,6 +866,17 @@ unsafe fn sync_native_paint(canvas: &Canvas2D) {
     skia_canvas_set_image_smoothing(canvas.native, canvas.image_smoothing as i32);
 }
 
+unsafe fn sync_native_text(canvas:&Canvas2D, font:&FontSpec) {
+    let resolve=|value:&str| {
+        let n=canvas_css::spacing(value,font.size).map_or(0.0,|(_,n)|n);
+        if value.ends_with("ex") || value.ends_with("ch") {
+            value[..value.len()-2].parse::<f64>().unwrap_or(0.0)*skia_canvas_spacing_unit(font.family.as_ptr(),font.size as f32,font.weight,font.slant,value.ends_with("ch") as i32) as f64
+        }else{n}
+    };
+    let letter=resolve(&canvas.letter_spacing);
+    let word=resolve(&canvas.word_spacing);
+    skia_canvas_set_text_options(canvas.native,letter as f32,word as f32,(canvas.font_kerning!="none") as i32,(canvas.direction=="rtl") as i32,font.slant);
+}
 struct FontSpec { family: CString, size: f64, weight: i32, slant: i32, small_caps: i32 }
 
 // Unicode full uppercase can expand one scalar (e.g. sharp s) to three scalars.
@@ -950,6 +971,7 @@ unsafe extern "C" fn get_canvas_property(env: NapiEnv, info: NapiCallbackInfo) -
         3 => number_value(env, c.shadow_blur), 4 => number_value(env, c.line_width), 10 => number_value(env, c.shadow_offset_x), 11 => number_value(env, c.shadow_offset_y),
         5 => number_value(env, c.global_alpha), 6 => string(env, &canvas_css::serialized_font(&c.font)),
         7 => string(env, &c.text_align), 8 => string(env, &c.text_baseline),
+        18 => string(env,&c.letter_spacing), 19 => string(env,&c.word_spacing), 20 => string(env,&c.font_kerning), 21 => string(env,&c.image_quality),
         17 => string(env, if c.direction == "inherit" { "ltr" } else { &c.direction }),
         9 => string(env, if c.composite_copy { "copy" } else { "source-over" }), 12 => string(env, &c.line_cap), 13 => string(env, &c.line_join), 14 => number_value(env, c.miter_limit), 15 => number_value(env, c.line_dash_offset), 16 => boolean(env, c.image_smoothing), _ => undefined(env)
     }
@@ -962,7 +984,7 @@ unsafe extern "C" fn set_canvas_property(env: NapiEnv, info: NapiCallbackInfo) -
     if canvas_2d_from(env, this_arg).is_none() { return type_error(env,"Illegal invocation"); }
     let Some(value) = args.first() else { return undefined(env); };
     // Convert strings before borrowing mutable state: toString can re-enter Canvas.
-    let prepared=if [0,1,2,6,7,8,9,12,13,17].contains(&data){
+    let prepared=if [0,1,2,6,7,8,9,12,13,17,18,19,20,21].contains(&data){
         let(mut gradient,mut pattern)=(false,false);
         if data<=1{(api().check_object_type_tag)(env,*value,&GRADIENT_TYPE_TAG,&mut gradient);(api().check_object_type_tag)(env,*value,&PATTERN_TYPE_TAG,&mut pattern);}
         if gradient||pattern{None}else{let Some(s)=dom_string(env,*value)else{return undefined(env);};Some(s)}
@@ -1018,6 +1040,9 @@ unsafe extern "C" fn set_canvas_property(env: NapiEnv, info: NapiCallbackInfo) -
         17 => if let Some(s) = prepared.clone() { if ["inherit", "ltr", "rtl"].contains(&s.as_str()) { c.direction = s; } },
         14 => { let n = prepared_number.unwrap(); if n.is_finite() && n > 0.0 { c.miter_limit = n; } },
         15 => { let n = prepared_number.unwrap(); if n.is_finite() { c.line_dash_offset = n; } },
+        18 | 19 => {if let Some((text,_))=canvas_css::spacing(prepared.as_deref().unwrap_or(""),font_spec(&c.font).size){if data==18{c.letter_spacing=text;}else{c.word_spacing=text;}}},
+        20 => {let v=prepared.as_deref().unwrap_or("");if matches!(v,"auto"|"normal"|"none"){c.font_kerning=v.into();}},
+        21 => {let v=prepared.as_deref().unwrap_or("");if matches!(v,"low"|"medium"|"high"){c.image_quality=v.into();}},
         16 => c.image_smoothing = truthy(env, Some(value)), _ => {}
     }
     undefined(env)
@@ -1111,7 +1136,7 @@ fn shadow_paths(c: &mut Canvas2D, paths: &[Path], stroke: bool) {
 
 impl Canvas2D {
     fn clone_for_raster(&self) -> Canvas2D {
-        Canvas2D { native:ptr::null_mut(),alpha:self.alpha,desynchronized:self.desynchronized,will_read_frequently:self.will_read_frequently,width:self.width,height:self.height,pixels:self.pixels.clone(),fill:self.fill.clone(),stroke:self.stroke.clone(),shadow:self.shadow.clone(),shadow_blur:self.shadow_blur,shadow_offset_x:self.shadow_offset_x,shadow_offset_y:self.shadow_offset_y,transform:self.transform,path:self.path.clone(),current_path:self.current_path,line_width:self.line_width,line_cap:self.line_cap.clone(),line_join:self.line_join.clone(),miter_limit:self.miter_limit,line_dash_offset:self.line_dash_offset,global_alpha:self.global_alpha,composite_copy:self.composite_copy,image_smoothing:self.image_smoothing,font:self.font.clone(),text_align:self.text_align.clone(),text_baseline:self.text_baseline.clone(),direction:self.direction.clone(),line_dash:self.line_dash.clone(),state_stack:Vec::new(),clip:self.clip.clone() }
+        Canvas2D { native:ptr::null_mut(),alpha:self.alpha,desynchronized:self.desynchronized,will_read_frequently:self.will_read_frequently,width:self.width,height:self.height,pixels:self.pixels.clone(),fill:self.fill.clone(),stroke:self.stroke.clone(),shadow:self.shadow.clone(),shadow_blur:self.shadow_blur,shadow_offset_x:self.shadow_offset_x,shadow_offset_y:self.shadow_offset_y,transform:self.transform,path:self.path.clone(),current_path:self.current_path,line_width:self.line_width,line_cap:self.line_cap.clone(),line_join:self.line_join.clone(),miter_limit:self.miter_limit,line_dash_offset:self.line_dash_offset,global_alpha:self.global_alpha,composite_copy:self.composite_copy,image_smoothing:self.image_smoothing,image_quality:self.image_quality.clone(),letter_spacing:self.letter_spacing.clone(),word_spacing:self.word_spacing.clone(),font_kerning:self.font_kerning.clone(),font:self.font.clone(),text_align:self.text_align.clone(),text_baseline:self.text_baseline.clone(),direction:self.direction.clone(),line_dash:self.line_dash.clone(),state_stack:Vec::new(),clip:self.clip.clone() }
     }
 }
 
@@ -1152,7 +1177,7 @@ unsafe fn create_pattern(env:NapiEnv, pattern:Pattern)->NapiValue {
 }
 
 unsafe fn reset_canvas_state(canvas: &mut Canvas2D) {
- canvas.fill=Style::Color([0,0,0,255]); canvas.stroke=Style::Color([0,0,0,255]); canvas.shadow=Style::Color([0,0,0,0]); canvas.shadow_blur=0.0; canvas.shadow_offset_x=0.0; canvas.shadow_offset_y=0.0; canvas.transform=[1.0,0.0,0.0,1.0,0.0,0.0]; canvas.path.clear(); canvas.current_path=None; canvas.line_width=1.0; canvas.line_cap="butt".to_string(); canvas.line_join="miter".to_string(); canvas.miter_limit=10.0; canvas.line_dash.clear(); canvas.line_dash_offset=0.0; canvas.global_alpha=1.0; canvas.composite_copy=false; canvas.image_smoothing=true; canvas.font="10px sans-serif".to_string(); canvas.text_align="start".to_string(); canvas.text_baseline="alphabetic".to_string(); canvas.direction="inherit".to_string(); canvas.state_stack.clear(); canvas.clip.clear(); if !canvas.native.is_null(){skia_canvas_reset(canvas.native);}  canvas.pixels.fill(0);
+ canvas.fill=Style::Color([0,0,0,255]); canvas.stroke=Style::Color([0,0,0,255]); canvas.shadow=Style::Color([0,0,0,0]); canvas.shadow_blur=0.0; canvas.shadow_offset_x=0.0; canvas.shadow_offset_y=0.0; canvas.transform=[1.0,0.0,0.0,1.0,0.0,0.0]; canvas.path.clear(); canvas.current_path=None; canvas.line_width=1.0; canvas.line_cap="butt".to_string(); canvas.line_join="miter".to_string(); canvas.miter_limit=10.0; canvas.line_dash.clear(); canvas.line_dash_offset=0.0; canvas.global_alpha=1.0; canvas.composite_copy=false; canvas.image_smoothing=true;canvas.image_quality="low".into();canvas.letter_spacing="0px".into();canvas.word_spacing="0px".into();canvas.font_kerning="auto".into(); canvas.font="10px sans-serif".to_string(); canvas.text_align="start".to_string(); canvas.text_baseline="alphabetic".to_string(); canvas.direction="inherit".to_string(); canvas.state_stack.clear(); canvas.clip.clear(); if !canvas.native.is_null(){skia_canvas_reset(canvas.native);}  canvas.pixels.fill(0);
 }
 
 unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> NapiValue {
@@ -1305,12 +1330,13 @@ unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> N
             canvas.line_dash=dash;
             undefined(env)
         }
-        "save" => { canvas.state_stack.push(CanvasState{fill:canvas.fill.clone(),stroke:canvas.stroke.clone(),shadow:canvas.shadow.clone(),shadow_blur:canvas.shadow_blur,shadow_offset_x:canvas.shadow_offset_x,shadow_offset_y:canvas.shadow_offset_y,transform:canvas.transform,line_width:canvas.line_width,line_cap:canvas.line_cap.clone(),line_join:canvas.line_join.clone(),miter_limit:canvas.miter_limit,line_dash_offset:canvas.line_dash_offset,global_alpha:canvas.global_alpha,composite_copy:canvas.composite_copy,image_smoothing:canvas.image_smoothing,font:canvas.font.clone(),text_align:canvas.text_align.clone(),text_baseline:canvas.text_baseline.clone(),direction:canvas.direction.clone(),line_dash:canvas.line_dash.clone(),clip:canvas.clip.clone()}); if !canvas.native.is_null(){skia_canvas_save(canvas.native);} undefined(env) }
-        "restore" => { if let Some(s)=canvas.state_stack.pop(){canvas.fill=s.fill;canvas.stroke=s.stroke;canvas.shadow=s.shadow;canvas.shadow_blur=s.shadow_blur;canvas.shadow_offset_x=s.shadow_offset_x;canvas.shadow_offset_y=s.shadow_offset_y;canvas.transform=s.transform;canvas.line_width=s.line_width;canvas.line_cap=s.line_cap;canvas.line_join=s.line_join;canvas.miter_limit=s.miter_limit;canvas.line_dash_offset=s.line_dash_offset;canvas.global_alpha=s.global_alpha;canvas.composite_copy=s.composite_copy;canvas.image_smoothing=s.image_smoothing;canvas.font=s.font;canvas.text_align=s.text_align;canvas.text_baseline=s.text_baseline;canvas.direction=s.direction;canvas.line_dash=s.line_dash;canvas.clip=s.clip;} if !canvas.native.is_null(){skia_canvas_restore(canvas.native);} undefined(env) }
+        "save" => { canvas.state_stack.push(CanvasState{fill:canvas.fill.clone(),stroke:canvas.stroke.clone(),shadow:canvas.shadow.clone(),shadow_blur:canvas.shadow_blur,shadow_offset_x:canvas.shadow_offset_x,shadow_offset_y:canvas.shadow_offset_y,transform:canvas.transform,line_width:canvas.line_width,line_cap:canvas.line_cap.clone(),line_join:canvas.line_join.clone(),miter_limit:canvas.miter_limit,line_dash_offset:canvas.line_dash_offset,global_alpha:canvas.global_alpha,composite_copy:canvas.composite_copy,image_smoothing:canvas.image_smoothing,image_quality:canvas.image_quality.clone(),letter_spacing:canvas.letter_spacing.clone(),word_spacing:canvas.word_spacing.clone(),font_kerning:canvas.font_kerning.clone(),font:canvas.font.clone(),text_align:canvas.text_align.clone(),text_baseline:canvas.text_baseline.clone(),direction:canvas.direction.clone(),line_dash:canvas.line_dash.clone(),clip:canvas.clip.clone()}); if !canvas.native.is_null(){skia_canvas_save(canvas.native);} undefined(env) }
+        "restore" => { if let Some(s)=canvas.state_stack.pop(){canvas.fill=s.fill;canvas.stroke=s.stroke;canvas.shadow=s.shadow;canvas.shadow_blur=s.shadow_blur;canvas.shadow_offset_x=s.shadow_offset_x;canvas.shadow_offset_y=s.shadow_offset_y;canvas.transform=s.transform;canvas.line_width=s.line_width;canvas.line_cap=s.line_cap;canvas.line_join=s.line_join;canvas.miter_limit=s.miter_limit;canvas.line_dash_offset=s.line_dash_offset;canvas.global_alpha=s.global_alpha;canvas.composite_copy=s.composite_copy;canvas.image_smoothing=s.image_smoothing;canvas.image_quality=s.image_quality;canvas.letter_spacing=s.letter_spacing;canvas.word_spacing=s.word_spacing;canvas.font_kerning=s.font_kerning;canvas.font=s.font;canvas.text_align=s.text_align;canvas.text_baseline=s.text_baseline;canvas.direction=s.direction;canvas.line_dash=s.line_dash;canvas.clip=s.clip;} if !canvas.native.is_null(){skia_canvas_restore(canvas.native);} undefined(env) }
         "fillText" | "strokeText" => {
             if args.len()<3{return type_error(env,"Text drawing requires text, x and y");}
             let text=value_string(env,args[0]).unwrap_or_default();
             let font=font_spec(&canvas.font);
+            sync_native_text(canvas,&font);
             let mut x=number(env,args[1]);let y=number(env,args[2])+text_baseline_offset(canvas,&font);
             if !x.is_finite()||!y.is_finite()||text.is_empty(){return undefined(env);}
             let width=if canvas.native.is_null(){text.chars().count() as f64*font.size*0.6}
@@ -1341,6 +1367,7 @@ unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> N
             let mut o=ptr::null_mut(); (api().create_object)(env,&mut o);
             let text=args.first().and_then(|v|value_string(env,*v)).unwrap_or_default();
             let font=font_spec(&canvas.font);
+            sync_native_text(canvas,&font);
             let width=if canvas.native.is_null(){text.chars().count() as f64*font.size*0.6}else{skia_canvas_measure_text(canvas.native,text.as_ptr(),text.len() as u32,font.family.as_ptr(),font.size as f32,font.weight,font.slant,font.small_caps) as f64};
             set(env,o,"width",number_value(env,width));
             let (ascent,descent)=text_font_metrics(canvas,&font);

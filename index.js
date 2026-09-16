@@ -31,6 +31,8 @@ class CanvasPattern {
         return apply(...values);
     }
 }
+Object.defineProperty(CanvasPattern.prototype, 'setTransform', {enumerable:true});
+Object.defineProperty(CanvasPattern.prototype, Symbol.toStringTag, {value:'CanvasPattern', writable:false, enumerable:false, configurable:true});
 const offscreenCanvases = new WeakSet();
 function requireOffscreenCanvas(value) {
     if(!offscreenCanvases.has(value))throw new TypeError('Illegal invocation');
