@@ -285,8 +285,35 @@ pub fn function_color(value:&str)->Option<[u8;4]>{
 // Canvas spacing accepts CSS lengths, retaining the unit for the getter.
 pub fn spacing(value:&str, font_size:f64)->Option<(String,f64)> {
     let value=value.to_ascii_lowercase();
-    for (unit,scale) in [("rem",font_size),("ex",font_size),("ch",font_size),("vw",0.0),("vh",0.0),("vmin",0.0),("vmax",0.0),("px",1.0),("pt",96.0/72.0),("pc",16.0),("in",96.0),("cm",96.0/2.54),("mm",96.0/25.4),("q",96.0/101.6),("em",font_size)] {
+    for (unit,scale) in [("rlh",0.0),("lh",0.0),("rem",font_size),("ex",font_size),("ch",font_size),("vw",0.0),("vh",0.0),("vmin",0.0),("vmax",0.0),("px",1.0),("pt",96.0/72.0),("pc",16.0),("in",96.0),("cm",96.0/2.54),("mm",96.0/25.4),("q",96.0/101.6),("em",font_size)] {
         if let Some(prefix)=value.strip_suffix(unit) {let n=number(prefix)?;return Some((format!("{}{}",if n==0.0{0.0}else{n},unit),n*scale));}
     }
     None
+}
+
+pub fn serialized_spacing(value:&str)->String {
+    let Some(index)=value.char_indices().find_map(|(i,_)|if i>0 && number(&value[..i]).is_some() && value[i..].chars().all(|c|c.is_ascii_alphabetic()){Some(i)}else{None})else{return value.into();};
+    let Ok(n)=value[..index].parse::<f64>()else{return value.into();};
+    // Blink serializes the float with six significant decimal digits, while
+    // layout retains the original stored value rather than reparsing the getter.
+    let digits=if n==0.0{0}else{(5.0-n.abs().log10().floor()).max(0.0).min(20.0) as usize};
+    let formatted=format!("{:.*}",digits,n as f32);
+    let formatted=if formatted.contains('.') {formatted.trim_end_matches('0').trim_end_matches('.')}else{&formatted};
+    format!("{}{}",formatted,&value[index..])
+}
+
+// The font shorthand reflects the current caps property, while the stored
+// font retains the independently parsed size, style, weight and family.
+pub fn serialized_font_caps(value:&str,caps:&str)->String {
+    let value=serialized_font(value);
+    let mut prefix=Vec::new();
+    let mut offset=0;
+    for token in value.split_whitespace() {
+        if token.ends_with("px") { break; }
+        if token!="small-caps" {prefix.push(token);}
+        offset+=token.len()+1;
+    }
+    if caps=="small-caps" {prefix.push("small-caps");}
+    prefix.push(&value[offset..]);
+    prefix.join(" ")
 }
