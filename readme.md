@@ -2,7 +2,7 @@
 
 Windows 上的 Node.js `OffscreenCanvas` 兼容层。JavaScript 提供 Canvas 外壳，Rust 通过 Node-API 分派接口，C++ 调用 Skia Graphite / Dawn D3D11 绘制和读取像素。
 
-2026-09-16 第十二轮修复进行中：原有 **17 个失败用例的差异已消除**；扩展后的 60 项浏览器参考中 **58 项一致、2 项空格排版差异待核实**，另有 1 项顺序测试待采集。本地执行 693 项，原有 632 项及 demo 已通过缓存参考复核，GC 通过；因用户 Chrome 的 CDP 连接失效，**最终实时验收尚未完成**。详见[第十二轮修复进展](docs/2026-09-16_twelfth-round-fixes-report.md)；[修复前检测报告](docs/2026-09-15_twelfth-round-review-report.md)保留历史证据。
+2026-09-16 第十二轮修复完成：原有 **17 个失败用例全部修复**，补充边界验证后第十二轮 **70 项全部通过**。完整 **702 项**与用户现有 Chrome 153.0.8010.48 实时对照一致，demo 的 9216 个 RGBA 值零差异，渐变和图案 GC 通过。修复覆盖文字属性状态、字距/词距/字偶距、双向文字、斜体回退、空格缓存及其尺寸生命周期、采样质量状态和 CanvasPattern 原型描述符。详见[第十二轮修复验收报告](docs/2026-09-16_twelfth-round-fixes-report.md)；[修复前检测报告](docs/2026-09-15_twelfth-round-review-report.md)保留历史证据。
 
 2026-09-15 第十一轮修复完成：此前 **25 个失败用例全部修复**，补充 20 项边界验证后，第十一轮 **54 项全部通过**，完整 **632 项**与现有 Chrome 实时对照一致，demo 的 9216 个 RGBA 值零差异。修复覆盖 CanvasPattern 对象身份、共享矩阵、平滑和透明边缘插值、内部方法隔离，以及字体列表回退。渐变 GC 和新增图案保留/释放 GC 检查均通过。详见[第十一轮修复报告](docs/2026-09-15_eleventh-round-fixes-report.md)；[第十一轮检测报告](docs/2026-09-15_eleventh-round-review-report.md)保留修复前证据。
 

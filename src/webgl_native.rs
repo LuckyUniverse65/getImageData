@@ -32,6 +32,9 @@ extern "system" {
 extern "C" {
     fn skia_canvas_create(width: u32, height: u32, alpha: i32) -> *mut c_void;
     fn skia_canvas_destroy(canvas: *mut c_void);
+    fn skia_text_cache_create() -> *mut c_void;
+    fn skia_text_cache_destroy(cache: *mut c_void);
+    fn skia_canvas_set_text_cache(canvas: *mut c_void, cache: *mut c_void);
     fn skia_canvas_scale(canvas: *mut c_void, x: f32, y: f32);
     fn skia_canvas_translate(canvas: *mut c_void, x: f32, y: f32);
     fn skia_canvas_rotate(canvas: *mut c_void, radians: f32);
@@ -205,7 +208,13 @@ struct Context {
     enabled: Vec<u32>,
 }
 
+// The text painter cache outlives resize/reset, like the Canvas context.
+struct TextCache { native: *mut c_void }
+impl Drop for TextCache {
+    fn drop(&mut self) {unsafe{skia_text_cache_destroy(self.native);}}
+}
 struct Canvas2D {
+    text_cache: Rc<TextCache>,
     native: *mut c_void,
     alpha: bool,
     desynchronized: bool,
@@ -750,8 +759,11 @@ unsafe fn canvas_2d(width: usize, height: usize, env: NapiEnv, alpha: bool, desy
     let mut object = ptr::null_mut();
     (api().create_object)(env, &mut object);
     let length = width.saturating_mul(height).saturating_mul(4);
+    let text_cache=Rc::new(TextCache{native:skia_text_cache_create()});
+    let native=skia_canvas_create(width.min(u32::MAX as usize) as u32,height.min(u32::MAX as usize) as u32,alpha as i32);
+    skia_canvas_set_text_cache(native,text_cache.native);
     let data = Box::new(Canvas2D {
-        native: skia_canvas_create(width.min(u32::MAX as usize) as u32, height.min(u32::MAX as usize) as u32, alpha as i32),
+        native, text_cache,
         alpha, desynchronized, will_read_frequently,
         width, height, pixels: vec![0; length], fill: Style::Color([0, 0, 0, 255]),
         stroke: Style::Color([0, 0, 0, 255]), shadow: Style::Color([0, 0, 0, 0]), shadow_blur: 0.0, shadow_offset_x: 0.0, shadow_offset_y: 0.0,
@@ -1136,7 +1148,7 @@ fn shadow_paths(c: &mut Canvas2D, paths: &[Path], stroke: bool) {
 
 impl Canvas2D {
     fn clone_for_raster(&self) -> Canvas2D {
-        Canvas2D { native:ptr::null_mut(),alpha:self.alpha,desynchronized:self.desynchronized,will_read_frequently:self.will_read_frequently,width:self.width,height:self.height,pixels:self.pixels.clone(),fill:self.fill.clone(),stroke:self.stroke.clone(),shadow:self.shadow.clone(),shadow_blur:self.shadow_blur,shadow_offset_x:self.shadow_offset_x,shadow_offset_y:self.shadow_offset_y,transform:self.transform,path:self.path.clone(),current_path:self.current_path,line_width:self.line_width,line_cap:self.line_cap.clone(),line_join:self.line_join.clone(),miter_limit:self.miter_limit,line_dash_offset:self.line_dash_offset,global_alpha:self.global_alpha,composite_copy:self.composite_copy,image_smoothing:self.image_smoothing,image_quality:self.image_quality.clone(),letter_spacing:self.letter_spacing.clone(),word_spacing:self.word_spacing.clone(),font_kerning:self.font_kerning.clone(),font:self.font.clone(),text_align:self.text_align.clone(),text_baseline:self.text_baseline.clone(),direction:self.direction.clone(),line_dash:self.line_dash.clone(),state_stack:Vec::new(),clip:self.clip.clone() }
+        Canvas2D { text_cache:self.text_cache.clone(),native:ptr::null_mut(),alpha:self.alpha,desynchronized:self.desynchronized,will_read_frequently:self.will_read_frequently,width:self.width,height:self.height,pixels:self.pixels.clone(),fill:self.fill.clone(),stroke:self.stroke.clone(),shadow:self.shadow.clone(),shadow_blur:self.shadow_blur,shadow_offset_x:self.shadow_offset_x,shadow_offset_y:self.shadow_offset_y,transform:self.transform,path:self.path.clone(),current_path:self.current_path,line_width:self.line_width,line_cap:self.line_cap.clone(),line_join:self.line_join.clone(),miter_limit:self.miter_limit,line_dash_offset:self.line_dash_offset,global_alpha:self.global_alpha,composite_copy:self.composite_copy,image_smoothing:self.image_smoothing,image_quality:self.image_quality.clone(),letter_spacing:self.letter_spacing.clone(),word_spacing:self.word_spacing.clone(),font_kerning:self.font_kerning.clone(),font:self.font.clone(),text_align:self.text_align.clone(),text_baseline:self.text_baseline.clone(),direction:self.direction.clone(),line_dash:self.line_dash.clone(),state_stack:Vec::new(),clip:self.clip.clone() }
     }
 }
 
@@ -1508,6 +1520,7 @@ unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> N
             let width=number(env,args[0]) as usize;let height=number(env,args[1]) as usize;
             let next=skia_canvas_create(width as u32,height as u32,canvas.alpha as i32);
             if width>0 && height>0 && next.is_null(){return dom_error(env,"InvalidStateError","Canvas allocation failed");}
+            skia_canvas_set_text_cache(next,canvas.text_cache.native);
             if !canvas.native.is_null(){skia_canvas_destroy(canvas.native);}
             canvas.native=next;canvas.width=width;canvas.height=height;
             canvas.pixels=vec![0;width.saturating_mul(height).saturating_mul(4)];
