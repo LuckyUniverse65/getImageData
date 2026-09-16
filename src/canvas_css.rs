@@ -285,8 +285,8 @@ pub fn function_color(value:&str)->Option<[u8;4]>{
 // Canvas spacing accepts CSS lengths, retaining the unit for the getter.
 pub fn spacing(value:&str, font_size:f64)->Option<(String,f64)> {
     let value=value.to_ascii_lowercase();
-    for (unit,scale) in [("rlh",0.0),("lh",0.0),("rem",font_size),("ex",font_size),("ch",font_size),("vw",0.0),("vh",0.0),("vmin",0.0),("vmax",0.0),("px",1.0),("pt",96.0/72.0),("pc",16.0),("in",96.0),("cm",96.0/2.54),("mm",96.0/25.4),("q",96.0/101.6),("em",font_size)] {
-        if let Some(prefix)=value.strip_suffix(unit) {let n=number(prefix)?;return Some((format!("{}{}",if n==0.0{0.0}else{n},unit),n*scale));}
+    for (unit,scale) in [("cap",font_size),("ic",font_size),("rlh",0.0),("lh",0.0),("rem",font_size),("ex",font_size),("ch",font_size),("vw",0.0),("vh",0.0),("vmin",0.0),("vmax",0.0),("px",1.0),("pt",96.0/72.0),("pc",16.0),("in",96.0),("cm",96.0/2.54),("mm",96.0/25.4),("q",96.0/101.6),("em",font_size)] {
+        if let Some(prefix)=value.strip_suffix(unit) {let n=number(prefix)?.clamp(-(f32::MAX as f64),f32::MAX as f64) as f32 as f64;return Some((format!("{}{}",if n==0.0{0.0}else{n},unit),n*scale));}
     }
     None
 }
@@ -296,8 +296,16 @@ pub fn serialized_spacing(value:&str)->String {
     let Ok(n)=value[..index].parse::<f64>()else{return value.into();};
     // Blink serializes the float with six significant decimal digits, while
     // layout retains the original stored value rather than reparsing the getter.
-    let digits=if n==0.0{0}else{(5.0-n.abs().log10().floor()).max(0.0).min(20.0) as usize};
-    let formatted=format!("{:.*}",digits,n as f32);
+    let n=n as f32;
+    if n==0.0{return format!("0{}",&value[index..]);}
+    let scientific=format!("{:.5e}",n);
+    let (mantissa,exponent)=scientific.split_once('e').unwrap();
+    let exponent=exponent.parse::<i32>().unwrap();
+    if exponent < -6 || exponent >= 6 {
+        return format!("{}e{:+}{}",mantissa,exponent,&value[index..]);
+    }
+    let digits=(5-exponent).max(0) as usize;
+    let formatted=format!("{:.*}",digits,n);
     let formatted=if formatted.contains('.') {formatted.trim_end_matches('0').trim_end_matches('.')}else{&formatted};
     format!("{}{}",formatted,&value[index..])
 }

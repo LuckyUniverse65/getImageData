@@ -83,7 +83,7 @@ extern "C" {
     fn skia_canvas_typo_metrics(canvas: *mut c_void, family: *const c_char, size: f32, weight: i32, slant: i32, ascent: *mut f32, descent: *mut f32);
     fn skia_canvas_reset(canvas: *mut c_void);
     fn skia_canvas_clear_bitmap(canvas: *mut c_void);
-    fn skia_canvas_draw_rgba_image(canvas: *mut c_void, input: *const u8, image_width: u32, image_height: u32,
+    fn skia_canvas_draw_rgba_image(canvas: *mut c_void, input: *const u8, image_width: u32, image_height: u32, image_opaque:i32,
                                    sx: f32, sy: f32, sw: f32, sh: f32, dx: f32, dy: f32, dw: f32, dh: f32);
     fn skia_canvas_read(canvas: *mut c_void, x: i32, y: i32, width: u32, height: u32, output: *mut u8);
     fn skia_canvas_write(canvas: *mut c_void, input: *const u8, source_width: u32, source_height: u32, x: i32, y: i32);
@@ -893,8 +893,10 @@ fn text_context(canvas:&Canvas2D)->*mut c_void {if canvas.native.is_null(){canva
 unsafe fn sync_native_text(canvas:&Canvas2D, font:&FontSpec) {
     let resolve=|value:&str| {
         let n=canvas_css::spacing(value,font.size).map_or(0.0,|(_,n)|n);
-        if value.ends_with("ex") || value.ends_with("ch") {
-            value[..value.len()-2].parse::<f64>().unwrap_or(0.0)*skia_canvas_spacing_unit(font.family.as_ptr(),font.size as f32,font.weight,font.slant,value.ends_with("ch") as i32) as f64
+        if value.ends_with("ex") || value.ends_with("ch") || value.ends_with("cap") {
+            let unit=if value.ends_with("cap"){2}else{value.ends_with("ch") as i32};
+            let suffix=if unit==2{3}else{2};
+            value[..value.len()-suffix].parse::<f64>().unwrap_or(0.0)*skia_canvas_spacing_unit(font.family.as_ptr(),font.size as f32,font.weight,font.slant,unit) as f64
         }else{n}
     };
     let letter=resolve(&canvas.letter_spacing);
@@ -914,6 +916,14 @@ pub unsafe extern "C" fn canvas_uppercase(codepoint:u32, output:*mut u32)->u32 {
     let Some(ch)=char::from_u32(codepoint) else{return 0;};
     if output.is_null(){return 0;}
     let mut count=0;for upper in ch.to_uppercase(){output.add(count).write(upper as u32);count+=1;}
+    count as u32
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn canvas_lowercase(codepoint:u32, output:*mut u32)->u32 {
+    let Some(ch)=char::from_u32(codepoint) else{return 0;};
+    if output.is_null(){return 0;}
+    let mut count=0;for lower in ch.to_lowercase(){output.add(count).write(lower as u32);count+=1;}
     count as u32
 }
 
@@ -1245,8 +1255,12 @@ unsafe extern "C" fn canvas_2d_method(env: NapiEnv, info: NapiCallbackInfo) -> N
             } else {
                 (0.0, 0.0, width as f64, height as f64, number(env,args[1]), number(env,args[2]), width as f64, height as f64)
             };
+            let mut opaque_value=ptr::null_mut();
+            let opaque_name=CString::new("opaque").unwrap();
+            (api().get_named_property)(env,args[0],opaque_name.as_ptr(),&mut opaque_value);
+            let opaque=truthy(env,Some(&opaque_value));
             sync_native_paint(canvas);
-            skia_canvas_draw_rgba_image(canvas.native, source as *const u8, width, height, sx as f32, sy as f32, sw as f32, sh as f32, dx as f32, dy as f32, dw as f32, dh as f32);
+            skia_canvas_draw_rgba_image(canvas.native, source as *const u8, width, height, opaque as i32, sx as f32, sy as f32, sw as f32, sh as f32, dx as f32, dy as f32, dw as f32, dh as f32);
             undefined(env)
         }
         "createPattern" => {

@@ -15,6 +15,7 @@
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPaint.h"
 #include "include/effects/SkDashPathEffect.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathUtils.h"
@@ -44,9 +45,11 @@
 #include "modules/skunicode/include/SkUnicode_bidi.h"
 #include "src/core/SkUTF.h"
 #include "third_party/externals/harfbuzz/src/hb.h"
+#include "third_party/externals/harfbuzz/src/hb-ot.h"
 #include <Windows.h>
 
 extern "C" uint32_t canvas_uppercase(uint32_t codepoint, uint32_t* output);
+extern "C" uint32_t canvas_lowercase(uint32_t codepoint, uint32_t* output);
 
 #define EGL_EGL_PROTOTYPES 1
 #include <EGL/egl.h>
@@ -770,14 +773,27 @@ public:
     }
 
     void spacing(const char* text, size_t length, const TextOptions& options) {
-        float added=0;
+        double added=0;float total=0;bool saturated=false;
         for(size_t i=0;i<glyphs_.size();i++) {
+            const float original_x=positions_[i].fX;
+            const float advance=(i+1==glyphs_.size()?position_.fX:positions_[i+1].fX)-original_x;
+            float spaced=advance;
             positions_[i].fX+=added;
             if(i+1==glyphs_.size() || clusters_[i]!=clusters_[i+1]) {
-                if(clusters_[i]<length) {const char* cursor=text+clusters_[i];auto ch=SkUTF::NextUTF8(&cursor,text+length);if(!zero_width_control(ch)&&!cursive_script(ch))added+=options.letter;if(ch==0xa0 || (ch==' ' && ((levels_[i]&1)?options.space_word_rtl:options.space_word_ltr)))added+=options.word;}
+                if(clusters_[i]<length) {
+                    const char* cursor=text+clusters_[i];const auto ch=SkUTF::NextUTF8(&cursor,text+length);
+                    float spacing=0;
+                    if(!zero_width_control(ch)&&!cursive_script(ch))spacing+=options.letter;
+                    if(ch==0xa0 || (ch==' ' && ((levels_[i]&1)?options.space_word_rtl:options.space_word_ltr)))spacing+=options.word;
+                    // Blink stores each spaced glyph advance in signed 16.16.
+                    spaced=std::clamp(advance+std::clamp(spacing,-32768.f,32768.f),-32768.f,32768.f);
+                    saturated|=std::abs(spacing)>=32768.f || spaced!=advance+spacing;
+                    added+=spaced-advance;
+                }
             }
+            total+=spaced;
         }
-        position_.fX+=added;
+        position_.fX=saturated?total:static_cast<float>(position_.fX+added);
     }
     float advance() const { return position_.fX; }
     const std::vector<SkGlyphID>& glyphs() const { return glyphs_; }
@@ -802,7 +818,7 @@ private:
     std::vector<SkPoint> positions_;
 };
 
-static bool has_font_feature(const SkFont& font,const char* tag);
+static bool has_font_feature(const SkFont& font,const char* tag,hb_script_t script=HB_SCRIPT_INVALID);
 
 static sk_sp<SkTextBlob> shape_text_blob(const char* text, size_t length,
                                         const SkFont& draw_font,
@@ -913,8 +929,20 @@ static sk_sp<SkTextBlob> make_shaped_text_blob(const char* text, size_t length,
     return builder.make();
 }
 
-static bool has_font_feature(const SkFont& font,const char* tag) {
+static bool has_font_feature(const SkFont& font,const char* tag,hb_script_t script) {
     if (!font.getTypeface()) return false;
+    if(script!=HB_SCRIPT_INVALID) {
+        auto* face=hb_face_create_for_tables([](hb_face_t*,hb_tag_t table,void* data)->hb_blob_t*{
+            const auto bytes=static_cast<SkTypeface*>(data)->copyTableData(table);
+            return bytes?hb_blob_create(static_cast<const char*>(bytes->data()),static_cast<unsigned>(bytes->size()),HB_MEMORY_MODE_DUPLICATE,nullptr,nullptr):hb_blob_get_empty();
+        },font.getTypeface(),nullptr);
+        hb_tag_t tags[HB_OT_MAX_TAGS_PER_SCRIPT];unsigned count=HB_OT_MAX_TAGS_PER_SCRIPT;
+        hb_ot_tags_from_script_and_language(script,HB_LANGUAGE_INVALID,&count,tags,nullptr,nullptr);
+        unsigned script_index=0,feature_index=0;
+        hb_ot_layout_table_select_script(face,HB_OT_TAG_GSUB,count,tags,&script_index,nullptr);
+        const bool supported=hb_ot_layout_language_find_feature(face,HB_OT_TAG_GSUB,script_index,HB_OT_LAYOUT_DEFAULT_LANGUAGE_INDEX,HB_TAG(tag[0],tag[1],tag[2],tag[3]),&feature_index);
+        hb_face_destroy(face);return supported;
+    }
     auto table=font.getTypeface()->copyTableData(SkSetFourByteTag('G','S','U','B'));
     if (!table || table->size()<10) return false;
     const auto* bytes=static_cast<const uint8_t*>(table->data());
@@ -927,25 +955,32 @@ static bool has_font_feature(const SkFont& font,const char* tag) {
     return false;
 }
 
-static bool needs_synthetic_caps(const SkFont& font,int caps) {
+static bool needs_synthetic_caps(const SkFont& font,int caps,hb_script_t script=HB_SCRIPT_INVALID) {
     switch(caps) {
         case 0: case 6:return false;
-        case 2:return !has_font_feature(font,"smcp") || !has_font_feature(font,"c2sc");
-        case 3:return !has_font_feature(font,"pcap") && !has_font_feature(font,"smcp");
-        case 4:return !(has_font_feature(font,"pcap") && has_font_feature(font,"c2pc")) &&
-                           !(has_font_feature(font,"smcp") && has_font_feature(font,"c2sc"));
-        case 5:return !has_font_feature(font,"unic");
-        default:return !has_font_feature(font,"smcp");
+        case 2:return !has_font_feature(font,"smcp",script) || !has_font_feature(font,"c2sc",script);
+        case 3:return !has_font_feature(font,"pcap",script) && !has_font_feature(font,"smcp",script);
+        case 4:return !(has_font_feature(font,"pcap",script) && has_font_feature(font,"c2pc",script)) &&
+                           !(has_font_feature(font,"smcp",script) && has_font_feature(font,"c2sc",script));
+        case 5:return !has_font_feature(font,"unic",script);
+        default:return !has_font_feature(font,"smcp",script);
     }
 }
 
-struct CapsRun { std::string text; bool reduced; };
+static bool needs_caps_layout(const SkFont& font,const char* text,size_t length,int caps) {
+    if(!caps)return false;
+    auto scripts=SkShapers::HB::ScriptRunIterator(text,length);
+    while(scripts && !scripts->atEnd()){scripts->consume();if(needs_synthetic_caps(font,caps,static_cast<hb_script_t>(scripts->currentScript())))return true;}
+    return false;
+}
+
+struct CapsRun { std::string text; bool reduced; int caps=0; };
 static bool combining_mark(SkUnichar ch) {
     const auto category=hb_unicode_general_category(hb_unicode_funcs_get_default(),ch);
     return category==HB_UNICODE_GENERAL_CATEGORY_NON_SPACING_MARK
         || category==HB_UNICODE_GENERAL_CATEGORY_ENCLOSING_MARK;
 }
-static std::vector<CapsRun> synthetic_caps_runs(const char* text, size_t length,int caps) {
+static std::vector<CapsRun> synthetic_caps_runs(const char* text, size_t length,int caps,bool native_unicase_fallback=false) {
     std::vector<CapsRun> runs;
     std::string leading_marks;
     const char* cursor=text;const char* end=text+length;
@@ -954,7 +989,7 @@ static std::vector<CapsRun> synthetic_caps_runs(const char* text, size_t length,
         uint32_t upper[3]{};uint32_t count=canvas_uppercase(ch,upper);
         bool reduced=count!=1 || upper[0]!=static_cast<uint32_t>(ch);
         if(caps==2 || caps==4)reduced=true;
-        if(caps==5){reduced=hb_unicode_general_category(hb_unicode_funcs_get_default(),ch)==HB_UNICODE_GENERAL_CATEGORY_UPPERCASE_LETTER;upper[0]=ch;count=1;}
+        if(caps==5){reduced=!reduced;upper[0]=ch;count=1;}
         const bool combining=combining_mark(ch);
         // Combining marks remain in the run of their base character.
         if(combining && !runs.empty())reduced=runs.back().reduced;
@@ -964,7 +999,14 @@ static std::vector<CapsRun> synthetic_caps_runs(const char* text, size_t length,
            hb_unicode_general_category(hb_unicode_funcs_get_default(),ch)==HB_UNICODE_GENERAL_CATEGORY_NON_SPACING_MARK){
             char buffer[SkUTF::kMaxBytesInUTF8Sequence];const size_t n=SkUTF::ToUTF8(ch,buffer);leading_marks.append(buffer,n);continue;
         }
-        if(runs.empty()||runs.back().reduced!=reduced)runs.push_back({{},reduced});
+        int run_caps=0;
+        if(native_unicase_fallback) {
+            run_caps=reduced?1:0;
+            if(reduced)count=canvas_lowercase(ch,upper);
+            reduced=false;
+            if(combining && !runs.empty())run_caps=runs.back().caps;
+        }
+        if(runs.empty()||runs.back().reduced!=reduced||runs.back().caps!=run_caps)runs.push_back({{},reduced,run_caps});
         if(!leading_marks.empty()){runs.back().text+=leading_marks;leading_marks.clear();}
         for(uint32_t i=0;i<count;i++){char buffer[SkUTF::kMaxBytesInUTF8Sequence];const size_t n=SkUTF::ToUTF8(upper[i],buffer);runs.back().text.append(buffer,n);}
     }
@@ -1030,7 +1072,7 @@ static sk_sp<SkTextBlob> font_runs_blob(const char* text,size_t length,const cha
     SkTextBlobBuilder builder;SkRect combined=SkRect::MakeEmpty();float offset=0;
     // Resolve bidi for the entire string before font fallback splits it.
     // Font subruns of an RTL region must themselves be visited right-to-left.
-    struct LayoutRun {FontTextRun font;bool reduced,rtl;};
+    struct LayoutRun {FontTextRun font;bool reduced,rtl;int caps;};
     std::vector<LayoutRun> layout;
     auto unicode=SkUnicodes::Bidi::Make();
     std::vector<SkUnicode::BidiRegion> regions;
@@ -1039,14 +1081,29 @@ static sk_sp<SkTextBlob> font_runs_blob(const char* text,size_t length,const cha
     std::vector<int32_t> order(regions.size());unicode->reorderVisual(levels.data(),static_cast<int>(levels.size()),order.data());
     for(auto index:order) {
         const auto& region=regions[index];const bool rtl=(region.level&1)!=0;
-        const auto caps_runs=synthetic_caps?synthetic_caps_runs(text+region.start,region.end-region.start,options.caps):std::vector<CapsRun>{{std::string(text+region.start,region.end-region.start),false}};
         const auto begin=layout.size();
-        for(const auto& run:caps_runs)for(auto& font_run:fallback_runs(run.text,position_font,families,options.slant))layout.push_back({std::move(font_run),run.reduced,rtl});
+        // Each fallback face has its own OpenType caps support. Resolve it
+        // before choosing native features or synthetic case/size conversion.
+        for(const auto& font_run:fallback_runs(std::string(text+region.start,region.end-region.start),position_font,families,options.slant)) {
+            SkFont run_font(position_font);run_font.setTypeface(font_run.face);
+            auto scripts=SkShapers::HB::ScriptRunIterator(font_run.text.data(),font_run.text.size());
+            size_t start=0;
+            while(scripts && !scripts->atEnd()) {
+                scripts->consume();const auto end=scripts->endOfCurrentRun();
+                const auto script=static_cast<hb_script_t>(scripts->currentScript());
+                const bool synth=needs_synthetic_caps(run_font,options.caps,script);
+                const bool unicase_fallback=synth && options.caps==5 && has_font_feature(run_font,"smcp",script);
+                const auto caps_runs=synth?synthetic_caps_runs(font_run.text.data()+start,end-start,options.caps,unicase_fallback)
+                    :std::vector<CapsRun>{{font_run.text.substr(start,end-start),false,options.caps}};
+                for(const auto& run:caps_runs)layout.push_back({{run.text,font_run.face},run.reduced,rtl,run.caps});
+                start=end;
+            }
+        }
         if(rtl)std::reverse(layout.begin()+begin,layout.end());
     }
     for(const auto& run:layout) {
         const auto& font_run=run.font;
-        auto run_options=options;run_options.rtl=run.rtl;
+        auto run_options=options;run_options.rtl=run.rtl;run_options.caps=run.caps;
         SkFont draw(draw_font),position(position_font);
         auto face=font_run.face;
         bool synthetic=false;
@@ -1064,7 +1121,7 @@ static sk_sp<SkTextBlob> font_runs_blob(const char* text,size_t length,const cha
             position.setLinearMetrics(false);
         } else position.setLinearMetrics(use_linear_metrics(position));
         std::vector<SkGlyphID> glyphs;std::vector<SkPoint> positions;float width=0;
-        shape_text_blob(font_run.text.data(),font_run.text.size(),draw,position,true,&width,&glyphs,&positions,native_small_caps,run_options);
+        shape_text_blob(font_run.text.data(),font_run.text.size(),draw,position,true,&width,&glyphs,&positions,run.caps!=0,run_options);
         if(glyphs.empty())continue;
         std::vector<SkScalar> widths(glyphs.size());
         position.getWidths(SkSpan<const SkGlyphID>(glyphs.data(),glyphs.size()),SkSpan<SkScalar>(widths.data(),widths.size()));
@@ -1086,6 +1143,7 @@ static sk_sp<SkTextBlob> font_runs_blob(const char* text,size_t length,const cha
         offset+=width+correction;
     }
     if(advance)*advance=offset;
+    if(offset<0)combined.fLeft=std::min(combined.left(),offset);
     if(output_bounds){output_bounds[0]=combined.left();output_bounds[1]=combined.top();output_bounds[2]=combined.right();output_bounds[3]=combined.bottom();}
     return builder.make();
 }
@@ -1364,10 +1422,10 @@ void skia_canvas_set_global_alpha(void* value, float alpha) { if (auto* c = stat
 void skia_canvas_set_composite(void* value, int copy) { if (auto* c = static_cast<Canvas*>(value)) c->blend_mode = copy ? SkBlendMode::kSrc : SkBlendMode::kSrcOver; }
 float skia_canvas_spacing_unit(const char* family,float size,int weight,int slant,int ch) {
     SkFont font=resolve_font(family,size,weight,slant);font.setLinearMetrics(use_linear_metrics(font));
-    if(ch)return font.measureText("0",1,SkTextEncoding::kUTF8);
-    SkFontMetrics metrics;font.getMetrics(&metrics);return metrics.fXHeight;
+    if(ch==1)return font.measureText("0",1,SkTextEncoding::kUTF8);
+    SkFontMetrics metrics;font.getMetrics(&metrics);return ch==2?metrics.fCapHeight:metrics.fXHeight;
 }
-void skia_canvas_set_text_options(void* value,float letter,float word,int kern,int rtl,int slant) {if(auto* c=static_cast<Canvas*>(value))c->text_options={std::trunc(letter*65536.f)/65536.f,std::trunc(word*65536.f)/65536.f,kern!=0,rtl!=0,slant};}
+void skia_canvas_set_text_options(void* value,float letter,float word,int kern,int rtl,int slant) {if(auto* c=static_cast<Canvas*>(value))c->text_options={std::trunc(std::clamp(letter,-32768.f,32768.f)*65536.f)/65536.f,std::trunc(std::clamp(word,-32768.f,32768.f)*65536.f)/65536.f,kern!=0,rtl!=0,slant};}
 void skia_canvas_set_image_smoothing(void* value, int enabled) { if (auto* c = static_cast<Canvas*>(value)) c->image_smoothing = enabled != 0; }
 void skia_canvas_draw_text(void* value, const char* text, uint32_t length,
                            const char* family, float x, float y, float size, int stroke,
@@ -1443,7 +1501,7 @@ void skia_canvas_draw_text(void* value, const char* text, uint32_t length,
                                  shadow_pass ? "CANVAS_TEXT_SHADOW_POSITION_SCALE"
                                              : "CANVAS_TEXT_FOREGROUND_POSITION_SCALE",
                                  "CANVAS_GLYPH_SCALE"));
-                             auto blob = small_caps && needs_synthetic_caps(position_font,options.caps)
+                             auto blob = small_caps && needs_caps_layout(position_font,text,length,options.caps)
                                  ? font_runs_blob(text,length,family,draw_font,position_font,nullptr,nullptr,true,false,options)
                                  : needs_font_fallback(text,length,position_font)
                                  ? font_runs_blob(text,length,family,draw_font,position_font,nullptr,nullptr,false,small_caps!=0,options)
@@ -1479,7 +1537,7 @@ float skia_canvas_measure_text(void* value, const char* text, uint32_t length,
     if (!value || !text) return 0;
     const auto options=text_layout_options(static_cast<Canvas*>(value),text,length,family,size,weight,slant,small_caps);
     SkFont font = resolve_font(family, size, weight, slant,static_cast<Canvas*>(value)->text_options.stretch);
-    if(small_caps && needs_synthetic_caps(font,options.caps)){float advance=0;font_runs_blob(text,length,family,font,font,&advance,nullptr,true,false,options);return advance;}
+    if(small_caps && needs_caps_layout(font,text,length,options.caps)){float advance=0;font_runs_blob(text,length,family,font,font,&advance,nullptr,true,false,options);return advance;}
     if(needs_font_fallback(text,length,font)){float advance=0;font_runs_blob(text,length,family,font,font,&advance,nullptr,false,small_caps!=0,options);return advance;}
     font.setLinearMetrics(use_linear_metrics(font));
     if (runtime_float("CANVAS_HARFBUZZ_SHAPING", 1.0f) != 0.0f) {
@@ -1494,7 +1552,7 @@ void skia_canvas_text_bounds(void* value, const char* text, uint32_t length,
     if (!value || !text || !output) return;
     const auto options=text_layout_options(static_cast<Canvas*>(value),text,length,family,size,weight,slant,small_caps);
     SkFont font=resolve_font(family,size,weight,slant,static_cast<Canvas*>(value)->text_options.stretch);
-    if(small_caps && needs_synthetic_caps(font,options.caps)){font_runs_blob(text,length,family,font,font,nullptr,output,true,false,options);return;}
+    if(small_caps && needs_caps_layout(font,text,length,options.caps)){font_runs_blob(text,length,family,font,font,nullptr,output,true,false,options);return;}
     if(needs_font_fallback(text,length,font)){font_runs_blob(text,length,family,font,font,nullptr,output,false,small_caps!=0,options);return;}
     font.setLinearMetrics(use_linear_metrics(font));
     std::vector<SkGlyphID> glyphs;
@@ -1561,7 +1619,7 @@ void skia_canvas_clear_bitmap(void* value) {
     if (c->opaque) for (size_t i=3;i<zeros.size();i+=4) zeros[i]=255;
     c->surface->writePixels(SkPixmap(SkImageInfo::MakeN32Premul(width,height),zeros.data(),static_cast<size_t>(width)*4),0,0);
 }
-void skia_canvas_draw_rgba_image(void* value, const uint8_t* input, uint32_t image_width, uint32_t image_height,
+void skia_canvas_draw_rgba_image(void* value, const uint8_t* input, uint32_t image_width, uint32_t image_height, int image_opaque,
                                  float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh) {
     auto* c = static_cast<Canvas*>(value);
     if (!c || !c->surface || !input || image_width == 0 || image_height == 0 || sw == 0 || sh == 0 || dw == 0 || dh == 0) return;
@@ -1573,6 +1631,15 @@ void skia_canvas_draw_rgba_image(void* value, const uint8_t* input, uint32_t ima
     if (!std::isfinite(sx) || !std::isfinite(sy) || !std::isfinite(sw) || !std::isfinite(sh) ||
         !std::isfinite(dx) || !std::isfinite(dy) || !std::isfinite(dw) || !std::isfinite(dh) ||
         sx >= image_width || sy >= image_height || sx + sw <= 0 || sy + sh <= 0) return;
+    // Clip the source explicitly, preserving the source-to-destination map.
+    const SkRect original_src=SkRect::MakeXYWH(sx,sy,sw,sh);
+    SkRect clipped=original_src;
+    if(!clipped.intersect(SkRect::MakeWH(image_width,image_height)))return;
+    if(clipped!=original_src) {
+        const auto clipped_dst=SkMatrix::RectToRect(original_src,SkRect::MakeXYWH(dx,dy,dw,dh)).mapRect(clipped);
+        sx=clipped.x();sy=clipped.y();sw=clipped.width();sh=clipped.height();
+        dx=clipped_dst.x();dy=clipped_dst.y();dw=clipped_dst.width();dh=clipped_dst.height();
+    }
     const size_t bytes = static_cast<size_t>(image_width) * image_height * 4;
     auto pixels = SkData::MakeUninitialized(bytes);
     const auto info=SkImageInfo::Make(image_width,image_height,kRGBA_8888_SkColorType,kPremul_SkAlphaType);
@@ -1597,6 +1664,20 @@ void skia_canvas_draw_rgba_image(void* value, const uint8_t* input, uint32_t ima
     const auto sampling=c->image_smoothing && c->image_quality==2 && upscale
         ?SkSamplingOptions(SkCubicResampler::Mitchell())
         :SkSamplingOptions(c->image_smoothing?SkFilterMode::kLinear:SkFilterMode::kNearest);
+    if(!image_opaque && c->blend_mode!=SkBlendMode::kSrc && has_visible_shadow(c)) {
+        // Translucent images need a filter over their rendered alpha, rather
+        // than a mask filter over only the destination rectangle.
+        SkPaint filter_paint;
+        filter_paint.setImageFilter(SkImageFilters::DropShadow(c->shadow_offset_x,c->shadow_offset_y,
+            c->shadow_blur*.5f,c->shadow_blur*.5f,c->shadow,SkColorSpace::MakeSRGB(),nullptr));
+        auto* target=c->surface->getCanvas();
+        const auto ctm=target->getLocalToDevice();
+        target->save();target->resetMatrix();
+        target->saveLayer(nullptr,&filter_paint);target->setMatrix(ctm);
+        target->drawImageRect(image.get(),SkRect::MakeXYWH(sx,sy,sw,sh),SkRect::MakeXYWH(dx,dy,dw,dh),sampling,&paint,SkCanvas::kFast_SrcRectConstraint);
+        target->restore();target->restore();
+        return;
+    }
     Style image_style;
     image_style.color={1,1,1,1};
     draw_with_shadow(c,image_style,paint,[&](SkCanvas* target,const SkPaint& image_paint){

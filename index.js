@@ -113,6 +113,7 @@ function offscreenDimension(value) {
 function adaptContextArguments(context) {
     contexts.add(context);
     contextInternals.set(context, {
+        opaque: context.getContextAttributes().alpha === false,
         read: context.getImageData.bind(context),
         resize: context._resize.bind(context),
         clear: context._clearBitmap.bind(context)
@@ -180,7 +181,7 @@ function adaptContextArguments(context) {
         for(let i=1;i<count;i++)args[i]=+args[i];
         const source = checkImageSource(args[0]);
         if(!args.slice(1,count).every(Number.isFinite))return;
-        args[0] = {width:source.width, height:source.height, data:source.data};
+        args[0] = {width:source.width, height:source.height, data:source.data, opaque:source.opaque === true};
         return drawImage.apply(this,args.slice(0,count));
     };
     const createPattern=context.createPattern;
@@ -306,7 +307,8 @@ class OffscreenCanvas {
         imageSourceState.set(this, {
             get width() { return owner.#width; },
             get height() { return owner.#height; },
-            get data() { return owner.#readPixels(); }
+            get data() { return owner.#readPixels(); },
+            get opaque() { return contextInternals.get(owner.#contexts.get("2d"))?.opaque === true; }
         });
     }
 
