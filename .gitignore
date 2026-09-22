@@ -5,6 +5,7 @@
 /.agents/
 /.codex/
 /node_modules/
+/dist/
 
 # Large upstream checkouts and toolchains are recorded under snapshot/.
 /third_party/

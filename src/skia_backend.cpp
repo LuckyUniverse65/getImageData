@@ -29,11 +29,6 @@
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkStrokeRec.h"
-#include "include/gpu/ganesh/GrDirectContext.h"
-#include "include/gpu/ganesh/GrContextOptions.h"
-#include "include/gpu/ganesh/SkSurfaceGanesh.h"
-#include "include/gpu/ganesh/gl/GrGLAssembleInterface.h"
-#include "include/gpu/ganesh/gl/GrGLDirectContext.h"
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/Image.h"
@@ -66,11 +61,6 @@
 extern "C" uint32_t canvas_uppercase(uint32_t codepoint, uint32_t* output);
 extern "C" uint32_t canvas_lowercase(uint32_t codepoint, uint32_t* output);
 
-#define EGL_EGL_PROTOTYPES 1
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
-#include <EGL/eglext_angle.h>
-
 #include "dawn/dawn_proc.h"
 #include "dawn/native/DawnNative.h"
 #include "webgpu/webgpu_cpp.h"
@@ -85,134 +75,10 @@ extern "C" uint32_t canvas_lowercase(uint32_t codepoint, uint32_t* output);
 #include <memory>
 #include <vector>
 
+#include "canvas_machine_config.h"
+#include "render_diagnostics.h"
+
 namespace {
-#ifndef EGL_PLATFORM_ANGLE_ANGLE
-#define EGL_PLATFORM_ANGLE_ANGLE 0x3202
-#endif
-#ifndef EGL_PLATFORM_ANGLE_TYPE_ANGLE
-#define EGL_PLATFORM_ANGLE_TYPE_ANGLE 0x3203
-#endif
-#ifndef EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE
-#define EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE 0x3208
-#endif
-
-static GrGLFuncPtr angle_gl_proc(void*, const char name[]) {
-    return reinterpret_cast<GrGLFuncPtr>(eglGetProcAddress(name));
-}
-
-static int initialization_env_int(const char* name, int fallback) {
-    const char* value = std::getenv(name);
-    if (!value || !*value) return fallback;
-    char* end = nullptr;
-    const long parsed = std::strtol(value, &end, 10);
-    return end != value ? static_cast<int>(parsed) : fallback;
-}
-
-struct AngleGaneshContext {
-    EGLDisplay display = EGL_NO_DISPLAY;
-    EGLSurface surface = EGL_NO_SURFACE;
-    EGLContext context = EGL_NO_CONTEXT;
-    sk_sp<GrDirectContext> ganesh;
-
-    AngleGaneshContext() { this->initialize(); }
-
-    ~AngleGaneshContext() {
-        if (display == EGL_NO_DISPLAY) return;
-        this->makeCurrent();
-        ganesh.reset();
-        eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-        if (surface != EGL_NO_SURFACE) eglDestroySurface(display, surface);
-        if (context != EGL_NO_CONTEXT) eglDestroyContext(display, context);
-        eglTerminate(display);
-    }
-
-    bool makeCurrent() const {
-        return display != EGL_NO_DISPLAY && surface != EGL_NO_SURFACE &&
-               context != EGL_NO_CONTEXT &&
-               eglMakeCurrent(display, surface, surface, context) == EGL_TRUE;
-    }
-
-    bool valid() const { return ganesh && this->makeCurrent(); }
-
-private:
-    void initialize() {
-        auto get_platform_display = reinterpret_cast<PFNEGLGETPLATFORMDISPLAYEXTPROC>(
-            eglGetProcAddress("eglGetPlatformDisplayEXT"));
-        if (!get_platform_display) return;
-
-        const EGLint display_attributes[] = {
-            EGL_PLATFORM_ANGLE_TYPE_ANGLE,
-            EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
-            EGL_NONE,
-        };
-        display = get_platform_display(EGL_PLATFORM_ANGLE_ANGLE,
-                                       EGL_DEFAULT_DISPLAY,
-                                       display_attributes);
-        EGLint major = 0;
-        EGLint minor = 0;
-        if (display == EGL_NO_DISPLAY || eglInitialize(display, &major, &minor) != EGL_TRUE ||
-            eglBindAPI(EGL_OPENGL_ES_API) != EGL_TRUE) {
-            return;
-        }
-
-        const EGLint config_attributes[] = {
-            EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
-            EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
-            EGL_RED_SIZE, 8,
-            EGL_GREEN_SIZE, 8,
-            EGL_BLUE_SIZE, 8,
-            EGL_ALPHA_SIZE, 8,
-            EGL_NONE,
-        };
-        EGLConfig config = nullptr;
-        EGLint config_count = 0;
-        if (eglChooseConfig(display, config_attributes, &config, 1, &config_count) != EGL_TRUE ||
-            config_count == 0) {
-            return;
-        }
-
-        const EGLint context_attributes[] = {
-            EGL_CONTEXT_CLIENT_VERSION, 3,
-            EGL_CONTEXT_OPENGL_BACKWARDS_COMPATIBLE_ANGLE, EGL_FALSE,
-            EGL_NONE,
-        };
-        context = eglCreateContext(display, config, EGL_NO_CONTEXT, context_attributes);
-        if (context == EGL_NO_CONTEXT) return;
-
-        const EGLint surface_attributes[] = {
-            EGL_WIDTH, 1,
-            EGL_HEIGHT, 1,
-            EGL_NONE,
-        };
-        surface = eglCreatePbufferSurface(display, config, surface_attributes);
-        if (surface == EGL_NO_SURFACE || !this->makeCurrent()) return;
-
-        auto interface = GrGLMakeAssembledGLESInterface(nullptr, angle_gl_proc);
-        if (!interface || !interface->validate()) return;
-        GrContextOptions options;
-        options.fDisableCoverageCountingPaths = initialization_env_int(
-            "CANVAS_DISABLE_COVERAGE_COUNTING_PATHS", 1) != 0;
-        options.fInternalMultisampleCount = initialization_env_int(
-            "CANVAS_INTERNAL_MULTISAMPLE_COUNT", 8);
-        const int reduce_ops_task_splitting = initialization_env_int(
-            "CANVAS_REDUCE_OPS_TASK_SPLITTING", 0);
-        options.fReduceOpsTaskSplitting = reduce_ops_task_splitting <= 0
-            ? GrContextOptions::Enable::kNo
-            : reduce_ops_task_splitting == 1
-                ? GrContextOptions::Enable::kYes
-                : GrContextOptions::Enable::kDefault;
-        options.fPreferExternalImagesOverES3 = true;
-        ganesh = GrDirectContexts::MakeGL(std::move(interface), options);
-    }
-};
-
-static AngleGaneshContext& angle_ganesh_context() {
-    // Node can unload native modules after dependent DLL teardown has started.
-    // Keep the process-wide GPU context alive until the OS releases the process.
-    static AngleGaneshContext* context = new AngleGaneshContext();
-    return *context;
-}
-
 struct DawnGraphiteContext {
     std::unique_ptr<dawn::native::Instance> instance;
     wgpu::Adapter adapter;
@@ -261,6 +127,15 @@ private:
         auto adapters = instance->EnumerateAdapters(&adapter_options);
         if (adapters.empty()) return;
         adapter = wgpu::Adapter(adapters.front().Get());
+        wgpu::AdapterInfo adapter_info{};
+        if (adapter.GetInfo(&adapter_info) == wgpu::Status::Success) {
+            const auto text = [](wgpu::StringView v) { return v.data ? std::string(v.data, v.length) : std::string(); };
+            selected_adapter = "{\"vendor\":" + json_string(text(adapter_info.vendor)) +
+                ",\"device\":" + json_string(text(adapter_info.device)) +
+                ",\"description\":" + json_string(text(adapter_info.description)) +
+                ",\"vendorID\":" + std::to_string(adapter_info.vendorID) +
+                ",\"deviceID\":" + std::to_string(adapter_info.deviceID) + "}";
+        }
 
         std::vector<wgpu::FeatureName> features;
         const wgpu::FeatureName preferred_features[] = {
@@ -882,7 +757,7 @@ static SkFont resolve_font(const char* family, float size, int weight, int slant
             const auto last=name.find_last_not_of(" \t\r\n");
             if(first!=std::string::npos){
                 const std::string candidate=name.substr(first,last-first+1);
-                auto styles=font_manager->matchFamily(candidate.c_str());
+                auto styles=font_manager->matchFamily(canvas_generic_font(candidate));
                 if(styles && styles->count()>0)typeface=styles->matchStyle(style);
             }
             name.clear();
@@ -901,7 +776,7 @@ static SkFont resolve_font(const char* family, float size, int weight, int slant
     // sans-serif fallback. Noto Sans SC is installed with this runtime and
     // matches that DirectWrite fallback for both Latin and CJK text.
     if (!typeface && font_manager) {
-        typeface = font_manager->matchFamilyStyle(runtime_string("CANVAS_FONT_FALLBACK", "Noto Sans SC"), style);
+        typeface = font_manager->matchFamilyStyle(runtime_string("CANVAS_FONT_FALLBACK", canvas_default_fallback), style);
     }
     if (!typeface && font_manager) typeface = font_manager->matchFamilyStyle("Arial", style);
     const float variation_weight = runtime_float("CANVAS_FONT_VARIATION_WEIGHT", 0.0f);
@@ -922,6 +797,7 @@ static SkFont resolve_font(const char* family, float size, int weight, int slant
     // Blink's Canvas shaping stage passes linearly measured, subpixel glyph
     // runs into Skia. The public DirectWrite font manager otherwise rounds
     // advances differently, so retain these run-level settings here.
+    record_font(typeface.get());
     SkFont font(typeface, blink_font_size(size, "CANVAS_GLYPH_SCALE"));
     if(synthetic_oblique)font.setSkewX(-0.25f);
     const int hinting = static_cast<int>(runtime_float("CANVAS_FONT_HINTING", 1.0f));
@@ -1302,6 +1178,7 @@ static std::vector<FontTextRun> fallback_runs(const std::string& text,const SkFo
             if(!fallback)fallback=manager->matchFamilyStyleCharacter(nullptr,SkFontStyle(face->fontStyle().weight(),face->fontStyle().width(),slant?SkFontStyle::kItalic_Slant:SkFontStyle::kUpright_Slant),nullptr,0,ch);
             if(fallback)face=std::move(fallback);
         }
+        record_font(face.get());
         if(runs.empty()||runs.back().face->uniqueID()!=face->uniqueID())runs.push_back({{},face});
         runs.back().text.append(start,cursor-start);
     }
@@ -1405,6 +1282,11 @@ static std::recursive_mutex& canvas_gpu_mutex() {
 #define CANVAS_GPU_GUARD std::lock_guard<std::recursive_mutex> canvas_gpu_guard(canvas_gpu_mutex())
 
 extern "C" {
+const char* skia_render_diagnostics() { CANVAS_GPU_GUARD;
+    static thread_local std::string result;
+    result = render_diagnostics_json();
+    return result.c_str();
+}
 void* skia_text_cache_create() { CANVAS_GPU_GUARD;return new TextCache();}
 void skia_text_cache_destroy(void* cache) { CANVAS_GPU_GUARD;delete static_cast<TextCache*>(cache);}
 void skia_canvas_set_text_cache(void* value,void* cache) { CANVAS_GPU_GUARD;
@@ -1435,14 +1317,12 @@ void* skia_canvas_create(uint32_t width, uint32_t height, int alpha, int color_s
                                        runtime_float("CANVAS_TEXT_GAMMA", 0.0f));
     const SkColorType color_type = float16 ? kRGBA_F16_SkColorType : runtime_float("CANVAS_GPU_RGBA", 0.0f) != 0.0f
         ? kRGBA_8888_SkColorType : kBGRA_8888_SkColorType;
-    const GrSurfaceOrigin surface_origin = runtime_float("CANVAS_GPU_BOTTOM_LEFT", 0.0f) != 0.0f
-        ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
     const SkImageInfo image_info = SkImageInfo::Make(
         width, height, color_type, kPremul_SkAlphaType, canvas_color_space(color_space));
-    if (runtime_float("CANVAS_RASTER_SURFACE", 0.0f) != 0.0f) {
+    if (runtime_float("CANVAS_RASTER_SURFACE", canvas_default_raster ? 1.0f : 0.0f) != 0.0f) {
         canvas->surface = SkSurfaces::Raster(image_info, &surface_props);
         canvas->raster = true;
-    } else if (runtime_float("CANVAS_USE_GANESH", 0.0f) == 0.0f) {
+    } else {
         auto& gpu = dawn_graphite_context();
         if (gpu.valid()) {
             skgpu::graphite::RecorderOptions options;
@@ -1452,11 +1332,6 @@ void* skia_canvas_create(uint32_t width, uint32_t height, int alpha, int color_s
                 canvas->recorder.get(), image_info, skgpu::Mipmapped::kNo, &surface_props);
             canvas->graphite = canvas->surface != nullptr;
         }
-    } else {
-        auto& gpu = angle_ganesh_context();
-        if (gpu.valid()) canvas->surface = SkSurfaces::RenderTarget(
-            gpu.ganesh.get(), skgpu::Budgeted::kNo, image_info,
-            0, surface_origin, &surface_props);
     }
     if (!canvas->surface) {
         canvas->recorder.reset();canvas->graphite=false;canvas->raster=true;
@@ -1477,13 +1352,13 @@ void* skia_canvas_create(uint32_t width, uint32_t height, int alpha, int color_s
         if (dawn_graphite_context().graphite->insertRecording(info) !=
             skgpu::graphite::InsertStatus::kSuccess) return nullptr;
     }
+    if (canvas->graphite) ++graphite_surfaces; else ++raster_surfaces;
     return canvas.release();
 }
 
 void skia_canvas_destroy(void* value) { CANVAS_GPU_GUARD;
     auto* canvas = static_cast<Canvas*>(value);
     if (!canvas) return;
-    if (canvas->surface && !canvas->graphite && !canvas->raster) angle_ganesh_context().makeCurrent();
     delete canvas;
 }
 // While a CTM is singular Blink retains the preceding local path, and maps
@@ -2289,50 +2164,8 @@ void skia_canvas_read(void* value, int32_t x, int32_t y, uint32_t width, uint32_
         }
         return;
     }
-    if (!angle_ganesh_context().makeCurrent()) return;
-    skgpu::ganesh::FlushAndSubmit(c->surface.get());
-    if (float16 || color_space || runtime_float("CANVAS_READBACK_RP", 0.0f) == 0.0f) {
-        c->surface->readPixels(SkImageInfo::Make(copy_width, copy_height, type, kUnpremul_SkAlphaType, space),
-                               output + destination_offset, static_cast<size_t>(width) * stride, left, top);
-        return;
-    }
-
-    std::vector<uint8_t> premul(static_cast<size_t>(copy_width) * copy_height * 4);
-    if (!c->surface->readPixels(
-            SkImageInfo::Make(copy_width, copy_height, kRGBA_8888_SkColorType, kPremul_SkAlphaType),
-            premul.data(), static_cast<size_t>(copy_width) * 4, left, top)) {
-        return;
-    }
-    auto unpremul_raster_pipeline = [](uint8_t channel, uint8_t alpha) -> uint8_t {
-        if (alpha == 0) return 0;
-        if (alpha == 255) return channel;
-        const float normalization = 1.0f / 255.0f;
-        const float normalized_alpha = static_cast<float>(alpha) * normalization;
-        const float reciprocal_alpha = 1.0f / normalized_alpha;
-        const float normalized_channel = static_cast<float>(channel) * normalization;
-        const float answer = std::min(255.0f, normalized_channel * reciprocal_alpha * 255.0f);
-        const uint32_t lower = static_cast<uint32_t>(std::floor(answer));
-        const float fraction = answer - static_cast<float>(lower);
-        uint32_t rounded = lower;
-        if (fraction > 0.5f || (fraction == 0.5f && (lower & 1))) {
-            ++rounded;
-        }
-        return static_cast<uint8_t>(std::min<uint32_t>(rounded, 255));
-    };
-    for (uint32_t row = 0; row < copy_height; ++row) {
-        uint8_t* destination = output + destination_offset + static_cast<size_t>(row) * width * 4;
-        const uint8_t* source = premul.data() + static_cast<size_t>(row) * copy_width * 4;
-        for (uint32_t column = 0; column < copy_width; ++column) {
-            const uint8_t alpha = source[3];
-            destination[0] = unpremul_raster_pipeline(source[0], alpha);
-            destination[1] = unpremul_raster_pipeline(source[1], alpha);
-            destination[2] = unpremul_raster_pipeline(source[2], alpha);
-            destination[3] = alpha;
-            source += 4;
-            destination += 4;
-        }
-    }
 }
+
 void skia_canvas_write(void* value, const uint8_t* input, uint32_t source_width, uint32_t source_height,
                        int32_t x, int32_t y, int color_space, int float16) { CANVAS_GPU_GUARD;
     auto* c = static_cast<Canvas*>(value); if (!c || !c->surface || !input || source_width == 0 || source_height == 0) return;

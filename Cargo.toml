@@ -9,6 +9,9 @@ name = "webgl"
 path = "src/webgl_native.rs"
 crate-type = ["cdylib"]
 
+[features]
+bundled = []
+
 [profile.release]
 strip = true
 lto = true

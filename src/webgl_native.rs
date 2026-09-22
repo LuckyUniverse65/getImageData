@@ -94,6 +94,7 @@ extern "C" {
     fn skia_canvas_set_filter(canvas: *mut c_void, ops: *const f32, count: u32);
     fn skia_buffer_free(data: *mut u8);
     fn skia_encode_image(pixels: *const u8, width: u32, height: u32, format: i32, quality: f32, out_length: *mut usize) -> *mut u8;
+    fn skia_render_diagnostics() -> *const c_char;
     fn skia_decode_image(data: *const u8, length: usize, out_width: *mut u32, out_height: *mut u32) -> *mut u8;
     fn skia_path_create() -> *mut c_void;
     fn skia_path_destroy(path: *mut c_void);
@@ -126,6 +127,8 @@ struct Napi {
     get_value_bool: unsafe extern "C" fn(NapiEnv, NapiValue, *mut bool) -> i32,
     new_instance: unsafe extern "C" fn(NapiEnv, NapiValue, usize, *const NapiValue, *mut NapiValue) -> i32,
     call_function: unsafe extern "C" fn(NapiEnv, NapiValue, NapiValue, usize, *const NapiValue, *mut NapiValue) -> i32,
+    #[cfg(feature = "bundled")]
+    run_script: unsafe extern "C" fn(NapiEnv, NapiValue, *mut NapiValue) -> i32,
     get_new_target: unsafe extern "C" fn(NapiEnv, NapiCallbackInfo, *mut NapiValue) -> i32,
     throw: unsafe extern "C" fn(NapiEnv, NapiValue) -> i32,
     throw_type_error: unsafe extern "C" fn(NapiEnv, *const c_char, *const c_char) -> i32,
@@ -181,6 +184,8 @@ unsafe fn load_napi() {
             get_value_bool: symbol(module, b"napi_get_value_bool\0"),
             new_instance: symbol(module, b"napi_new_instance\0"),
             call_function: symbol(module, b"napi_call_function\0"),
+            #[cfg(feature = "bundled")]
+            run_script: symbol(module, b"napi_run_script\0"),
             get_new_target: symbol(module, b"napi_get_new_target\0"),
             throw: symbol(module, b"napi_throw\0"),
             throw_type_error: symbol(module, b"napi_throw_type_error\0"),
@@ -2029,7 +2034,7 @@ unsafe extern "C" fn canvas_2d_constructor(env: NapiEnv, _: NapiCallbackInfo) ->
     type_error(env,"Illegal constructor")
 }
 
-// encodeImage(pixels, width, height, type, quality) -> Uint8Array | null
+// encodeImage(pixels, width, height, type, quality) -> Uint8Array | undefined
 unsafe extern "C" fn encode_image(env: NapiEnv, info: NapiCallbackInfo) -> NapiValue {
     let (args, _, _) = callback_info(env, info);
     if args.len() < 4 { return type_error(env, "encodeImage requires pixels, width, height and a type"); }
@@ -2217,6 +2222,12 @@ pub unsafe extern "C" fn napi_register_module_v1(env: NapiEnv, exports: NapiValu
     (api().create_function)(env, b"decodeImage\0".as_ptr() as *const c_char, 11, decode_image, ptr::null_mut(), &mut decode);
     set(env, exports, "encodeImage", encode);
     set(env, exports, "decodeImage", decode);
+    unsafe extern "C" fn diagnostics(env: NapiEnv, _: NapiCallbackInfo) -> NapiValue {
+        string(env, &std::ffi::CStr::from_ptr(skia_render_diagnostics()).to_string_lossy())
+    }
+    let mut diagnostics_fn = ptr::null_mut();
+    (api().create_function)(env, b"getRenderDiagnostics\0".as_ptr() as *const c_char, 20, diagnostics, ptr::null_mut(), &mut diagnostics_fn);
+    set(env, exports, "getRenderDiagnostics", diagnostics_fn);
     let mut forward = ptr::null_mut();
     (api().create_function)(env, b"nativeFunction\0".as_ptr() as *const c_char, 14, native_function, ptr::null_mut(), &mut forward);
     set(env, exports, "nativeFunction", forward);
@@ -2228,5 +2239,15 @@ pub unsafe extern "C" fn napi_register_module_v1(env: NapiEnv, exports: NapiValu
     (api().create_object)(env, &mut constants);
     for &(name, value) in CONSTANTS { set(env, constants, name, uint32(env, value)); }
     set(env, exports, "constants", constants);
-    exports
+    #[cfg(feature = "bundled")]
+    {
+        let source = string(env, include_str!(concat!(env!("OUT_DIR"), "/canvas-bundle.js")));
+        let mut factory = ptr::null_mut();
+        if (api().run_script)(env, source, &mut factory) != 0 { return ptr::null_mut(); }
+        let mut result = ptr::null_mut();
+        if (api().call_function)(env, undefined(env), factory, 1, &exports, &mut result) != 0 { return ptr::null_mut(); }
+        result
+    }
+    #[cfg(not(feature = "bundled"))]
+    { exports }
 }

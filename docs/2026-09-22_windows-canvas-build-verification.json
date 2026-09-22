@@ -1,0 +1,332 @@
+{
+  "completedAt": "2026-09-22T05:44:31.537Z",
+  "command": "npm run build:canvas",
+  "platform": {
+    "caption": "Microsoft Windows 11 家庭版",
+    "version": "10.0.22631",
+    "build": "22631",
+    "architecture": "64 位",
+    "productType": 1
+  },
+  "cpu": [
+    {
+      "Name": "Intel(R) Core(TM) i7-14700F",
+      "Manufacturer": "GenuineIntel",
+      "NumberOfCores": 20,
+      "NumberOfLogicalProcessors": 28
+    }
+  ],
+  "chrome": {
+    "version": "153.0.8010.48",
+    "revision": "@199a3a541d76237379e353b348e64045584db057",
+    "connectionId": "c0d4316d-c15b-4995-8f4e-f7925ead12f1",
+    "runId": "dc3e0199a45549dbb6fd8c6d8dd0248e",
+    "scriptSHA256": "B9B6C4D62A573881131CCF51CC2F9E5B92D7E48DB50F01FAA58E78CDEE8FB29C",
+    "environment": {
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+      "language": "zh-CN",
+      "languages": [
+        "zh-CN",
+        "zh"
+      ],
+      "devicePixelRatio": 1,
+      "webglVendor": "Google Inc. (NVIDIA)",
+      "webglRenderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5060 (0x00002D05) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "note": "WebGL renderer is not proof of the Canvas 2D backend."
+    }
+  },
+  "profile": {
+    "backend": "graphite",
+    "genericFonts": {
+      "sans-serif": "Noto Sans SC",
+      "fantasy": "Impact",
+      "system-ui": "微软雅黑",
+      "monospace": "宋体",
+      "cursive": "楷体",
+      "serif": "Noto Serif SC"
+    },
+    "fallbackFont": "Noto Sans SC"
+  },
+  "binarySHA256": "5401944658ffc9fcc400d37c52b137c124117cab4d31ae722d0eff9999dc5201",
+  "sourceSHA256": {
+    "index.js": "415696f44d7c7951f7a73803a484d2f1aa77270ba1341ae45016710af230fd70",
+    "src/dommatrix.js": "64848b17ee5395e4afc313591b37ec50899f4363ab8173407852e2cf3ecf0601",
+    "src/webgl_native.rs": "a61b46142393f923946186a59dbd96a17e8e3bc96a04329388ceac61b230be0d",
+    "src/skia_backend.cpp": "8c2190872e9708559c8368732b53fa274ca30e02d955d5e5d239863fe4c7bf49",
+    "src/render_diagnostics.h": "3e594ed6d69bac6b29881c90647134d937dc9bbc6b7b6c7b1ab061b39ca678db",
+    "build.rs": "f4e6e6f9910a890cbf7f47bfdf20632e2e4f2cf5d7b7dab63e24ea5ca4cde71a",
+    "Cargo.lock": "b3e9d97597e278823c41aba8a7f0369b864d062aa444e58a52a1251fe0c8ead3",
+    "package-lock.json": "aa553901f1c0b67a6ce847bcd745238fdb14214e91a18c2b82dc032254896735"
+  },
+  "validation": {
+    "tested": 6108,
+    "exact": 6108,
+    "tolerated": [],
+    "browserVerified": true,
+    "demoValues": 9216,
+    "demoMismatches": 0,
+    "independentTests": {
+      "passed": 10,
+      "failed": 0
+    },
+    "isolatedPackageSmoke": true,
+    "packedArchiveInstalledAndSmokeTested": true,
+    "angleDllsLoaded": [],
+    "cdpConnectionIds": [
+      "c0d4316d-c15b-4995-8f4e-f7925ead12f1"
+    ]
+  },
+  "fonts": {
+    "installedFiles": 411,
+    "usedTypefaces": [
+      {
+        "family": "Arial",
+        "postScriptName": "Arial-Black",
+        "version": "Version 5.23",
+        "weight": 900,
+        "width": 5,
+        "slant": 0
+      },
+      {
+        "family": "Arial",
+        "postScriptName": "Arial-BoldItalicMT",
+        "version": "Version 7.01",
+        "weight": 700,
+        "width": 5,
+        "slant": 1
+      },
+      {
+        "family": "Arial",
+        "postScriptName": "Arial-BoldMT",
+        "version": "Version 7.01",
+        "weight": 700,
+        "width": 5,
+        "slant": 0
+      },
+      {
+        "family": "Arial",
+        "postScriptName": "Arial-ItalicMT",
+        "version": "Version 7.01",
+        "weight": 400,
+        "width": 5,
+        "slant": 1
+      },
+      {
+        "family": "Arial",
+        "postScriptName": "ArialMT",
+        "version": "Version 7.01",
+        "weight": 400,
+        "width": 5,
+        "slant": 0
+      },
+      {
+        "family": "Arial",
+        "postScriptName": "ArialNarrow",
+        "version": "Version 2.40",
+        "weight": 400,
+        "width": 3,
+        "slant": 0
+      },
+      {
+        "family": "Calibri",
+        "postScriptName": "Calibri",
+        "version": "Version 6.26",
+        "weight": 400,
+        "width": 5,
+        "slant": 0
+      },
+      {
+        "family": "Consolas",
+        "postScriptName": "Consolas",
+        "version": "Version 7.00",
+        "weight": 400,
+        "width": 5,
+        "slant": 0
+      },
+      {
+        "family": "Courier New",
+        "postScriptName": "CourierNewPS-BoldItalicMT",
+        "version": "Version 6.91",
+        "weight": 700,
+        "width": 5,
+        "slant": 1
+      },
+      {
+        "family": "Courier New",
+        "postScriptName": "CourierNewPS-BoldMT",
+        "version": "Version 6.92",
+        "weight": 700,
+        "width": 5,
+        "slant": 0
+      },
+      {
+        "family": "Courier New",
+        "postScriptName": "CourierNewPS-ItalicMT",
+        "version": "Version 6.91",
+        "weight": 400,
+        "width": 5,
+        "slant": 1
+      },
+      {
+        "family": "Courier New",
+        "postScriptName": "CourierNewPSMT",
+        "version": "Version 6.92",
+        "weight": 400,
+        "width": 5,
+        "slant": 0
+      },
+      {
+        "family": "Microsoft YaHei UI",
+        "postScriptName": "MicrosoftYaHeiUI",
+        "version": "Version 6.31",
+        "weight": 400,
+        "width": 5,
+        "slant": 0
+      },
+      {
+        "family": "Microsoft YaHei",
+        "postScriptName": "MicrosoftYaHei",
+        "version": "Version 6.31",
+        "weight": 400,
+        "width": 5,
+        "slant": 0
+      },
+      {
+        "family": "Microsoft YaHei",
+        "postScriptName": "MicrosoftYaHei",
+        "version": "Version 6.31",
+        "weight": 400,
+        "width": 5,
+        "slant": 2
+      },
+      {
+        "family": "Nirmala UI",
+        "postScriptName": "NirmalaUI",
+        "version": "Version 1.45",
+        "weight": 400,
+        "width": 5,
+        "slant": 0
+      },
+      {
+        "family": "Nirmala UI",
+        "postScriptName": "NirmalaUI",
+        "version": "Version 1.45",
+        "weight": 400,
+        "width": 5,
+        "slant": 2
+      },
+      {
+        "family": "Noto Sans SC",
+        "postScriptName": "Noto-Sans-SC",
+        "version": "Version 2.04;241114210130;non-release",
+        "weight": 400,
+        "width": 5,
+        "slant": 0
+      },
+      {
+        "family": "Segoe UI Emoji",
+        "postScriptName": "SegoeUIEmoji",
+        "version": "Version 1.51",
+        "weight": 400,
+        "width": 5,
+        "slant": 0
+      },
+      {
+        "family": "Segoe UI Symbol",
+        "postScriptName": "SegoeUISymbol",
+        "version": "Version 6.23",
+        "weight": 400,
+        "width": 5,
+        "slant": 0
+      },
+      {
+        "family": "SimSun",
+        "postScriptName": "SimSun",
+        "version": "Version 5.23",
+        "weight": 400,
+        "width": 5,
+        "slant": 0
+      },
+      {
+        "family": "SimSun",
+        "postScriptName": "SimSun",
+        "version": "Version 5.23",
+        "weight": 400,
+        "width": 5,
+        "slant": 2
+      },
+      {
+        "family": "Tahoma",
+        "postScriptName": "Tahoma-Bold",
+        "version": "Version 7.01",
+        "weight": 700,
+        "width": 5,
+        "slant": 0
+      },
+      {
+        "family": "Tahoma",
+        "postScriptName": "Tahoma",
+        "version": "Version 7.01",
+        "weight": 400,
+        "width": 5,
+        "slant": 0
+      },
+      {
+        "family": "Times New Roman",
+        "postScriptName": "TimesNewRomanPSMT",
+        "version": "Version 7.03",
+        "weight": 400,
+        "width": 5,
+        "slant": 0
+      }
+    ],
+    "identificationMetrics": {
+      "sans-serif": {
+        "localWidth": 83.6300048828125,
+        "chromeWidth": 83.6300048828125,
+        "equal": true
+      },
+      "fantasy": {
+        "localWidth": 73.3046875,
+        "chromeWidth": 73.3046875,
+        "equal": true
+      },
+      "system-ui": {
+        "localWidth": 86.625,
+        "chromeWidth": 86.625,
+        "equal": true
+      },
+      "monospace": {
+        "localWidth": 80,
+        "chromeWidth": 80,
+        "equal": true
+      },
+      "cursive": {
+        "localWidth": 80,
+        "chromeWidth": 80,
+        "equal": true
+      },
+      "serif": {
+        "localWidth": 85.69526672363281,
+        "chromeWidth": 84.67127990722656,
+        "equal": false
+      }
+    }
+  },
+  "actualAdapters": [
+    {
+      "vendor": "nvidia",
+      "device": "NVIDIA GeForce RTX 5060",
+      "description": "D3D11 driver version 32.0.15.8097",
+      "vendorID": 4318,
+      "deviceID": 11525
+    }
+  ],
+  "archive": "dist/canvas-0.1.0-local.20260922054335927.tgz",
+  "archiveSHA256": "7eae9b790de1fedfafc1298c9462e0e3cca5bbbf0dd8b9986be134bb6c2521a2",
+  "limitations": [
+    "Only the current Windows 11 machine was physically tested; Windows 10 and a second computer were not available.",
+    "Font identification has a recorded Noto Serif SC width difference outside the 6108 regression cases.",
+    "Fresh third-party download/build was documented but not rerun."
+  ]
+}

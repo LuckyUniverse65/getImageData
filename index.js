@@ -2,7 +2,6 @@
 
 const native = require("./webgl.node");
 const Float16Array = globalThis.Float16Array || require('@petamoriken/float16').Float16Array;
-const { encodePng } = require('./src/png');
 const { DOMMatrix, DOMMatrixReadOnly, DOMPoint, DOMPointReadOnly, matrixComponents, createMatrix } = require('./src/dommatrix.js');
 // Canvas 2D is provided by the compiled Node-API module.  The reference
 // JavaScript rasterizer is intentionally not used as the production backend.
@@ -122,7 +121,7 @@ Object.defineProperty(TextMetrics, 'length', {value:0, configurable:true});
 
 function constructImageData(count, a, b, c, d) {
     if (count < 2) throw new TypeError('2 arguments required, but only ' + count + ' present.');
-    const buffered = ArrayBuffer.isView(a) && !(a instanceof DataView);
+    const buffered = (ArrayBuffer.isView(a) && !(a instanceof DataView)) || a instanceof Float16Array;
     const settings = imageDataSettings(buffered ? d : c);
     const colorSpace = settings.colorSpace || 'srgb';
     const pixelFormat = settings.pixelFormat || 'rgba-unorm8';
@@ -755,12 +754,23 @@ class OffscreenCanvas {
         if(!this.#contexts.size)throw new DOMException('Canvas has no rendering context','InvalidStateError');
         if(context && !available)throw new DOMException('Canvas image is unavailable','NotReadableError');
         if(renderer && !bitmapRendererFrame(renderer))throw new DOMException('Canvas image is unavailable','NotReadableError');
-        const pixels = this.#readPixels();
+        let pixels = this.#readPixels();
         const format = encodedImageType(requestedType);
-        const encoded = native.encodeImage(pixels, this.#width, this.#height, format, requestedQuality);
+        // Chrome crops the encoder input at the format's dimension limit,
+        // preserving the top-left pixels (not scaling the source image).
+        const limit = format === 'image/webp' ? 16383 : format === 'image/jpeg' ? 65500 : 65535;
+        const width = Math.min(this.#width, limit), height = Math.min(this.#height, limit);
+        if (width !== this.#width) {
+            const cropped = new Uint8Array(width * height * 4);
+            for (let y = 0; y < height; y++) {
+                const start = y * this.#width * 4;
+                cropped.set(pixels.subarray(start, start + width * 4), y * width * 4);
+            }
+            pixels = cropped;
+        }
+        const encoded = native.encodeImage(pixels, width, height, format, requestedQuality);
         if (encoded) return new Blob([encoded], {type: format});
-        // The bundled encoder is the fallback if Skia declines the buffer.
-        return new Blob([encodePng(this.#width, this.#height, pixels)], {type: 'image/png'});
+        throw new DOMException('Encoding of the source image has failed.', 'EncodingError');
     }
 }
 

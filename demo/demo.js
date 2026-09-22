@@ -1,15 +1,8 @@
 "use strict";
 let b;
 let gl, gr, xx, data;
-if (typeof document !== "undefined") {
-    const canvas = document.createElement("canvas");
-    b = canvas.transferControlToOffscreen();
-    b.width = 48;
-    b.height = 48;
-} else {
-    const {OffscreenCanvas} = require("./");
-    b = new OffscreenCanvas(48, 48);
-}
+const {OffscreenCanvas} = require("canvas");
+b = new OffscreenCanvas(48, 48);
 gl = b.getContext('2d')
 gl.scale(0.384, 0.384)
 gr = gl.createRadialGradient(33, 18, 8, 42, 10, 226)
