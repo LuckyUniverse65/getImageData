@@ -1,5 +1,7 @@
 # getImageData
 
+作者微信号：`LuckyUniverse65`
+
 在 Windows 上运行的 Node.js 原生 Canvas 项目。使用本机字体、Skia 渲染实现、GPU 和驱动执行 Canvas 2D 绘图，并通过本机 Chrome 的实际输出校验兼容性。
 
 构建后的包支持直接调用：
