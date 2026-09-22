@@ -1,0 +1,236 @@
+{
+ "round": 22,
+ "date": "2026-09-21",
+ "implemented": [
+  "DOMMatrix/DOMMatrixReadOnly/DOMPoint/DOMPointReadOnly",
+  "Path2D",
+  "ctx.filter",
+  "ctx.lang",
+  "ImageBitmapRenderingContext",
+  "createImageBitmap",
+  "convertToBlob JPEG/WebP"
+ ],
+ "skiaBuild": {
+  "codecsEnabled": [
+   "libjpeg-turbo decode/encode",
+   "libpng decode/encode",
+   "libwebp decode/encode",
+   "wuffs"
+  ],
+  "rootCause": "is_official_build selected absent system codec libraries on Windows"
+ },
+ "chrome": {
+  "version": "153.0.8010.48",
+  "revision": "@199a3a541d76237379e353b348e64045584db057",
+  "singleSession": true,
+  "batches": [
+   {
+    "batch": "tests/twentysecond-round-probe.js",
+    "cases": 53,
+    "runId": "dd3d87f02e68486a9b01ef64625830af",
+    "capturedAt": "2026-09-21T06:11:25.849Z",
+    "scriptSHA256": "C9E7BB5F88DDEFE26ABDC9230450A545834E1D830438F74B01708CCD49E34AF6",
+    "connectionId": "119c27c2-30df-47f5-9229-20c6b968b7b9"
+   },
+   {
+    "batch": "tests/twentysecond-round-probe-b.js",
+    "cases": 42,
+    "runId": "fb654372711945baa8da2df3c09717d7",
+    "capturedAt": "2026-09-21T06:15:09.847Z",
+    "scriptSHA256": "9349BA9FE01A52DF22E9822908FC41CB529F1A403FFFAA4C3FD7EA70E5B5EB7E",
+    "connectionId": "3ed4ca9d-df72-4058-abd9-3ea78fcd4db6"
+   },
+   {
+    "batch": "tests/twentysecond-round-probe-c.js",
+    "cases": 13,
+    "runId": "e82f17e4537a4a329cff2b34908a6e7f",
+    "capturedAt": "2026-09-21T06:17:12.149Z",
+    "scriptSHA256": "5FE67CB01F6830AF54BCB59DE443A226B530C1A5E0530B4A549840B54587F50B",
+    "connectionId": "bbe850c8-8154-4247-95a2-23dd7d2bbc72"
+   },
+   {
+    "batch": "tests/twentysecond-round-probe-d.js",
+    "cases": 20,
+    "runId": "1535637bef70484a901c8c228758f22e",
+    "capturedAt": "2026-09-21T06:23:34.122Z",
+    "scriptSHA256": "32936D4024B9828AF0435FEA041EB4B16EE54E6D8FF557C0DAF50FCC76F459A0",
+    "connectionId": "fbb3e4ce-74db-4108-9390-83f7b69d0214"
+   }
+  ]
+ },
+ "crossCheck": {
+  "totalCases": 128,
+  "behaviouralDifferences": 2,
+  "errorMessageTextOnly": 3,
+  "surfaceCases": 57,
+  "surfaceDifferences": 0,
+  "remaining": [
+   {
+    "batch": "probe-b",
+    "case": "matrixStrings",
+    "chrome": [
+     "none => matrix(1, 0, 0, 1, 0, 0) is2D=true",
+     " => matrix(1, 0, 0, 1, 0, 0) is2D=true",
+     "translate(1px) => matrix(1, 0, 0, 1, 1, 0) is2D=true",
+     "scale(2, 3) => matrix(2, 0, 0, 3, 0, 0) is2D=true",
+     "rotate(0.25turn) => matrix(0, 1, -1, 0, 0, 0) is2D=true",
+     "skew(10deg, 20deg) => matrix(1, 0.36397023426620234, 0.17632698070846498, 1, 0, 0) is2D=true",
+     "translate3d(1px,2px,3px) => matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 2, 3, 1) is2D=false",
+     "perspective(100px) => matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, -0.01, 0, 0, 0, 1) is2D=false",
+     "matrix(1,2,3,4,5,6) => matrix(1, 2, 3, 4, 5, 6) is2D=true",
+     "rotate(1rad) translate(2px) => matrix(0.5403023058681397, 0.8414709848078965, -0.8414709848078965, 0.5403023058681397, 1.0806046117362793, 1.682941969615793) is2D=true",
+     "translate(1) => SyntaxError",
+     "scale() => SyntaxError",
+     "rotate(10) => SyntaxError",
+     "TRANSLATE(5PX) => matrix(1, 0, 0, 1, 5, 0) is2D=true"
+    ],
+    "local": [
+     "none => matrix(1, 0, 0, 1, 0, 0) is2D=true",
+     " => matrix(1, 0, 0, 1, 0, 0) is2D=true",
+     "translate(1px) => matrix(1, 0, 0, 1, 1, 0) is2D=true",
+     "scale(2, 3) => matrix(2, 0, 0, 3, 0, 0) is2D=true",
+     "rotate(0.25turn) => matrix(0, 1, -1, 0, 0, 0) is2D=true",
+     "skew(10deg, 20deg) => matrix(1, 0.36397023426620234, 0.17632698070846498, 1, 0, 0) is2D=true",
+     "translate3d(1px,2px,3px) => matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 2, 3, 1) is2D=false",
+     "perspective(100px) => matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, -0.01, 0, 0, 0, 1) is2D=false",
+     "matrix(1,2,3,4,5,6) => matrix(1, 2, 3, 4, 5, 6) is2D=true",
+     "rotate(1rad) translate(2px) => matrix(0.5403023058681398, 0.8414709848078965, -0.8414709848078965, 0.5403023058681398, 1.0806046117362795, 1.682941969615793) is2D=true",
+     "translate(1) => SyntaxError",
+     "scale() => SyntaxError",
+     "rotate(10) => SyntaxError",
+     "TRANSLATE(5PX) => matrix(1, 0, 0, 1, 5, 0) is2D=true"
+    ]
+   },
+   {
+    "batch": "probe-d",
+    "case": "webpAlphaRoundTrip",
+    "chrome": {
+     "1": [
+      [
+       255,
+       0,
+       0,
+       128
+      ],
+      [
+       0,
+       0,
+       255,
+       64
+      ],
+      520
+     ],
+     "undefined": [
+      [
+       255,
+       0,
+       0,
+       128
+      ],
+      [
+       0,
+       0,
+       255,
+       64
+      ],
+      520
+     ],
+     "0.5": [
+      [
+       249,
+       4,
+       0,
+       128
+      ],
+      [
+       0,
+       0,
+       255,
+       64
+      ],
+      594
+     ]
+    },
+    "local": {
+     "1": [
+      [
+       255,
+       0,
+       0,
+       128
+      ],
+      [
+       0,
+       0,
+       255,
+       64
+      ],
+      520
+     ],
+     "undefined": [
+      [
+       255,
+       0,
+       0,
+       128
+      ],
+      [
+       0,
+       0,
+       255,
+       64
+      ],
+      520
+     ],
+     "0.5": [
+      [
+       251,
+       4,
+       0,
+       128
+      ],
+      [
+       0,
+       0,
+       255,
+       64
+      ],
+      594
+     ]
+    }
+   }
+  ]
+ },
+ "knownDeviations": [
+  {
+   "item": "DOMMatrix rotate(1rad) string",
+   "detail": "cos differs by one ULP (…98 vs …97); no double input reproduces the Chrome value",
+   "scope": "1 of 14 transform-list cases"
+  },
+  {
+   "item": "WebP lossy quality 0.5 red channel",
+   "detail": "251 vs 249 with an identical 594-byte file; SkWebpEncoder exposes only compression and quality",
+   "scope": "lossless path is exact"
+  }
+ ],
+ "sources": {
+  "index.js": "D4B2E55D474D46406D942CA921134AC11A932DE0234BE8FCCF6D16E897142EB5",
+  "src/dommatrix.js": "B6B7906D7D085BFB5E762FAFEEABDA23520045751F4C04BB8E072A962D55FC53",
+  "src/webgl_native.rs": "582B70315B97C21714BB0970ED366E0631F3496BEB42DE6A491F6859114006DA",
+  "src/skia_backend.cpp": "8DE56CE3A942EC4D41BEEFF48DAFD3A19C4F9CB38443A95368E53E7B7D3DA6EA",
+  "build.rs": "70A0A086E4868198D8923C19023AE37BF1B04D5FD57B8B8926E51FF051593956",
+  "webgl.node": "825C91C53E8926748CD842AE5990A7FD97648AC9D4ECC3A19A2F03645AB4F6E5"
+ },
+ "regression": {
+  "totalCases": 6108,
+  "browserVerified": true,
+  "demoMismatches": 0,
+  "pathGC": true,
+  "patternGC": true,
+  "gradientGC": true,
+  "workerConcurrency": true,
+  "standaloneTests": 10,
+  "compilerWarnings": 0,
+  "node": "v22.13.1"
+ }
+}

@@ -1,6 +1,24 @@
 # getImageData
 
+2026-09-21 第二十三轮修复**函数身份**：此前每个暴露的可调用对象在 `Function.prototype.toString` 下都会泄露 JS 包装器源码（连内部标识符都可读到），对照 Chrome 153 的 **106 个可调用对象中 104 个不一致**。现由 Rust 侧新增的 `nativeFunction` 构造**真正的 Node-API 函数**转发到 JS 实现——`toString` 天然返回 `function name() { [native code] }`，**不依赖任何 toString 钩子、不污染 `Function.prototype`**；arity 全部取自 Chrome 实测。结果：**可调用对象 106/106、原型方法 arity 94/94 一致**，`new method()` 也与 Chrome 一样抛 TypeError。完整 **6108 项**回归通过（`browserVerified: true`），demo 零差异。剩余三处差异（`arguments`/`caller`/`prototype` 自有属性、`OffscreenCanvas` 的原型链）受 Node-API 能力限制，详见[本轮报告](docs/2026-09-21_twentythird-round-function-identity-report.md)和[机器证据](docs/twentythird-round-fixes.json)。
+
+2026-09-21 第二十二轮补齐第二十一轮实测列出的 **6 项缺失接口**：`DOMMatrix`/`DOMMatrixReadOnly`/`DOMPoint`（`getTransform()` 现返回 `DOMMatrix`）、`Path2D`（原生 SkPath，支持复制、SVG 路径串、`addPath` 变换，以及 `fill`/`stroke`/`clip`/命中测试的 Path2D 重载）、`ctx.filter`（10 种 CSS 滤镜函数接入 Skia image filter 链）与 `ctx.lang`、`ImageBitmapRenderingContext`、`createImageBitmap()`（Canvas/ImageBitmap/ImageData/Blob，含裁剪与缩放）、`convertToBlob()` 的 **JPEG / WebP** 编码。为此重新配置编译了 Skia 并启用其内置 libjpeg-turbo / libpng / libwebp 编解码器。第二十一轮 57 项探针对实时 Chrome 的**行为差异由 6 项降为 0**；本轮另新增四批 **128 项**语义对照，实测修正了滤镜的作用空间与阴影着色、Path2D 命中测试的坐标空间、bitmaprenderer 的呈现模型、编码器默认质量等十余处，最终 **128 项中仅 2 项差异**（1 ULP 的 cos 与 libwebp 有损内部差异）。完整 **6108 项**回归通过（`browserVerified: true`），demo **9216 个 RGBA 值零差异**，新增 Path2D 原生存储 GC 检查，编译 0 告警。详见[本轮报告](docs/2026-09-21_twentysecond-round-features-report.md)和[机器证据](docs/twentysecond-round-fixes.json)。
+
+2026-09-21 第二十一轮定向检查与修复完成：新增 **57 项**探针，与当前 Chrome 153.0.8010.48 实时对照。上下文不再把方法/访问器挂在实例上（`Object.getOwnPropertyNames(ctx)` 由 72 降为 **0**，与 Chrome 一致）；`measureText()`、`createLinearGradient()`、`getImageData()` 的返回值改为真正的 `TextMetrics`、`CanvasGradient`、`ImageData` 接口，并补齐这些全局量、`ImageBitmap` 与 `OffscreenCanvas` 的 `Symbol.toStringTag`、`oncontextlost` / `oncontextrestored`、构造函数元数；修复 `setLineDash` 未走 float 转换、`OffscreenCanvas` 尺寸越界错误类型，以及原生每建一个上下文泄漏 25 个 CString；删除约 85 行不可达的旧光栅器与只写不读的 `pixels` / `clip` 状态，编译告警由 12 降为 **0**。依规范判定的 `CanvasPattern.setTransform` 非有限矩阵与 `getImageData` 的 `long` 回绕两项，经实测被 Chrome 否定并已回退。完整 **6108 项**回归通过，demo **9216 个 RGBA 值零差异**。详见[本轮报告](docs/2026-09-21_twentyfirst-round-fixes-report.md)和[机器证据](docs/twentyfirst-round-fixes.json)；结论限定于报告说明的范围。
+
+2026-09-17 已分离普通与离屏 2D 上下文：`HTMLCanvasElement` 创建独立的 `CanvasRenderingContext2D`，`OffscreenCanvas` 创建 `OffscreenCanvasRenderingContext2D`。两者的原生宿主、类型标签、原型、接收者校验和生命周期分开，通用 Skia 绘制原语共用。新增 **67 项 Chrome 对照**及 **3 项原生/包装层隔离测试**通过，完整 **6108 项**回归通过。详见[上下文分离说明](docs/2026-09-17_canvas-context-separation.md)。
+
+2026-09-17 第二十轮持续检查与修复完成：新增 **1291 项**、完整 **6041 项**全部通过，当前 Chrome 对照逐值一致；demo 的 **9216 个 RGBA 值零差异**，Worker 并发与 GC 检查通过。修复原生分配失败崩溃、超大画布软件回退及图像分块、上下文丢失与导出错误、F16 初始化/舍入、跨位深色域转换，以及位图转移后的裁剪状态。最后连续两批各 **128 个新用例**没有新的实现问题，随后完整回归通过。已更新 `webgl.node`。详见[本轮修复报告](docs/2026-09-17_twentieth-round-fixes-report.md)和[机器证据](docs/twentieth-round-fixes.json)；结论限定于报告中说明的实现与环境范围。
+
+2026-09-17 第十九轮修复 `demo.js` 审查发现的问题：支持全部 **26 种合成模式**、实际 **display-p3 / float16** 渲染和像素读写，补齐 ImageData 格式属性并使示例支持严格模式。新增 **316 项**、完整 **4750 项**验收通过；其中新增 315 项逐值一致，另 1 项跨色域浮点转换按 `1e-5` 绝对误差验收，8 位像素及原始 demo 仍逐值一致。Node 22 需要先运行 `npm ci` 安装已锁定的 Float16Array 兼容库。详见[修复说明](docs/2026-09-17_nineteenth-round-fixes-report.md)。
+
+2026-09-17 第十八轮持续检查完成：新增 **2792 项**、完整 **4434 项**与现有 Chrome 实时逐值一致；demo 的 9216 个 RGBA 值零差异，Worker 并发与 GC 检查通过。最后连续两批各 128 个全新用例无新发现，随后完整回归通过。修复涉及矩阵与路径状态、数值边界、透明度与图像源、阴影裁剪、渐变渲染批次及并发 GPU 访问。详见[第十八轮修复报告](docs/2026-09-17_eighteenth-round-fixes-report.md)及[机器证据](docs/eighteenth-round-fixes.json)。结论限定于已实现功能和已验证环境。
+
+2026-09-16 第十七轮连续检测与修复完成：新增 **172 项全部通过**，完整 **1642 项**与现机 Chrome 实时一致，demo 的 9216 个 RGBA 值零差异，渐变与图案 GC 通过。本轮修复空路径曲线起点、退化路径闭合及缓存状态、圆角矩形方向与虚线起点，以及 maxWidth 文字缩放的路径状态和着色坐标；共修复 58 个失败用例，最后新增 24 项未发现新差异。详见[第十七轮修复报告](docs/2026-09-16_seventeenth-round-fixes-report.md)。本轮验证范围内没有剩余差异。
+
 Windows 上的 Node.js `OffscreenCanvas` 兼容层。JavaScript 提供 Canvas 外壳，Rust 通过 Node-API 分派接口，C++ 调用 Skia Graphite / Dawn D3D11 绘制和读取像素。
+
+2026-09-16 第十六轮连续检测与修复完成：新增 **225 项全部通过**，完整 **1470 项**与现有 Chrome 实时一致，demo 的 9216 个 RGBA 值零差异，渐变与图案 GC 通过。本轮修复退化渐变、边界色标、退化与小半径圆弧、路径变换状态，以及零尺寸/极小尺寸矩形；分阶段修复 28 个失败用例，最后新增 32 项未发现新差异。详见[第十六轮修复报告](docs/2026-09-16_sixteenth-round-fixes-report.md)。结论限于已验证场景。
 
 2026-09-16 第十五轮连续检测与修复完成：新增 **271 项全部通过**，完整 **1245 项**与用户现有 Chrome 实时一致，demo 的 9216 个 RGBA 值零差异，渐变与图案 GC 通过。本轮修复极端字距及字体单位、垂直制表符、图案阴影和文字、copy 重叠合成、不透明画布文字与 alpha 恢复，并补齐 148 个 CSS 命名颜色。详见[第十五轮修复报告](docs/2026-09-16_fifteenth-round-fixes-report.md)。结论限于已验证的场景。
 
@@ -32,9 +50,10 @@ Windows 上的 Node.js `OffscreenCanvas` 兼容层。JavaScript 提供 Canvas �
 
 ## 运行
 
-需要 Windows x64、Node.js，以及支持当前 Dawn D3D11 后端的显卡和驱动。本机使用 Node.js v22.13.1。仓库包含编译产物，可直接执行：
+需要 Windows x64、Node.js，以及支持当前 Dawn D3D11 后端的显卡和驱动。本机使用 Node.js v22.13.1。仓库包含编译产物，首次使用先安装依赖：
 
 ```powershell
+npm ci
 node demo.js
 ```
 
@@ -50,7 +69,26 @@ console.log(Array.from(context.getImageData(0, 0, 1, 1).data));
 // [255, 0, 0, 255]
 ```
 
-`webgl.node`、`libEGL.dll` 和 `libGLESv2.dll` 应放在项目根目录。项目没有 npm 安装步骤；`require('./')` 通过 `index.js` 加载模块。
+`webgl.node`、`libEGL.dll` 和 `libGLESv2.dll` 应放在项目根目录。`require('./')` 通过 `index.js` 加载模块。支持原生 Float16Array 的 Node 优先使用内置类型；Node 22 使用 `@petamoriken/float16`，可通过模块导出的 `Float16Array` 访问兼容构造函数。兼容类型不具备原生 TypedArray 的所有反射特征，也不会自动安装到全局。
+
+读取和写入 P3 半精度像素：
+
+```javascript
+const { OffscreenCanvas } = require('./');
+const g = new OffscreenCanvas(1, 1).getContext('2d', {
+    colorSpace: 'display-p3', colorType: 'float16'
+});
+const pixels = g.createImageData(1, 1, {
+    colorSpace: 'display-p3', pixelFormat: 'rgba-float16'
+});
+pixels.data.set([1.25, 0.125, 0, 1]);
+g.putImageData(pixels, 0, 0);
+console.log(Array.from(g.getImageData(0, 0, 1, 1, {
+    pixelFormat: 'rgba-float16'
+}).data)); // [1.25, 0.125, 0, 1]
+```
+
+`getImageData()` 默认返回画布色彩空间的 8 位像素，只有显式请求 `rgba-float16` 才返回浮点数组。`colorSpace` 和 `pixelFormat` 属性只读。Canvas/位图/图案之间的绘制保留源格式；PNG 导出转换为 sRGB 8 位。
 
 ## 使用现有 Chrome 的 CDP 验证
 
@@ -80,7 +118,7 @@ node capture-cdp.cjs tests/additional-cases.js cdp-additional-review
 node tests/compare-additional.cjs
 ```
 
-`node test.js` 执行九组测试及独立防崩溃检查，共 503 项，另有 demo 和 GC 检查。第四至第九轮通过同一采集入口返回独立结果；第五至第九轮的本地检查在子进程运行。`out/cdp-verification-result.json` 保存主回归结果，连接前先写入未验证状态，避免 CDP 失败后残留旧的成功报告；`out/cdp-*-browser.json` 保存各组实际浏览器返回值、运行编号、时间、Chrome 版本、测试标签页 ID 和源码 SHA-256。运行 `node tests/compare-additional.cjs`、`node tests/compare-third-round.cjs`、`node tests/compare-fourth-round.cjs`、`node tests/compare-fifth-round.cjs`、`node tests/compare-sixth-round.cjs`、`node tests/compare-seventh-round.cjs`、`node tests/compare-eighth-round.cjs`、`node tests/compare-ninth-round.cjs` 或 `node tests/compare-unicode-color.cjs` 可生成对应逐项结果；存在差异时比较器退出码为 1。CDP 输出与历史 F12 输出分别保存，`out/` 不提交到 Git。
+`node test.js` 执行十九组兼容性测试及独立防崩溃检查，共 4750 项，另有 demo、Worker 并发和 GC 检查。第四至第十九轮共用浏览器采集入口；第五至第十九轮的本地检查在子进程运行。`out/cdp-verification-result.json` 保存主回归结果，连接前写入未验证状态；`out/cdp-*-browser.json` 保存实际浏览器结果、运行编号、时间、浏览器版本和测试源码 SHA-256。`node tests/compare-nineteenth-round.cjs` 可生成本轮逐项差异；半精度颜色通道允许 `1e-5` 绝对误差，alpha 和 8 位像素仍严格比较，超出阈值时退出码为 1。其他轮次保留各自比较器。`out/` 不提交到 Git。
 
 `demo.js` 的渐变没有添加色标，填充按语义透明；有色渐变由独立用例检查。字体回退、Chrome 后端、显卡及驱动变化可能改变像素结果。部分越界读取使用同一 Chrome 的 `willReadFrequently: true` 路径作为规范参照，原因见[此前的修复记录](docs/canvas-fixes.md#chrome-越界读取差异)。
 
@@ -103,11 +141,13 @@ node tests/compare-additional.cjs
 - 同一 OffscreenCanvas 只保留一种上下文模式；非法名称抛 `TypeError`，已选其他模式时返回 `null`。
 - 已有修复还覆盖路径变换、渐变共享引用、原位 resize、reset 裁剪清理、PNG 导出、位图转移、圆弧方向和像素读取参数。
 
-`OffscreenCanvas.getContext()` 的名称区分大小写，不接受 `experimental-webgl`；本地 `HTMLCanvasElement` 包装仍支持这一别名。`bitmaprenderer` 是合法名称，但本地尚未实现该上下文，返回 `null`。
+`OffscreenCanvas.getContext()` 的名称区分大小写，不接受 `experimental-webgl`；本地 `HTMLCanvasElement` 包装仍支持这一别名。`bitmaprenderer` 现已实现，返回 `ImageBitmapRenderingContext`。
 
-Blob 导出支持 PNG；其他 MIME 请求回退为 PNG。位图是本地兼容对象，不是浏览器跨线程 transferable。项目尚未完整覆盖 `CanvasPattern.setTransform`、所有图像源和完整 WebGL pipeline；上下文互斥测试不代表完整 WebGL 绘制能力。图像入口接受项目创建的 Canvas/位图；ImageData 入口接受 Canvas 返回的 ImageData，不再把任意带 data 字段的普通对象当作图像。
+上述 6 项已于第二十二轮全部实现。`ctx.lang` 目前只实现属性语义，尚未接入按语言选择字体与整形；滤镜作用空间、序列化文本与 `DOMMatrix.multiply` 的乘序均已实测对齐；已知偏差为 `rotate(1rad)` 的 1 ULP 与 WebP 有损编码的 2/255。错误**文案**与 Chrome 不同属既有约定，历次对照只比较 error name。
 
-字体解析支持常见样式、字体族及 px/pt 等绝对单位，已支持按字体族列表顺序查找已安装字体；尚未实现完整 CSS 语法、相对单位及逐字形回退。文字宽度、实际字形边界、字体盒和基线已与已测样本一致。`small-caps` 支持字体自带 `smcp`，缺少该特性时使用合成路径；已验证 Arial、Courier New、Tahoma、Consolas 的覆盖样本，尚未完整覆盖所有文字系统及按脚本选择的 OpenType 特性。RTL 修复覆盖对齐和状态，完整双向文字塑形、全部字体及 BASE 表未全面验证。颜色解析也不是完整 CSS Color 实现；选项枚举校验不代表 display-p3 / float16 渲染已支持，原生路径仍使用 sRGB / 8 位像素。Canvas 尺寸仍受原生 u32 上限及可用内存限制。当前 361 项与现有 Chrome 实时对照通过，不代表完整 Canvas 标准实现。
+Blob 导出支持 PNG、JPEG 和 WebP（`quality` 生效）；其他 MIME 请求回退为 PNG。位图是本地兼容对象，不是浏览器跨线程 transferable。项目尚未完整覆盖 `CanvasPattern.setTransform`、所有图像源和完整 WebGL pipeline；上下文互斥测试不代表完整 WebGL 绘制能力。图像入口接受项目创建的 Canvas/位图；ImageData 入口接受 Canvas 返回的 ImageData，不再把任意带 data 字段的普通对象当作图像。
+
+字体解析支持常见样式、字体族及 px/pt 等绝对单位，已支持按字体族列表顺序查找已安装字体；尚未实现完整 CSS 语法、相对单位及逐字形回退。文字宽度、实际字形边界、字体盒和基线已与已测样本一致。`small-caps` 支持字体自带 `smcp`，缺少该特性时使用合成路径；已验证 Arial、Courier New、Tahoma、Consolas 的覆盖样本，尚未完整覆盖所有文字系统及按脚本选择的 OpenType 特性。RTL 修复覆盖对齐和状态，完整双向文字塑形、全部字体及 BASE 表未全面验证。已支持 sRGB / display-p3 和 8 位 / float16 原生画布及像素转换，但颜色解析仍未覆盖完整 CSS Color 语法。Canvas 尺寸仍受原生 u32 上限及可用内存限制。当前 4750 项与现有 Chrome 对照通过（浮点颜色使用上述精度阈值），不代表完整 Canvas 标准实现。
 
 ## 代码与记录
 

@@ -1,0 +1,628 @@
+{
+  "tested": 135,
+  "matched": 112,
+  "differing": 23,
+  "processCrashes": 1,
+  "floatColorAbsoluteTolerance": 0.00001,
+  "capture": {
+    "runId": "945a64fd8a9b40bcac2248e1f8b58cce",
+    "capturedAt": "2026-09-17T02:58:56.464Z",
+    "browserMode": "user-chrome-cdp",
+    "chromeVersion": "153.0.8010.48",
+    "browserRevision": "@199a3a541d76237379e353b348e64045584db057",
+    "debuggingPort": 9222,
+    "connectionId": "3f3dfe73-4928-4759-ad39-cd214de31a22",
+    "targetId": "06D3603A41DAE52D731AA978EDF07A22",
+    "backgroundTarget": true,
+    "script": "tests/fourth-round-cases.js",
+    "scriptSHA256": "3F528544530916D0A8E582AABCF7C7F01B3CBB6A03DEACE559600FA29A0232CA"
+  },
+  "allocations": {
+    "putLast": {
+      "processFailure": {
+        "status": 3221226505,
+        "signal": null,
+        "stderr": "\nthread '<unnamed>' (24396) panicked at src\\webgl_native.rs:1595:38:\nrange start index 159992 out of range for slice of length 80000\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+      }
+    },
+    "readFirst": {
+      "value": {
+        "width": 20000,
+        "lost": false,
+        "pixel": [
+          1,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "resizeWide": {
+      "error": "InvalidStateError"
+    }
+  },
+  "sha256": {
+    "index.js": "4add26965136ae7500077f080a6408ff4e55fc843ba777510542aef4f1ed71ee",
+    "src/webgl_native.rs": "a047ef4566a985ea647f6fc1d20faa02f5b63f3f00c16de5b6a7c9c22c7354c2",
+    "src/skia_backend.cpp": "62b49e8e5db68d8862bb0e184cdc0b4b4bb2d566bd96930ca5429d1feb2267d9",
+    "webgl.node": "4810ec358a3e52b05c77fcd6e06cf94e265fd66cc43c4521d54e2d01a7da4853",
+    "tests/fourth-round-cases.js": "3f528544530916d0a8e582aabcf7c7f01b3cbb6a03deace559600fa29a0232ca",
+    "tests/compare-twentieth-round.cjs": "baee32d20912ca0ffd421859e7c9950245ebe4bffd8a07036b8977e6cf5bc132"
+  },
+  "differences": [
+    {
+      "name": "wide_16385_unorm8",
+      "count": 4,
+      "maxAbsoluteDifference": 255,
+      "first": [
+        {
+          "path": ".value.left.data.0",
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "path": ".value.left.data.3",
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "path": ".value.right.data.0",
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "path": ".value.right.data.3",
+          "local": 0,
+          "browser": 255
+        }
+      ]
+    },
+    {
+      "name": "wide_16385_float16",
+      "count": 4,
+      "maxAbsoluteDifference": 255,
+      "first": [
+        {
+          "path": ".value.left.data.0",
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "path": ".value.left.data.3",
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "path": ".value.right.data.0",
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "path": ".value.right.data.3",
+          "local": 0,
+          "browser": 255
+        }
+      ]
+    },
+    {
+      "name": "wide_20000_unorm8",
+      "count": 4,
+      "maxAbsoluteDifference": 255,
+      "first": [
+        {
+          "path": ".value.left.data.0",
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "path": ".value.left.data.3",
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "path": ".value.right.data.0",
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "path": ".value.right.data.3",
+          "local": 0,
+          "browser": 255
+        }
+      ]
+    },
+    {
+      "name": "wide_20000_float16",
+      "count": 4,
+      "maxAbsoluteDifference": 255,
+      "first": [
+        {
+          "path": ".value.left.data.0",
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "path": ".value.left.data.3",
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "path": ".value.right.data.0",
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "path": ".value.right.data.3",
+          "local": 0,
+          "browser": 255
+        }
+      ]
+    },
+    {
+      "name": "wide_32768_unorm8",
+      "count": 4,
+      "maxAbsoluteDifference": 255,
+      "first": [
+        {
+          "path": ".value.left.data.0",
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "path": ".value.left.data.3",
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "path": ".value.right.data.0",
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "path": ".value.right.data.3",
+          "local": 0,
+          "browser": 255
+        }
+      ]
+    },
+    {
+      "name": "wide_32768_float16",
+      "count": 4,
+      "maxAbsoluteDifference": 255,
+      "first": [
+        {
+          "path": ".value.left.data.0",
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "path": ".value.left.data.3",
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "path": ".value.right.data.0",
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "path": ".value.right.data.3",
+          "local": 0,
+          "browser": 255
+        }
+      ]
+    },
+    {
+      "name": "wide_65536_unorm8",
+      "count": 1,
+      "maxAbsoluteDifference": 0,
+      "first": [
+        {
+          "path": ".value.lost",
+          "local": false,
+          "browser": true
+        }
+      ]
+    },
+    {
+      "name": "wide_65536_float16",
+      "count": 1,
+      "maxAbsoluteDifference": 0,
+      "first": [
+        {
+          "path": ".value.lost",
+          "local": false,
+          "browser": true
+        }
+      ]
+    },
+    {
+      "name": "hdr_srgb_srgb_image",
+      "count": 3,
+      "maxAbsoluteDifference": 0.001953125,
+      "first": [
+        {
+          "path": ".value.data.1",
+          "local": 0.372802734375,
+          "browser": 0.373046875
+        },
+        {
+          "path": ".value.data.6",
+          "local": 2.498046875,
+          "browser": 2.5
+        },
+        {
+          "path": ".value.data.10",
+          "local": 0.455810546875,
+          "browser": 0.4560546875
+        }
+      ]
+    },
+    {
+      "name": "hdr_srgb_srgb_bitmap",
+      "count": 3,
+      "maxAbsoluteDifference": 0.001953125,
+      "first": [
+        {
+          "path": ".value.data.1",
+          "local": 0.372802734375,
+          "browser": 0.373046875
+        },
+        {
+          "path": ".value.data.6",
+          "local": 2.498046875,
+          "browser": 2.5
+        },
+        {
+          "path": ".value.data.10",
+          "local": 0.455810546875,
+          "browser": 0.4560546875
+        }
+      ]
+    },
+    {
+      "name": "hdr_srgb_srgb_pattern",
+      "count": 3,
+      "maxAbsoluteDifference": 0.001953125,
+      "first": [
+        {
+          "path": ".value.data.1",
+          "local": 0.372802734375,
+          "browser": 0.373046875
+        },
+        {
+          "path": ".value.data.6",
+          "local": 2.498046875,
+          "browser": 2.5
+        },
+        {
+          "path": ".value.data.10",
+          "local": 0.455810546875,
+          "browser": 0.4560546875
+        }
+      ]
+    },
+    {
+      "name": "hdr_srgb_display-p3_image",
+      "count": 5,
+      "maxAbsoluteDifference": 0.001953125,
+      "first": [
+        {
+          "path": ".value.data.1",
+          "local": 0.43408203125,
+          "browser": 0.4345703125
+        },
+        {
+          "path": ".value.data.4",
+          "local": 0.5595703125,
+          "browser": 0.56005859375
+        },
+        {
+          "path": ".value.data.5",
+          "local": 1.2109375,
+          "browser": 1.2119140625
+        },
+        {
+          "path": ".value.data.6",
+          "local": 2.416015625,
+          "browser": 2.41796875
+        },
+        {
+          "path": ".value.data.10",
+          "local": 0.4375,
+          "browser": 0.437744140625
+        }
+      ]
+    },
+    {
+      "name": "hdr_srgb_display-p3_bitmap",
+      "count": 5,
+      "maxAbsoluteDifference": 0.001953125,
+      "first": [
+        {
+          "path": ".value.data.1",
+          "local": 0.43408203125,
+          "browser": 0.4345703125
+        },
+        {
+          "path": ".value.data.4",
+          "local": 0.5595703125,
+          "browser": 0.56005859375
+        },
+        {
+          "path": ".value.data.5",
+          "local": 1.2109375,
+          "browser": 1.2119140625
+        },
+        {
+          "path": ".value.data.6",
+          "local": 2.416015625,
+          "browser": 2.41796875
+        },
+        {
+          "path": ".value.data.10",
+          "local": 0.4375,
+          "browser": 0.437744140625
+        }
+      ]
+    },
+    {
+      "name": "hdr_srgb_display-p3_pattern",
+      "count": 5,
+      "maxAbsoluteDifference": 0.001953125,
+      "first": [
+        {
+          "path": ".value.data.1",
+          "local": 0.43408203125,
+          "browser": 0.4345703125
+        },
+        {
+          "path": ".value.data.4",
+          "local": 0.5595703125,
+          "browser": 0.56005859375
+        },
+        {
+          "path": ".value.data.5",
+          "local": 1.2109375,
+          "browser": 1.2119140625
+        },
+        {
+          "path": ".value.data.6",
+          "local": 2.416015625,
+          "browser": 2.41796875
+        },
+        {
+          "path": ".value.data.10",
+          "local": 0.4375,
+          "browser": 0.437744140625
+        }
+      ]
+    },
+    {
+      "name": "hdr_display-p3_srgb_image",
+      "count": 5,
+      "maxAbsoluteDifference": 0.001953125,
+      "first": [
+        {
+          "path": ".value.data.0",
+          "local": 1.2685546875,
+          "browser": 1.26953125
+        },
+        {
+          "path": ".value.data.2",
+          "local": 0.0712890625,
+          "browser": 0.07086181640625
+        },
+        {
+          "path": ".value.data.4",
+          "local": -0.64892578125,
+          "browser": -0.6494140625
+        },
+        {
+          "path": ".value.data.5",
+          "local": 1.251953125,
+          "browser": 1.2529296875
+        },
+        {
+          "path": ".value.data.6",
+          "local": 2.583984375,
+          "browser": 2.5859375
+        }
+      ]
+    },
+    {
+      "name": "hdr_display-p3_srgb_bitmap",
+      "count": 5,
+      "maxAbsoluteDifference": 0.001953125,
+      "first": [
+        {
+          "path": ".value.data.0",
+          "local": 1.2685546875,
+          "browser": 1.26953125
+        },
+        {
+          "path": ".value.data.2",
+          "local": 0.0712890625,
+          "browser": 0.07086181640625
+        },
+        {
+          "path": ".value.data.4",
+          "local": -0.64892578125,
+          "browser": -0.6494140625
+        },
+        {
+          "path": ".value.data.5",
+          "local": 1.251953125,
+          "browser": 1.2529296875
+        },
+        {
+          "path": ".value.data.6",
+          "local": 2.583984375,
+          "browser": 2.5859375
+        }
+      ]
+    },
+    {
+      "name": "hdr_display-p3_srgb_pattern",
+      "count": 5,
+      "maxAbsoluteDifference": 0.001953125,
+      "first": [
+        {
+          "path": ".value.data.0",
+          "local": 1.2685546875,
+          "browser": 1.26953125
+        },
+        {
+          "path": ".value.data.2",
+          "local": 0.0712890625,
+          "browser": 0.07086181640625
+        },
+        {
+          "path": ".value.data.4",
+          "local": -0.64892578125,
+          "browser": -0.6494140625
+        },
+        {
+          "path": ".value.data.5",
+          "local": 1.251953125,
+          "browser": 1.2529296875
+        },
+        {
+          "path": ".value.data.6",
+          "local": 2.583984375,
+          "browser": 2.5859375
+        }
+      ]
+    },
+    {
+      "name": "hdr_display-p3_display-p3_image",
+      "count": 3,
+      "maxAbsoluteDifference": 0.001953125,
+      "first": [
+        {
+          "path": ".value.data.1",
+          "local": 0.372802734375,
+          "browser": 0.373046875
+        },
+        {
+          "path": ".value.data.6",
+          "local": 2.498046875,
+          "browser": 2.5
+        },
+        {
+          "path": ".value.data.10",
+          "local": 0.455810546875,
+          "browser": 0.4560546875
+        }
+      ]
+    },
+    {
+      "name": "hdr_display-p3_display-p3_bitmap",
+      "count": 3,
+      "maxAbsoluteDifference": 0.001953125,
+      "first": [
+        {
+          "path": ".value.data.1",
+          "local": 0.372802734375,
+          "browser": 0.373046875
+        },
+        {
+          "path": ".value.data.6",
+          "local": 2.498046875,
+          "browser": 2.5
+        },
+        {
+          "path": ".value.data.10",
+          "local": 0.455810546875,
+          "browser": 0.4560546875
+        }
+      ]
+    },
+    {
+      "name": "hdr_display-p3_display-p3_pattern",
+      "count": 3,
+      "maxAbsoluteDifference": 0.001953125,
+      "first": [
+        {
+          "path": ".value.data.1",
+          "local": 0.372802734375,
+          "browser": 0.373046875
+        },
+        {
+          "path": ".value.data.6",
+          "local": 2.498046875,
+          "browser": 2.5
+        },
+        {
+          "path": ".value.data.10",
+          "local": 0.455810546875,
+          "browser": 0.4560546875
+        }
+      ]
+    },
+    {
+      "name": "allocation_putLast",
+      "count": 2,
+      "maxAbsoluteDifference": 0,
+      "first": [
+        {
+          "path": ".processFailure",
+          "local": {
+            "status": 3221226505,
+            "signal": null,
+            "stderr": "\nthread '<unnamed>' (24396) panicked at src\\webgl_native.rs:1595:38:\nrange start index 159992 out of range for slice of length 80000\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+          }
+        },
+        {
+          "path": ".value",
+          "browser": {
+            "width": 20000,
+            "lost": false,
+            "pixel": [
+              1,
+              0,
+              0,
+              1
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "allocation_readFirst",
+      "count": 1,
+      "maxAbsoluteDifference": 1,
+      "first": [
+        {
+          "path": ".value.pixel.3",
+          "local": 0,
+          "browser": 1
+        }
+      ]
+    },
+    {
+      "name": "allocation_resizeWide",
+      "count": 2,
+      "maxAbsoluteDifference": 0,
+      "first": [
+        {
+          "path": ".error",
+          "local": "InvalidStateError"
+        },
+        {
+          "path": ".value",
+          "browser": {
+            "width": 20000,
+            "lost": false,
+            "pixel": [
+              1,
+              0,
+              0,
+              1
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

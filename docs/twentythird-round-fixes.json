@@ -1,0 +1,63 @@
+{
+ "round": 23,
+ "date": "2026-09-21",
+ "subject": "Function identity: name, length and Function.prototype.toString",
+ "approach": "native.nativeFunction builds a real Node-API function that forwards to the JavaScript implementation; no Function.prototype.toString hook is involved",
+ "chrome": {
+  "version": "153.0.8010.48",
+  "revision": "@199a3a541d76237379e353b348e64045584db057",
+  "runId": "d847365b4ddb4730ba25adfeb2ff104a",
+  "capturedAt": "2026-09-21T07:30:24.775Z",
+  "probeSHA256": "23CC5BB1AE9F8679E8C9AFFA9F35E43E80D2F096F7524CE226AE953AF6262763",
+  "connectionId": "c0d4316d-c15b-4995-8f4e-f7925ead12f1"
+ },
+ "before": {
+  "callables": 106,
+  "differing": 104
+ },
+ "after": {
+  "callables": 106,
+  "differing": 0,
+  "prototypeMethods": 94,
+  "arityDifferences": 0
+ },
+ "residual": [
+  {
+   "item": "arguments and caller own properties",
+   "detail": "napi_create_function always adds them as non-configurable data properties; Chrome exposes them only as poisoned accessors on Function.prototype",
+   "affects": "every native function"
+  },
+  {
+   "item": "prototype own property on methods and accessors",
+   "detail": "Chrome methods have no prototype; the Node-API property is non-configurable so it cannot be removed",
+   "affects": "methods and accessors, not constructors"
+  },
+  {
+   "item": "Object.getPrototypeOf(OffscreenCanvas)",
+   "detail": "Chrome reports EventTarget; this project has no EventTarget interface",
+   "affects": "OffscreenCanvas only"
+  }
+ ],
+ "residualFix": "both function-shape items need v8::FunctionTemplate::RemovePrototype, which Node-API does not expose",
+ "sources": {
+  "index.js": "09F2E25807A7564192E7D874BFDE4EE9DB8A66BB7A074FEEF308C9CE71F616D0",
+  "src/dommatrix.js": "64848B17EE5395E4AFC313591B37EC50899F4363AB8173407852E2CF3ECF0601",
+  "src/webgl_native.rs": "BD1225B5E687EB656D0DDE968962507614FAFC5F0EB58DB05C8809DCEC045B43",
+  "webgl.node": "8F0DDE5191F4BF005567E95616D6FC7F5714F559ABA80418728ED98CF25499AC"
+ },
+ "regression": {
+  "totalCases": 6108,
+  "browserVerified": true,
+  "demoMismatches": 0,
+  "standaloneTests": 10,
+  "compilerWarnings": 0,
+  "roundTwentyOne": {
+   "cases": 57,
+   "differences": 0
+  },
+  "roundTwentyTwo": {
+   "cases": 128,
+   "differences": 2
+  }
+ }
+}

@@ -1,0 +1,1168 @@
+{
+  "tested": 66,
+  "matched": 36,
+  "differing": 30,
+  "capture": {
+    "runId": "866cb60a06ac40169634706b36c76a28",
+    "capturedAt": "2026-09-16T10:28:43.621Z",
+    "browserMode": "user-chrome-cdp",
+    "chromeVersion": "153.0.8010.48",
+    "browserRevision": "@199a3a541d76237379e353b348e64045584db057",
+    "debuggingPort": 9222,
+    "connectionId": "3f3dfe73-4928-4759-ad39-cd214de31a22",
+    "targetId": "4F0D0FDCDDD721B4CFAF39E544926DB8",
+    "backgroundTarget": true,
+    "script": "tests/fourth-round-cases.js",
+    "scriptSHA256": "5E621862A8B1C3EA63F12FA560184FED73CAB94676494A25AE69BEBA013A81D3"
+  },
+  "sha256": {
+    "demo.js": "fea443544eefdb59c29593eaec43bba59cecadcf104a69b99b189b6206f9300e",
+    "index.js": "f0094b5b161f154eea7d8bb8231d3f0a64a9312d797c7812052e870f24992036",
+    "src/webgl_native.rs": "9804be4ab504296bcecf0391f5c83f6a5250d9671190869aadabae8b8f3cbe42",
+    "src/skia_backend.cpp": "a4dd891a0d703e7ffdee9aa0868a3eb6bf5c73ff4f6196aa3549672aad6dc790",
+    "webgl.node": "aa491437b89903dbdbd814bc2f82c8d47e185884473db3654cb728e6e1523769",
+    "tests/fourth-round-cases.js": "5e621862a8b1c3ea63f12fa560184fed73cab94676494a25ae69beba013a81d3"
+  },
+  "differences": [
+    {
+      "name": "implicitCurveStart_quad_false_fill",
+      "mismatches": 126,
+      "first": [
+        {
+          "index": 3,
+          "x": 0,
+          "y": 0,
+          "channel": 3,
+          "local": 127,
+          "browser": 0
+        },
+        {
+          "index": 131,
+          "x": 0,
+          "y": 1,
+          "channel": 3,
+          "local": 191,
+          "browser": 0
+        },
+        {
+          "index": 135,
+          "x": 1,
+          "y": 1,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 139,
+          "x": 2,
+          "y": 1,
+          "channel": 3,
+          "local": 127,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "implicitCurveStart_quad_false_stroke",
+      "mismatches": 69,
+      "first": [
+        {
+          "index": 3,
+          "x": 0,
+          "y": 0,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 7,
+          "x": 1,
+          "y": 0,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 11,
+          "x": 2,
+          "y": 0,
+          "channel": 3,
+          "local": 127,
+          "browser": 0
+        },
+        {
+          "index": 131,
+          "x": 0,
+          "y": 1,
+          "channel": 3,
+          "local": 127,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "implicitCurveStart_quad_true_fill",
+      "mismatches": 126,
+      "first": [
+        {
+          "index": 3,
+          "x": 0,
+          "y": 0,
+          "channel": 3,
+          "local": 127,
+          "browser": 0
+        },
+        {
+          "index": 131,
+          "x": 0,
+          "y": 1,
+          "channel": 3,
+          "local": 191,
+          "browser": 0
+        },
+        {
+          "index": 135,
+          "x": 1,
+          "y": 1,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 139,
+          "x": 2,
+          "y": 1,
+          "channel": 3,
+          "local": 127,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "implicitCurveStart_quad_true_stroke",
+      "mismatches": 69,
+      "first": [
+        {
+          "index": 3,
+          "x": 0,
+          "y": 0,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 7,
+          "x": 1,
+          "y": 0,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 11,
+          "x": 2,
+          "y": 0,
+          "channel": 3,
+          "local": 127,
+          "browser": 0
+        },
+        {
+          "index": 131,
+          "x": 0,
+          "y": 1,
+          "channel": 3,
+          "local": 127,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "implicitCurveStart_cubic_false_fill",
+      "mismatches": 128,
+      "first": [
+        {
+          "index": 3,
+          "x": 0,
+          "y": 0,
+          "channel": 3,
+          "local": 127,
+          "browser": 0
+        },
+        {
+          "index": 7,
+          "x": 1,
+          "y": 0,
+          "channel": 3,
+          "local": 64,
+          "browser": 0
+        },
+        {
+          "index": 131,
+          "x": 0,
+          "y": 1,
+          "channel": 3,
+          "local": 191,
+          "browser": 0
+        },
+        {
+          "index": 135,
+          "x": 1,
+          "y": 1,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "implicitCurveStart_cubic_false_stroke",
+      "mismatches": 43,
+      "first": [
+        {
+          "index": 3,
+          "x": 0,
+          "y": 0,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 7,
+          "x": 1,
+          "y": 0,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 11,
+          "x": 2,
+          "y": 0,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 15,
+          "x": 3,
+          "y": 0,
+          "channel": 3,
+          "local": 127,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "implicitCurveStart_cubic_true_fill",
+      "mismatches": 128,
+      "first": [
+        {
+          "index": 3,
+          "x": 0,
+          "y": 0,
+          "channel": 3,
+          "local": 127,
+          "browser": 0
+        },
+        {
+          "index": 7,
+          "x": 1,
+          "y": 0,
+          "channel": 3,
+          "local": 64,
+          "browser": 0
+        },
+        {
+          "index": 131,
+          "x": 0,
+          "y": 1,
+          "channel": 3,
+          "local": 191,
+          "browser": 0
+        },
+        {
+          "index": 135,
+          "x": 1,
+          "y": 1,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "implicitCurveStart_cubic_true_stroke",
+      "mismatches": 43,
+      "first": [
+        {
+          "index": 3,
+          "x": 0,
+          "y": 0,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 7,
+          "x": 1,
+          "y": 0,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 11,
+          "x": 2,
+          "y": 0,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 15,
+          "x": 3,
+          "y": 0,
+          "channel": 3,
+          "local": 127,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "implicitCurveStart_arcTo_false_fill",
+      "mismatches": 121,
+      "first": [
+        {
+          "index": 3,
+          "x": 0,
+          "y": 0,
+          "channel": 3,
+          "local": 127,
+          "browser": 0
+        },
+        {
+          "index": 131,
+          "x": 0,
+          "y": 1,
+          "channel": 3,
+          "local": 191,
+          "browser": 0
+        },
+        {
+          "index": 135,
+          "x": 1,
+          "y": 1,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 139,
+          "x": 2,
+          "y": 1,
+          "channel": 3,
+          "local": 127,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "implicitCurveStart_arcTo_false_stroke",
+      "mismatches": 74,
+      "first": [
+        {
+          "index": 3,
+          "x": 0,
+          "y": 0,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 7,
+          "x": 1,
+          "y": 0,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 11,
+          "x": 2,
+          "y": 0,
+          "channel": 3,
+          "local": 127,
+          "browser": 0
+        },
+        {
+          "index": 131,
+          "x": 0,
+          "y": 1,
+          "channel": 3,
+          "local": 127,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "implicitCurveStart_arcTo_true_fill",
+      "mismatches": 121,
+      "first": [
+        {
+          "index": 3,
+          "x": 0,
+          "y": 0,
+          "channel": 3,
+          "local": 127,
+          "browser": 0
+        },
+        {
+          "index": 131,
+          "x": 0,
+          "y": 1,
+          "channel": 3,
+          "local": 191,
+          "browser": 0
+        },
+        {
+          "index": 135,
+          "x": 1,
+          "y": 1,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 139,
+          "x": 2,
+          "y": 1,
+          "channel": 3,
+          "local": 127,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "implicitCurveStart_arcTo_true_stroke",
+      "mismatches": 74,
+      "first": [
+        {
+          "index": 3,
+          "x": 0,
+          "y": 0,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 7,
+          "x": 1,
+          "y": 0,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 11,
+          "x": 2,
+          "y": 0,
+          "channel": 3,
+          "local": 127,
+          "browser": 0
+        },
+        {
+          "index": 131,
+          "x": 0,
+          "y": 1,
+          "channel": 3,
+          "local": 127,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "closePoint_sameLine_false_fill",
+      "mismatches": 3072,
+      "first": [
+        {
+          "index": 0,
+          "x": 0,
+          "y": 0,
+          "channel": 0,
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "index": 1,
+          "x": 0,
+          "y": 0,
+          "channel": 1,
+          "local": 0,
+          "browser": 165
+        },
+        {
+          "index": 3,
+          "x": 0,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "index": 4,
+          "x": 1,
+          "y": 0,
+          "channel": 0,
+          "local": 0,
+          "browser": 255
+        }
+      ]
+    },
+    {
+      "name": "closePoint_sameLine_true_fill",
+      "mismatches": 3072,
+      "first": [
+        {
+          "index": 0,
+          "x": 0,
+          "y": 0,
+          "channel": 0,
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "index": 1,
+          "x": 0,
+          "y": 0,
+          "channel": 1,
+          "local": 0,
+          "browser": 165
+        },
+        {
+          "index": 3,
+          "x": 0,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "index": 4,
+          "x": 1,
+          "y": 0,
+          "channel": 0,
+          "local": 0,
+          "browser": 255
+        }
+      ]
+    },
+    {
+      "name": "closePoint_sameLine_true_stroke",
+      "mismatches": 3029,
+      "first": [
+        {
+          "index": 0,
+          "x": 0,
+          "y": 0,
+          "channel": 0,
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "index": 1,
+          "x": 0,
+          "y": 0,
+          "channel": 1,
+          "local": 0,
+          "browser": 165
+        },
+        {
+          "index": 3,
+          "x": 0,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "index": 4,
+          "x": 1,
+          "y": 0,
+          "channel": 0,
+          "local": 0,
+          "browser": 255
+        }
+      ]
+    },
+    {
+      "name": "closePoint_implicitLine_false_fill",
+      "mismatches": 3072,
+      "first": [
+        {
+          "index": 0,
+          "x": 0,
+          "y": 0,
+          "channel": 0,
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "index": 1,
+          "x": 0,
+          "y": 0,
+          "channel": 1,
+          "local": 0,
+          "browser": 165
+        },
+        {
+          "index": 3,
+          "x": 0,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "index": 4,
+          "x": 1,
+          "y": 0,
+          "channel": 0,
+          "local": 0,
+          "browser": 255
+        }
+      ]
+    },
+    {
+      "name": "closePoint_implicitLine_true_fill",
+      "mismatches": 3072,
+      "first": [
+        {
+          "index": 0,
+          "x": 0,
+          "y": 0,
+          "channel": 0,
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "index": 1,
+          "x": 0,
+          "y": 0,
+          "channel": 1,
+          "local": 0,
+          "browser": 165
+        },
+        {
+          "index": 3,
+          "x": 0,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "index": 4,
+          "x": 1,
+          "y": 0,
+          "channel": 0,
+          "local": 0,
+          "browser": 255
+        }
+      ]
+    },
+    {
+      "name": "closePoint_implicitLine_true_stroke",
+      "mismatches": 3029,
+      "first": [
+        {
+          "index": 0,
+          "x": 0,
+          "y": 0,
+          "channel": 0,
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "index": 1,
+          "x": 0,
+          "y": 0,
+          "channel": 1,
+          "local": 0,
+          "browser": 165
+        },
+        {
+          "index": 3,
+          "x": 0,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "index": 4,
+          "x": 1,
+          "y": 0,
+          "channel": 0,
+          "local": 0,
+          "browser": 255
+        }
+      ]
+    },
+    {
+      "name": "rectWinding_roundRect_-12,12_nonzero",
+      "mismatches": 140,
+      "first": [
+        {
+          "index": 1327,
+          "x": 11,
+          "y": 10,
+          "channel": 3,
+          "local": 255,
+          "browser": 127
+        },
+        {
+          "index": 1331,
+          "x": 12,
+          "y": 10,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 1335,
+          "x": 13,
+          "y": 10,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 1339,
+          "x": 14,
+          "y": 10,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "rectWinding_roundRect_12,-12_nonzero",
+      "mismatches": 140,
+      "first": [
+        {
+          "index": 1327,
+          "x": 11,
+          "y": 10,
+          "channel": 3,
+          "local": 255,
+          "browser": 127
+        },
+        {
+          "index": 1331,
+          "x": 12,
+          "y": 10,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 1335,
+          "x": 13,
+          "y": 10,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 1339,
+          "x": 14,
+          "y": 10,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "rectCurrentPoint_roundRect_-12,12",
+      "mismatches": 52,
+      "first": [
+        {
+          "index": 403,
+          "x": 4,
+          "y": 3,
+          "channel": 3,
+          "local": 64,
+          "browser": 191
+        },
+        {
+          "index": 523,
+          "x": 2,
+          "y": 4,
+          "channel": 3,
+          "local": 64,
+          "browser": 0
+        },
+        {
+          "index": 527,
+          "x": 3,
+          "y": 4,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        },
+        {
+          "index": 531,
+          "x": 4,
+          "y": 4,
+          "channel": 3,
+          "local": 191,
+          "browser": 255
+        }
+      ]
+    },
+    {
+      "name": "rectCurrentPoint_roundRect_12,-12",
+      "mismatches": 59,
+      "first": [
+        {
+          "index": 403,
+          "x": 4,
+          "y": 3,
+          "channel": 3,
+          "local": 64,
+          "browser": 191
+        },
+        {
+          "index": 523,
+          "x": 2,
+          "y": 4,
+          "channel": 3,
+          "local": 127,
+          "browser": 0
+        },
+        {
+          "index": 527,
+          "x": 3,
+          "y": 4,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        },
+        {
+          "index": 531,
+          "x": 4,
+          "y": 4,
+          "channel": 3,
+          "local": 191,
+          "browser": 255
+        }
+      ]
+    },
+    {
+      "name": "rectCurrentPoint_roundRect_-12,-12",
+      "mismatches": 56,
+      "first": [
+        {
+          "index": 403,
+          "x": 4,
+          "y": 3,
+          "channel": 3,
+          "local": 64,
+          "browser": 191
+        },
+        {
+          "index": 523,
+          "x": 2,
+          "y": 4,
+          "channel": 3,
+          "local": 64,
+          "browser": 0
+        },
+        {
+          "index": 527,
+          "x": 3,
+          "y": 4,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        },
+        {
+          "index": 531,
+          "x": 4,
+          "y": 4,
+          "channel": 3,
+          "local": 191,
+          "browser": 255
+        }
+      ]
+    },
+    {
+      "name": "rectCurrentPoint_roundRect_12,12",
+      "mismatches": 50,
+      "first": [
+        {
+          "index": 403,
+          "x": 4,
+          "y": 3,
+          "channel": 3,
+          "local": 64,
+          "browser": 191
+        },
+        {
+          "index": 523,
+          "x": 2,
+          "y": 4,
+          "channel": 3,
+          "local": 64,
+          "browser": 0
+        },
+        {
+          "index": 527,
+          "x": 3,
+          "y": 4,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        },
+        {
+          "index": 531,
+          "x": 4,
+          "y": 4,
+          "channel": 3,
+          "local": 191,
+          "browser": 255
+        }
+      ]
+    },
+    {
+      "name": "implicitCurveTransform_quad_false",
+      "mismatches": 47,
+      "first": [
+        {
+          "index": 3,
+          "x": 0,
+          "y": 0,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 7,
+          "x": 1,
+          "y": 0,
+          "channel": 3,
+          "local": 127,
+          "browser": 0
+        },
+        {
+          "index": 135,
+          "x": 1,
+          "y": 1,
+          "channel": 3,
+          "local": 127,
+          "browser": 0
+        },
+        {
+          "index": 139,
+          "x": 2,
+          "y": 1,
+          "channel": 3,
+          "local": 191,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "implicitCurveTransform_quad_true",
+      "mismatches": 45,
+      "first": [
+        {
+          "index": 267,
+          "x": 2,
+          "y": 2,
+          "channel": 3,
+          "local": 64,
+          "browser": 0
+        },
+        {
+          "index": 271,
+          "x": 3,
+          "y": 2,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 275,
+          "x": 4,
+          "y": 2,
+          "channel": 3,
+          "local": 64,
+          "browser": 0
+        },
+        {
+          "index": 399,
+          "x": 3,
+          "y": 3,
+          "channel": 3,
+          "local": 127,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "implicitCurveTransform_cubic_false",
+      "mismatches": 30,
+      "first": [
+        {
+          "index": 3,
+          "x": 0,
+          "y": 0,
+          "channel": 3,
+          "local": 191,
+          "browser": 0
+        },
+        {
+          "index": 7,
+          "x": 1,
+          "y": 0,
+          "channel": 3,
+          "local": 127,
+          "browser": 0
+        },
+        {
+          "index": 11,
+          "x": 2,
+          "y": 0,
+          "channel": 3,
+          "local": 127,
+          "browser": 0
+        },
+        {
+          "index": 135,
+          "x": 1,
+          "y": 1,
+          "channel": 3,
+          "local": 127,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "implicitCurveTransform_cubic_true",
+      "mismatches": 32,
+      "first": [
+        {
+          "index": 143,
+          "x": 3,
+          "y": 1,
+          "channel": 3,
+          "local": 64,
+          "browser": 0
+        },
+        {
+          "index": 267,
+          "x": 2,
+          "y": 2,
+          "channel": 3,
+          "local": 64,
+          "browser": 0
+        },
+        {
+          "index": 271,
+          "x": 3,
+          "y": 2,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 275,
+          "x": 4,
+          "y": 2,
+          "channel": 3,
+          "local": 127,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "implicitCurveTransform_arcTo_false",
+      "mismatches": 18,
+      "first": [
+        {
+          "index": 3,
+          "x": 0,
+          "y": 0,
+          "channel": 3,
+          "local": 215,
+          "browser": 0
+        },
+        {
+          "index": 7,
+          "x": 1,
+          "y": 0,
+          "channel": 3,
+          "local": 161,
+          "browser": 0
+        },
+        {
+          "index": 11,
+          "x": 2,
+          "y": 0,
+          "channel": 3,
+          "local": 26,
+          "browser": 0
+        },
+        {
+          "index": 135,
+          "x": 1,
+          "y": 1,
+          "channel": 3,
+          "local": 134,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "implicitCurveTransform_arcTo_true",
+      "mismatches": 20,
+      "first": [
+        {
+          "index": 143,
+          "x": 3,
+          "y": 1,
+          "channel": 3,
+          "local": 75,
+          "browser": 0
+        },
+        {
+          "index": 267,
+          "x": 2,
+          "y": 2,
+          "channel": 3,
+          "local": 47,
+          "browser": 0
+        },
+        {
+          "index": 271,
+          "x": 3,
+          "y": 2,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 275,
+          "x": 4,
+          "y": 2,
+          "channel": 3,
+          "local": 75,
+          "browser": 0
+        }
+      ]
+    }
+  ]
+}

@@ -10,7 +10,7 @@ const root=__dirname;
 const port=Number(process.env.CHROME_DEBUG_PORT || 9222);
 const key=crypto.createHash('sha256').update(root.toLowerCase()+':'+port).digest('hex').slice(0,20);
 const pipe=process.platform==='win32' ? '\\\\.\\pipe\\canvas-cdp-'+key : path.join(os.tmpdir(),'canvas-cdp-'+key+'.sock');
-const scripts=new Set(['demo.js','tests/browser-cases.js','tests/additional-cases.js','tests/third-round-cases.js','tests/fourth-round-cases.js','tests/unicode-color-case.js']);
+const scripts=new Set(['demo.js','tests/browser-cases.js','tests/additional-cases.js','tests/third-round-cases.js','tests/fourth-round-cases.js','tests/unicode-color-case.js','tests/twentyfirst-round-probe.js','tests/twentysecond-round-probe.js','tests/twentysecond-round-probe-b.js','tests/twentysecond-round-probe-c.js','tests/twentysecond-round-probe-d.js','tests/twentythird-round-probe.js']);
 
 // One connection per service lifetime. Failed or disconnected sessions require
 // an explicit stop/start; ordinary tests never reconnect and repeat consent.

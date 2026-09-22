@@ -1,0 +1,561 @@
+{
+  "tested": 50,
+  "matched": 36,
+  "differing": 14,
+  "capture": {
+    "runId": "182467ccbff9412a8bcdb39c5240324b",
+    "capturedAt": "2026-09-16T09:46:20.728Z",
+    "browserMode": "user-chrome-cdp",
+    "chromeVersion": "153.0.8010.48",
+    "browserRevision": "@199a3a541d76237379e353b348e64045584db057",
+    "debuggingPort": 9222,
+    "connectionId": "3f3dfe73-4928-4759-ad39-cd214de31a22",
+    "targetId": "FA65037D01BCC42C4305DE95FB1C70DA",
+    "backgroundTarget": true,
+    "script": "tests/fourth-round-cases.js",
+    "scriptSHA256": "5461B96D185ED24941F25E717858990D8016CA8995E4B41DECE274B3E494D685"
+  },
+  "sha256": {
+    "demo.js": "fea443544eefdb59c29593eaec43bba59cecadcf104a69b99b189b6206f9300e",
+    "index.js": "f0094b5b161f154eea7d8bb8231d3f0a64a9312d797c7812052e870f24992036",
+    "src/webgl_native.rs": "92c5f1f95b343fb50cf60bbb924b471075ff93dcfa82bf01edf530823b72d65c",
+    "src/skia_backend.cpp": "dde8566e398d635e026c19569b040fa0f9d068dccb073c4c29cd36ea64d91af8",
+    "webgl.node": "60f67f14af2bccd522efcf8a5b77cada50d156b571359f0b56f8b427b0812027",
+    "tests/fourth-round-cases.js": "5461b96d185ed24941f25e717858990d8016ca8995e4b41dece274b3e494d685"
+  },
+  "differences": [
+    {
+      "name": "degenerateGradient_linearSame_1",
+      "mismatches": 1528,
+      "first": [
+        {
+          "index": 25,
+          "x": 6,
+          "y": 0,
+          "channel": 1,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 27,
+          "x": 6,
+          "y": 0,
+          "channel": 3,
+          "local": 1,
+          "browser": 0
+        },
+        {
+          "index": 29,
+          "x": 7,
+          "y": 0,
+          "channel": 1,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 31,
+          "x": 7,
+          "y": 0,
+          "channel": 3,
+          "local": 1,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "degenerateGradient_linearSame_2",
+      "mismatches": 1528,
+      "first": [
+        {
+          "index": 25,
+          "x": 6,
+          "y": 0,
+          "channel": 1,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 27,
+          "x": 6,
+          "y": 0,
+          "channel": 3,
+          "local": 1,
+          "browser": 0
+        },
+        {
+          "index": 29,
+          "x": 7,
+          "y": 0,
+          "channel": 1,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 31,
+          "x": 7,
+          "y": 0,
+          "channel": 3,
+          "local": 1,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "degenerateGradient_radialSame_1",
+      "mismatches": 1528,
+      "first": [
+        {
+          "index": 25,
+          "x": 6,
+          "y": 0,
+          "channel": 1,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 27,
+          "x": 6,
+          "y": 0,
+          "channel": 3,
+          "local": 1,
+          "browser": 0
+        },
+        {
+          "index": 29,
+          "x": 7,
+          "y": 0,
+          "channel": 1,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 31,
+          "x": 7,
+          "y": 0,
+          "channel": 3,
+          "local": 1,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "degenerateGradient_radialSame_2",
+      "mismatches": 1528,
+      "first": [
+        {
+          "index": 25,
+          "x": 6,
+          "y": 0,
+          "channel": 1,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 27,
+          "x": 6,
+          "y": 0,
+          "channel": 3,
+          "local": 1,
+          "browser": 0
+        },
+        {
+          "index": 29,
+          "x": 7,
+          "y": 0,
+          "channel": 1,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 31,
+          "x": 7,
+          "y": 0,
+          "channel": 3,
+          "local": 1,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "degenerateGradient_linearNormal_1",
+      "mismatches": 18,
+      "first": [
+        {
+          "index": 865,
+          "x": 24,
+          "y": 6,
+          "channel": 1,
+          "local": 255,
+          "browser": 254
+        },
+        {
+          "index": 869,
+          "x": 25,
+          "y": 6,
+          "channel": 1,
+          "local": 255,
+          "browser": 254
+        },
+        {
+          "index": 1121,
+          "x": 24,
+          "y": 8,
+          "channel": 1,
+          "local": 255,
+          "browser": 254
+        },
+        {
+          "index": 1129,
+          "x": 26,
+          "y": 8,
+          "channel": 1,
+          "local": 255,
+          "browser": 253
+        }
+      ]
+    },
+    {
+      "name": "degenerateGradient_conic_1",
+      "mismatches": 18,
+      "first": [
+        {
+          "index": 865,
+          "x": 24,
+          "y": 6,
+          "channel": 1,
+          "local": 255,
+          "browser": 254
+        },
+        {
+          "index": 869,
+          "x": 25,
+          "y": 6,
+          "channel": 1,
+          "local": 255,
+          "browser": 254
+        },
+        {
+          "index": 1121,
+          "x": 24,
+          "y": 8,
+          "channel": 1,
+          "local": 255,
+          "browser": 254
+        },
+        {
+          "index": 1129,
+          "x": 26,
+          "y": 8,
+          "channel": 1,
+          "local": 255,
+          "browser": 253
+        }
+      ]
+    },
+    {
+      "name": "zeroRadius_arc_false",
+      "mismatches": 113,
+      "first": [
+        {
+          "index": 3,
+          "x": 0,
+          "y": 0,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 7,
+          "x": 1,
+          "y": 0,
+          "channel": 3,
+          "local": 202,
+          "browser": 0
+        },
+        {
+          "index": 11,
+          "x": 2,
+          "y": 0,
+          "channel": 3,
+          "local": 22,
+          "browser": 0
+        },
+        {
+          "index": 131,
+          "x": 0,
+          "y": 1,
+          "channel": 3,
+          "local": 202,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "zeroRadius_ellipseBoth_false",
+      "mismatches": 36,
+      "first": [
+        {
+          "index": 1987,
+          "x": 16,
+          "y": 15,
+          "channel": 3,
+          "local": 127,
+          "browser": 64
+        },
+        {
+          "index": 1991,
+          "x": 17,
+          "y": 15,
+          "channel": 3,
+          "local": 22,
+          "browser": 0
+        },
+        {
+          "index": 2119,
+          "x": 17,
+          "y": 16,
+          "channel": 3,
+          "local": 202,
+          "browser": 191
+        },
+        {
+          "index": 2123,
+          "x": 18,
+          "y": 16,
+          "channel": 3,
+          "local": 22,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "anglePrecision_arc_100000000",
+      "mismatches": 65,
+      "first": [
+        {
+          "index": 1239,
+          "x": 21,
+          "y": 9,
+          "channel": 3,
+          "local": 63,
+          "browser": 0
+        },
+        {
+          "index": 1243,
+          "x": 22,
+          "y": 9,
+          "channel": 3,
+          "local": 69,
+          "browser": 0
+        },
+        {
+          "index": 1363,
+          "x": 20,
+          "y": 10,
+          "channel": 3,
+          "local": 29,
+          "browser": 0
+        },
+        {
+          "index": 1367,
+          "x": 21,
+          "y": 10,
+          "channel": 3,
+          "local": 237,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "anglePrecision_arc_100000000000000000000",
+      "mismatches": 49,
+      "first": [
+        {
+          "index": 947,
+          "x": 12,
+          "y": 7,
+          "channel": 3,
+          "local": 52,
+          "browser": 0
+        },
+        {
+          "index": 951,
+          "x": 13,
+          "y": 7,
+          "channel": 3,
+          "local": 156,
+          "browser": 0
+        },
+        {
+          "index": 955,
+          "x": 14,
+          "y": 7,
+          "channel": 3,
+          "local": 214,
+          "browser": 0
+        },
+        {
+          "index": 959,
+          "x": 15,
+          "y": 7,
+          "channel": 3,
+          "local": 244,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "zeroSweepCurrentPoint_arc",
+      "mismatches": 48,
+      "first": [
+        {
+          "index": 3,
+          "x": 0,
+          "y": 0,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        },
+        {
+          "index": 7,
+          "x": 1,
+          "y": 0,
+          "channel": 3,
+          "local": 75,
+          "browser": 0
+        },
+        {
+          "index": 131,
+          "x": 0,
+          "y": 1,
+          "channel": 3,
+          "local": 75,
+          "browser": 0
+        },
+        {
+          "index": 135,
+          "x": 1,
+          "y": 1,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "zeroSweepCurrentPoint_ellipse",
+      "mismatches": 50,
+      "first": [
+        {
+          "index": 271,
+          "x": 3,
+          "y": 2,
+          "channel": 3,
+          "local": 80,
+          "browser": 64
+        },
+        {
+          "index": 395,
+          "x": 2,
+          "y": 3,
+          "channel": 3,
+          "local": 62,
+          "browser": 64
+        },
+        {
+          "index": 399,
+          "x": 3,
+          "y": 3,
+          "channel": 3,
+          "local": 214,
+          "browser": 255
+        },
+        {
+          "index": 403,
+          "x": 4,
+          "y": 3,
+          "channel": 3,
+          "local": 162,
+          "browser": 127
+        }
+      ]
+    },
+    {
+      "name": "zeroRectCopy_fillRect_0,0",
+      "mismatches": 2048,
+      "first": [
+        {
+          "index": 0,
+          "x": 0,
+          "y": 0,
+          "channel": 0,
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "index": 3,
+          "x": 0,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "index": 4,
+          "x": 1,
+          "y": 0,
+          "channel": 0,
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "index": 7,
+          "x": 1,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 255
+        }
+      ]
+    },
+    {
+      "name": "zeroRectCopy_strokeRect_0,0",
+      "mismatches": 2048,
+      "first": [
+        {
+          "index": 0,
+          "x": 0,
+          "y": 0,
+          "channel": 0,
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "index": 3,
+          "x": 0,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "index": 4,
+          "x": 1,
+          "y": 0,
+          "channel": 0,
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "index": 7,
+          "x": 1,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 255
+        }
+      ]
+    }
+  ],
+  "independentBrowserCaptureEqual": true
+}

@@ -39,6 +39,10 @@ fn main() {
     for library in [
         "skshaper", "skunicode_bidi", "skunicode_core", "icu_bidi",
         "allocator_shim", "allocator_core", "allocator_base", "raw_ptr",
+        // Image codecs: convertToBlob() encodes JPEG/WebP and createImageBitmap()
+        // decodes PNG/JPEG/WebP through Skia's bundled third-party libraries.
+        "libjpeg", "libjpeg12", "libjpeg16", "libpng", "libwebp", "libwebp_sse41",
+        "wuffs", "zlib",
     ] {
         println!("cargo:rustc-link-lib=static={library}");
     }

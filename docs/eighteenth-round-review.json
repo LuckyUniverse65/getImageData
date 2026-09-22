@@ -1,0 +1,4892 @@
+{
+  "tested": 378,
+  "matched": 250,
+  "differing": 128,
+  "capture": {
+    "runId": "db88721df16145f6a78b625251628d81",
+    "capturedAt": "2026-09-16T12:43:50.174Z",
+    "browserMode": "user-chrome-cdp",
+    "chromeVersion": "153.0.8010.48",
+    "browserRevision": "@199a3a541d76237379e353b348e64045584db057",
+    "debuggingPort": 9222,
+    "connectionId": "3f3dfe73-4928-4759-ad39-cd214de31a22",
+    "targetId": "3809EFFE41A501D357B939E4C23D8DFA",
+    "backgroundTarget": true,
+    "script": "tests/fourth-round-cases.js",
+    "scriptSHA256": "C27E386E06EA932C8A9B3A5AF8F5CAFCBE8FCEB44F7369EF2CE8A6C71885B36A"
+  },
+  "sha256": {
+    "demo.js": "fea443544eefdb59c29593eaec43bba59cecadcf104a69b99b189b6206f9300e",
+    "index.js": "f0094b5b161f154eea7d8bb8231d3f0a64a9312d797c7812052e870f24992036",
+    "src/webgl_native.rs": "6364e209a7d08eff49fa27a5655b15189135b37a8b1846ea821ff5a0db350c58",
+    "src/skia_backend.cpp": "ee3949aa09f9847fad6f32e2f81a3c548c31e37940033f53b0a4dd4f99511bd6",
+    "webgl.node": "cf01faec40205ea55f0f4fb7e3772facd4a487f3c20fe980f98a651d6be1f43d",
+    "tests/fourth-round-cases.js": "c27e386e06ea932c8a9b3a5af8f5cafcbe8fceb44f7369ef2ce8a6c71885b36a"
+  },
+  "differences": [
+    {
+      "name": "matrixPath_0,0,0,0,3,4_line_append",
+      "mismatches": 5,
+      "first": [
+        {
+          "index": 523,
+          "x": 2,
+          "y": 4,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 527,
+          "x": 3,
+          "y": 4,
+          "channel": 3,
+          "local": 64,
+          "browser": 255
+        },
+        {
+          "index": 1183,
+          "x": 7,
+          "y": 9,
+          "channel": 3,
+          "local": 64,
+          "browser": 0
+        },
+        {
+          "index": 1187,
+          "x": 8,
+          "y": 9,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_0,0,0,0,3,4_line_begin",
+      "mismatches": 58,
+      "first": [
+        {
+          "index": 523,
+          "x": 2,
+          "y": 4,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 527,
+          "x": 3,
+          "y": 4,
+          "channel": 3,
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "index": 531,
+          "x": 4,
+          "y": 4,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 655,
+          "x": 3,
+          "y": 5,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_0,0,0,0,3,4_line_draw",
+      "mismatches": 5,
+      "first": [
+        {
+          "index": 523,
+          "x": 2,
+          "y": 4,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 527,
+          "x": 3,
+          "y": 4,
+          "channel": 3,
+          "local": 64,
+          "browser": 255
+        },
+        {
+          "index": 1183,
+          "x": 7,
+          "y": 9,
+          "channel": 3,
+          "local": 64,
+          "browser": 0
+        },
+        {
+          "index": 1187,
+          "x": 8,
+          "y": 9,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_0,0,0,0,3,4_line_clip",
+      "mismatches": 5,
+      "first": [
+        {
+          "index": 523,
+          "x": 2,
+          "y": 4,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 527,
+          "x": 3,
+          "y": 4,
+          "channel": 3,
+          "local": 64,
+          "browser": 255
+        },
+        {
+          "index": 1183,
+          "x": 7,
+          "y": 9,
+          "channel": 3,
+          "local": 64,
+          "browser": 0
+        },
+        {
+          "index": 1187,
+          "x": 8,
+          "y": 9,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_0,0,0,0,3,4_quad_append",
+      "mismatches": 5,
+      "first": [
+        {
+          "index": 523,
+          "x": 2,
+          "y": 4,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 527,
+          "x": 3,
+          "y": 4,
+          "channel": 3,
+          "local": 64,
+          "browser": 255
+        },
+        {
+          "index": 1183,
+          "x": 7,
+          "y": 9,
+          "channel": 3,
+          "local": 64,
+          "browser": 0
+        },
+        {
+          "index": 1187,
+          "x": 8,
+          "y": 9,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_0,0,0,0,3,4_quad_begin",
+      "mismatches": 61,
+      "first": [
+        {
+          "index": 391,
+          "x": 1,
+          "y": 3,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 395,
+          "x": 2,
+          "y": 3,
+          "channel": 3,
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "index": 399,
+          "x": 3,
+          "y": 3,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 523,
+          "x": 2,
+          "y": 4,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_0,0,0,0,3,4_quad_draw",
+      "mismatches": 5,
+      "first": [
+        {
+          "index": 523,
+          "x": 2,
+          "y": 4,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 527,
+          "x": 3,
+          "y": 4,
+          "channel": 3,
+          "local": 64,
+          "browser": 255
+        },
+        {
+          "index": 1183,
+          "x": 7,
+          "y": 9,
+          "channel": 3,
+          "local": 64,
+          "browser": 0
+        },
+        {
+          "index": 1187,
+          "x": 8,
+          "y": 9,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_0,0,0,0,3,4_quad_clip",
+      "mismatches": 5,
+      "first": [
+        {
+          "index": 523,
+          "x": 2,
+          "y": 4,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 527,
+          "x": 3,
+          "y": 4,
+          "channel": 3,
+          "local": 64,
+          "browser": 255
+        },
+        {
+          "index": 1183,
+          "x": 7,
+          "y": 9,
+          "channel": 3,
+          "local": 64,
+          "browser": 0
+        },
+        {
+          "index": 1187,
+          "x": 8,
+          "y": 9,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_0,0,0,0,3,4_cubic_append",
+      "mismatches": 5,
+      "first": [
+        {
+          "index": 523,
+          "x": 2,
+          "y": 4,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 527,
+          "x": 3,
+          "y": 4,
+          "channel": 3,
+          "local": 64,
+          "browser": 255
+        },
+        {
+          "index": 1183,
+          "x": 7,
+          "y": 9,
+          "channel": 3,
+          "local": 64,
+          "browser": 0
+        },
+        {
+          "index": 1187,
+          "x": 8,
+          "y": 9,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_0,0,0,0,3,4_cubic_begin",
+      "mismatches": 61,
+      "first": [
+        {
+          "index": 391,
+          "x": 1,
+          "y": 3,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 395,
+          "x": 2,
+          "y": 3,
+          "channel": 3,
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "index": 399,
+          "x": 3,
+          "y": 3,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 523,
+          "x": 2,
+          "y": 4,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_0,0,0,0,3,4_cubic_draw",
+      "mismatches": 5,
+      "first": [
+        {
+          "index": 523,
+          "x": 2,
+          "y": 4,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 527,
+          "x": 3,
+          "y": 4,
+          "channel": 3,
+          "local": 64,
+          "browser": 255
+        },
+        {
+          "index": 1183,
+          "x": 7,
+          "y": 9,
+          "channel": 3,
+          "local": 64,
+          "browser": 0
+        },
+        {
+          "index": 1187,
+          "x": 8,
+          "y": 9,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_0,0,0,0,3,4_cubic_clip",
+      "mismatches": 5,
+      "first": [
+        {
+          "index": 523,
+          "x": 2,
+          "y": 4,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 527,
+          "x": 3,
+          "y": 4,
+          "channel": 3,
+          "local": 64,
+          "browser": 255
+        },
+        {
+          "index": 1183,
+          "x": 7,
+          "y": 9,
+          "channel": 3,
+          "local": 64,
+          "browser": 0
+        },
+        {
+          "index": 1187,
+          "x": 8,
+          "y": 9,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_0,0,0,0,3,4_arcTo_append",
+      "mismatches": 5,
+      "first": [
+        {
+          "index": 523,
+          "x": 2,
+          "y": 4,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 527,
+          "x": 3,
+          "y": 4,
+          "channel": 3,
+          "local": 64,
+          "browser": 255
+        },
+        {
+          "index": 1183,
+          "x": 7,
+          "y": 9,
+          "channel": 3,
+          "local": 64,
+          "browser": 0
+        },
+        {
+          "index": 1187,
+          "x": 8,
+          "y": 9,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_0,0,0,0,3,4_arcTo_begin",
+      "mismatches": 58,
+      "first": [
+        {
+          "index": 523,
+          "x": 2,
+          "y": 4,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 527,
+          "x": 3,
+          "y": 4,
+          "channel": 3,
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "index": 531,
+          "x": 4,
+          "y": 4,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 655,
+          "x": 3,
+          "y": 5,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_0,0,0,0,3,4_arcTo_draw",
+      "mismatches": 5,
+      "first": [
+        {
+          "index": 523,
+          "x": 2,
+          "y": 4,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 527,
+          "x": 3,
+          "y": 4,
+          "channel": 3,
+          "local": 64,
+          "browser": 255
+        },
+        {
+          "index": 1183,
+          "x": 7,
+          "y": 9,
+          "channel": 3,
+          "local": 64,
+          "browser": 0
+        },
+        {
+          "index": 1187,
+          "x": 8,
+          "y": 9,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_0,0,0,0,3,4_arcTo_clip",
+      "mismatches": 5,
+      "first": [
+        {
+          "index": 523,
+          "x": 2,
+          "y": 4,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 527,
+          "x": 3,
+          "y": 4,
+          "channel": 3,
+          "local": 64,
+          "browser": 255
+        },
+        {
+          "index": 1183,
+          "x": 7,
+          "y": 9,
+          "channel": 3,
+          "local": 64,
+          "browser": 0
+        },
+        {
+          "index": 1187,
+          "x": 8,
+          "y": 9,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,1,1,1,0,0_line_append",
+      "mismatches": 69,
+      "first": [
+        {
+          "index": 659,
+          "x": 4,
+          "y": 5,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        },
+        {
+          "index": 663,
+          "x": 5,
+          "y": 5,
+          "channel": 3,
+          "local": 255,
+          "browser": 127
+        },
+        {
+          "index": 787,
+          "x": 4,
+          "y": 6,
+          "channel": 3,
+          "local": 191,
+          "browser": 127
+        },
+        {
+          "index": 791,
+          "x": 5,
+          "y": 6,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,1,1,1,0,0_line_begin",
+      "mismatches": 74,
+      "first": [
+        {
+          "index": 923,
+          "x": 6,
+          "y": 7,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 927,
+          "x": 7,
+          "y": 7,
+          "channel": 3,
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "index": 931,
+          "x": 8,
+          "y": 7,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 1055,
+          "x": 7,
+          "y": 8,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,1,1,1,0,0_line_draw",
+      "mismatches": 69,
+      "first": [
+        {
+          "index": 659,
+          "x": 4,
+          "y": 5,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        },
+        {
+          "index": 663,
+          "x": 5,
+          "y": 5,
+          "channel": 3,
+          "local": 255,
+          "browser": 127
+        },
+        {
+          "index": 787,
+          "x": 4,
+          "y": 6,
+          "channel": 3,
+          "local": 191,
+          "browser": 127
+        },
+        {
+          "index": 791,
+          "x": 5,
+          "y": 6,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,1,1,1,0,0_line_clip",
+      "mismatches": 69,
+      "first": [
+        {
+          "index": 659,
+          "x": 4,
+          "y": 5,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        },
+        {
+          "index": 663,
+          "x": 5,
+          "y": 5,
+          "channel": 3,
+          "local": 255,
+          "browser": 127
+        },
+        {
+          "index": 787,
+          "x": 4,
+          "y": 6,
+          "channel": 3,
+          "local": 191,
+          "browser": 127
+        },
+        {
+          "index": 791,
+          "x": 5,
+          "y": 6,
+          "channel": 3,
+          "local": 255,
+          "browser": 0
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,1,1,1,0,0_quad_append",
+      "mismatches": 40,
+      "first": [
+        {
+          "index": 787,
+          "x": 4,
+          "y": 6,
+          "channel": 3,
+          "local": 191,
+          "browser": 127
+        },
+        {
+          "index": 791,
+          "x": 5,
+          "y": 6,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        },
+        {
+          "index": 919,
+          "x": 5,
+          "y": 7,
+          "channel": 3,
+          "local": 64,
+          "browser": 0
+        },
+        {
+          "index": 923,
+          "x": 6,
+          "y": 7,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,1,1,1,0,0_quad_begin",
+      "mismatches": 74,
+      "first": [
+        {
+          "index": 267,
+          "x": 2,
+          "y": 2,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 391,
+          "x": 1,
+          "y": 3,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 395,
+          "x": 2,
+          "y": 3,
+          "channel": 3,
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "index": 399,
+          "x": 3,
+          "y": 3,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,1,1,1,0,0_quad_draw",
+      "mismatches": 40,
+      "first": [
+        {
+          "index": 787,
+          "x": 4,
+          "y": 6,
+          "channel": 3,
+          "local": 191,
+          "browser": 127
+        },
+        {
+          "index": 791,
+          "x": 5,
+          "y": 6,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        },
+        {
+          "index": 919,
+          "x": 5,
+          "y": 7,
+          "channel": 3,
+          "local": 64,
+          "browser": 0
+        },
+        {
+          "index": 923,
+          "x": 6,
+          "y": 7,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,1,1,1,0,0_quad_clip",
+      "mismatches": 40,
+      "first": [
+        {
+          "index": 787,
+          "x": 4,
+          "y": 6,
+          "channel": 3,
+          "local": 191,
+          "browser": 127
+        },
+        {
+          "index": 791,
+          "x": 5,
+          "y": 6,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        },
+        {
+          "index": 919,
+          "x": 5,
+          "y": 7,
+          "channel": 3,
+          "local": 64,
+          "browser": 0
+        },
+        {
+          "index": 923,
+          "x": 6,
+          "y": 7,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,1,1,1,0,0_cubic_append",
+      "mismatches": 44,
+      "first": [
+        {
+          "index": 787,
+          "x": 4,
+          "y": 6,
+          "channel": 3,
+          "local": 191,
+          "browser": 127
+        },
+        {
+          "index": 791,
+          "x": 5,
+          "y": 6,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        },
+        {
+          "index": 919,
+          "x": 5,
+          "y": 7,
+          "channel": 3,
+          "local": 64,
+          "browser": 0
+        },
+        {
+          "index": 923,
+          "x": 6,
+          "y": 7,
+          "channel": 3,
+          "local": 255,
+          "browser": 127
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,1,1,1,0,0_cubic_begin",
+      "mismatches": 76,
+      "first": [
+        {
+          "index": 267,
+          "x": 2,
+          "y": 2,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 391,
+          "x": 1,
+          "y": 3,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 395,
+          "x": 2,
+          "y": 3,
+          "channel": 3,
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "index": 399,
+          "x": 3,
+          "y": 3,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,1,1,1,0,0_cubic_draw",
+      "mismatches": 44,
+      "first": [
+        {
+          "index": 787,
+          "x": 4,
+          "y": 6,
+          "channel": 3,
+          "local": 191,
+          "browser": 127
+        },
+        {
+          "index": 791,
+          "x": 5,
+          "y": 6,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        },
+        {
+          "index": 919,
+          "x": 5,
+          "y": 7,
+          "channel": 3,
+          "local": 64,
+          "browser": 0
+        },
+        {
+          "index": 923,
+          "x": 6,
+          "y": 7,
+          "channel": 3,
+          "local": 255,
+          "browser": 127
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,1,1,1,0,0_cubic_clip",
+      "mismatches": 44,
+      "first": [
+        {
+          "index": 787,
+          "x": 4,
+          "y": 6,
+          "channel": 3,
+          "local": 191,
+          "browser": 127
+        },
+        {
+          "index": 791,
+          "x": 5,
+          "y": 6,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        },
+        {
+          "index": 919,
+          "x": 5,
+          "y": 7,
+          "channel": 3,
+          "local": 64,
+          "browser": 0
+        },
+        {
+          "index": 923,
+          "x": 6,
+          "y": 7,
+          "channel": 3,
+          "local": 255,
+          "browser": 127
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,1,1,1,0,0_arcTo_append",
+      "mismatches": 59,
+      "first": [
+        {
+          "index": 659,
+          "x": 4,
+          "y": 5,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        },
+        {
+          "index": 667,
+          "x": 6,
+          "y": 5,
+          "channel": 3,
+          "local": 127,
+          "browser": 191
+        },
+        {
+          "index": 787,
+          "x": 4,
+          "y": 6,
+          "channel": 3,
+          "local": 191,
+          "browser": 127
+        },
+        {
+          "index": 791,
+          "x": 5,
+          "y": 6,
+          "channel": 3,
+          "local": 255,
+          "browser": 64
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,1,1,1,0,0_arcTo_begin",
+      "mismatches": 69,
+      "first": [
+        {
+          "index": 659,
+          "x": 4,
+          "y": 5,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 663,
+          "x": 5,
+          "y": 5,
+          "channel": 3,
+          "local": 0,
+          "browser": 255
+        },
+        {
+          "index": 667,
+          "x": 6,
+          "y": 5,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 791,
+          "x": 5,
+          "y": 6,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,1,1,1,0,0_arcTo_draw",
+      "mismatches": 59,
+      "first": [
+        {
+          "index": 659,
+          "x": 4,
+          "y": 5,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        },
+        {
+          "index": 667,
+          "x": 6,
+          "y": 5,
+          "channel": 3,
+          "local": 127,
+          "browser": 191
+        },
+        {
+          "index": 787,
+          "x": 4,
+          "y": 6,
+          "channel": 3,
+          "local": 191,
+          "browser": 127
+        },
+        {
+          "index": 791,
+          "x": 5,
+          "y": 6,
+          "channel": 3,
+          "local": 255,
+          "browser": 64
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,1,1,1,0,0_arcTo_clip",
+      "mismatches": 59,
+      "first": [
+        {
+          "index": 659,
+          "x": 4,
+          "y": 5,
+          "channel": 3,
+          "local": 255,
+          "browser": 191
+        },
+        {
+          "index": 667,
+          "x": 6,
+          "y": 5,
+          "channel": 3,
+          "local": 127,
+          "browser": 191
+        },
+        {
+          "index": 787,
+          "x": 4,
+          "y": 6,
+          "channel": 3,
+          "local": 191,
+          "browser": 127
+        },
+        {
+          "index": 791,
+          "x": 5,
+          "y": 6,
+          "channel": 3,
+          "local": 255,
+          "browser": 64
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,0,0,0,0,0_line_append",
+      "mismatches": 123,
+      "first": [
+        {
+          "index": 15,
+          "x": 3,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 19,
+          "x": 4,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 23,
+          "x": 5,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 27,
+          "x": 6,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,0,0,0,0,0_line_begin",
+      "mismatches": 72,
+      "first": [
+        {
+          "index": 15,
+          "x": 3,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 19,
+          "x": 4,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 23,
+          "x": 5,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 27,
+          "x": 6,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,0,0,0,0,0_line_draw",
+      "mismatches": 123,
+      "first": [
+        {
+          "index": 15,
+          "x": 3,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 19,
+          "x": 4,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 23,
+          "x": 5,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 27,
+          "x": 6,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,0,0,0,0,0_line_clip",
+      "mismatches": 123,
+      "first": [
+        {
+          "index": 15,
+          "x": 3,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 19,
+          "x": 4,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 23,
+          "x": 5,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 27,
+          "x": 6,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,0,0,0,0,0_quad_append",
+      "mismatches": 131,
+      "first": [
+        {
+          "index": 35,
+          "x": 8,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 39,
+          "x": 9,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 43,
+          "x": 10,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 191
+        },
+        {
+          "index": 47,
+          "x": 11,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,0,0,0,0,0_quad_begin",
+      "mismatches": 79,
+      "first": [
+        {
+          "index": 23,
+          "x": 5,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 27,
+          "x": 6,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 31,
+          "x": 7,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 191
+        },
+        {
+          "index": 35,
+          "x": 8,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,0,0,0,0,0_quad_draw",
+      "mismatches": 131,
+      "first": [
+        {
+          "index": 35,
+          "x": 8,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 39,
+          "x": 9,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 43,
+          "x": 10,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 191
+        },
+        {
+          "index": 47,
+          "x": 11,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,0,0,0,0,0_quad_clip",
+      "mismatches": 131,
+      "first": [
+        {
+          "index": 35,
+          "x": 8,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 39,
+          "x": 9,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 43,
+          "x": 10,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 191
+        },
+        {
+          "index": 47,
+          "x": 11,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,0,0,0,0,0_cubic_append",
+      "mismatches": 134,
+      "first": [
+        {
+          "index": 43,
+          "x": 10,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 47,
+          "x": 11,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 51,
+          "x": 12,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 191
+        },
+        {
+          "index": 55,
+          "x": 13,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,0,0,0,0,0_cubic_begin",
+      "mismatches": 82,
+      "first": [
+        {
+          "index": 23,
+          "x": 5,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 27,
+          "x": 6,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 31,
+          "x": 7,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 35,
+          "x": 8,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,0,0,0,0,0_cubic_draw",
+      "mismatches": 134,
+      "first": [
+        {
+          "index": 43,
+          "x": 10,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 47,
+          "x": 11,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 51,
+          "x": 12,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 191
+        },
+        {
+          "index": 55,
+          "x": 13,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,0,0,0,0,0_cubic_clip",
+      "mismatches": 134,
+      "first": [
+        {
+          "index": 43,
+          "x": 10,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 64
+        },
+        {
+          "index": 47,
+          "x": 11,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 51,
+          "x": 12,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 191
+        },
+        {
+          "index": 55,
+          "x": 13,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,0,0,0,0,0_arcTo_append",
+      "mismatches": 123,
+      "first": [
+        {
+          "index": 11,
+          "x": 2,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 15,
+          "x": 3,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 19,
+          "x": 4,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 23,
+          "x": 5,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,0,0,0,0,0_arcTo_begin",
+      "mismatches": 72,
+      "first": [
+        {
+          "index": 11,
+          "x": 2,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 15,
+          "x": 3,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 19,
+          "x": 4,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 23,
+          "x": 5,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,0,0,0,0,0_arcTo_draw",
+      "mismatches": 123,
+      "first": [
+        {
+          "index": 11,
+          "x": 2,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 15,
+          "x": 3,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 19,
+          "x": 4,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 23,
+          "x": 5,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        }
+      ]
+    },
+    {
+      "name": "matrixPath_1,0,0,0,0,0_arcTo_clip",
+      "mismatches": 123,
+      "first": [
+        {
+          "index": 11,
+          "x": 2,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 15,
+          "x": 3,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 19,
+          "x": 4,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        },
+        {
+          "index": 23,
+          "x": 5,
+          "y": 0,
+          "channel": 3,
+          "local": 0,
+          "browser": 127
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_copy_fillRect_solid",
+      "mismatches": 211,
+      "first": [
+        {
+          "index": 558,
+          "x": 11,
+          "y": 4,
+          "channel": 2,
+          "local": 19,
+          "browser": 17
+        },
+        {
+          "index": 559,
+          "x": 11,
+          "y": 4,
+          "channel": 3,
+          "local": 178,
+          "browser": 206
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 200,
+          "browser": 241
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 154,
+          "browser": 162
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_copy_fillRect_gradient",
+      "mismatches": 161,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 249,
+          "browser": 250
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 149,
+          "browser": 151
+        },
+        {
+          "index": 559,
+          "x": 11,
+          "y": 4,
+          "channel": 3,
+          "local": 181,
+          "browser": 209
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 235,
+          "browser": 250
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_copy_fillRect_pattern",
+      "mismatches": 100,
+      "first": [
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 559,
+          "x": 11,
+          "y": 4,
+          "channel": 3,
+          "local": 164,
+          "browser": 191
+        },
+        {
+          "index": 563,
+          "x": 12,
+          "y": 4,
+          "channel": 3,
+          "local": 69,
+          "browser": 191
+        },
+        {
+          "index": 565,
+          "x": 13,
+          "y": 4,
+          "channel": 1,
+          "local": 158,
+          "browser": 163
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_copy_strokeRect_solid",
+      "mismatches": 129,
+      "first": [
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 559,
+          "x": 11,
+          "y": 4,
+          "channel": 3,
+          "local": 215,
+          "browser": 191
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 563,
+          "x": 12,
+          "y": 4,
+          "channel": 3,
+          "local": 133,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_copy_strokeRect_gradient",
+      "mismatches": 116,
+      "first": [
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 559,
+          "x": 11,
+          "y": 4,
+          "channel": 3,
+          "local": 215,
+          "browser": 191
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 563,
+          "x": 12,
+          "y": 4,
+          "channel": 3,
+          "local": 133,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_copy_strokeRect_pattern",
+      "mismatches": 101,
+      "first": [
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 559,
+          "x": 11,
+          "y": 4,
+          "channel": 3,
+          "local": 215,
+          "browser": 191
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 563,
+          "x": 12,
+          "y": 4,
+          "channel": 3,
+          "local": 133,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_copy_fill_solid",
+      "mismatches": 168,
+      "first": [
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 559,
+          "x": 11,
+          "y": 4,
+          "channel": 3,
+          "local": 215,
+          "browser": 191
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 563,
+          "x": 12,
+          "y": 4,
+          "channel": 3,
+          "local": 133,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_copy_fill_gradient",
+      "mismatches": 135,
+      "first": [
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 559,
+          "x": 11,
+          "y": 4,
+          "channel": 3,
+          "local": 215,
+          "browser": 191
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 563,
+          "x": 12,
+          "y": 4,
+          "channel": 3,
+          "local": 133,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_copy_fill_pattern",
+      "mismatches": 99,
+      "first": [
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 559,
+          "x": 11,
+          "y": 4,
+          "channel": 3,
+          "local": 215,
+          "browser": 191
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 563,
+          "x": 12,
+          "y": 4,
+          "channel": 3,
+          "local": 133,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_copy_stroke_solid",
+      "mismatches": 142,
+      "first": [
+        {
+          "index": 448,
+          "x": 16,
+          "y": 3,
+          "channel": 0,
+          "local": 254,
+          "browser": 255
+        },
+        {
+          "index": 449,
+          "x": 16,
+          "y": 3,
+          "channel": 1,
+          "local": 164,
+          "browser": 165
+        },
+        {
+          "index": 451,
+          "x": 16,
+          "y": 3,
+          "channel": 3,
+          "local": 253,
+          "browser": 255
+        },
+        {
+          "index": 558,
+          "x": 11,
+          "y": 4,
+          "channel": 2,
+          "local": 19,
+          "browser": 17
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_copy_stroke_gradient",
+      "mismatches": 124,
+      "first": [
+        {
+          "index": 448,
+          "x": 16,
+          "y": 3,
+          "channel": 0,
+          "local": 254,
+          "browser": 255
+        },
+        {
+          "index": 449,
+          "x": 16,
+          "y": 3,
+          "channel": 1,
+          "local": 164,
+          "browser": 165
+        },
+        {
+          "index": 451,
+          "x": 16,
+          "y": 3,
+          "channel": 3,
+          "local": 253,
+          "browser": 255
+        },
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 249,
+          "browser": 250
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_copy_stroke_pattern",
+      "mismatches": 97,
+      "first": [
+        {
+          "index": 451,
+          "x": 16,
+          "y": 3,
+          "channel": 3,
+          "local": 252,
+          "browser": 255
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 559,
+          "x": 11,
+          "y": 4,
+          "channel": 3,
+          "local": 164,
+          "browser": 191
+        },
+        {
+          "index": 563,
+          "x": 12,
+          "y": 4,
+          "channel": 3,
+          "local": 69,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_copy_fillText_solid",
+      "mismatches": 137,
+      "first": [
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 559,
+          "x": 11,
+          "y": 4,
+          "channel": 3,
+          "local": 215,
+          "browser": 191
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 563,
+          "x": 12,
+          "y": 4,
+          "channel": 3,
+          "local": 133,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_copy_fillText_gradient",
+      "mismatches": 101,
+      "first": [
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 559,
+          "x": 11,
+          "y": 4,
+          "channel": 3,
+          "local": 215,
+          "browser": 191
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 563,
+          "x": 12,
+          "y": 4,
+          "channel": 3,
+          "local": 133,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_copy_fillText_pattern",
+      "mismatches": 96,
+      "first": [
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 559,
+          "x": 11,
+          "y": 4,
+          "channel": 3,
+          "local": 215,
+          "browser": 191
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 563,
+          "x": 12,
+          "y": 4,
+          "channel": 3,
+          "local": 133,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_copy_strokeText_solid",
+      "mismatches": 196,
+      "first": [
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 559,
+          "x": 11,
+          "y": 4,
+          "channel": 3,
+          "local": 215,
+          "browser": 191
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 563,
+          "x": 12,
+          "y": 4,
+          "channel": 3,
+          "local": 133,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_copy_strokeText_gradient",
+      "mismatches": 110,
+      "first": [
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 559,
+          "x": 11,
+          "y": 4,
+          "channel": 3,
+          "local": 215,
+          "browser": 191
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 563,
+          "x": 12,
+          "y": 4,
+          "channel": 3,
+          "local": 133,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_copy_strokeText_pattern",
+      "mismatches": 98,
+      "first": [
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 559,
+          "x": 11,
+          "y": 4,
+          "channel": 3,
+          "local": 215,
+          "browser": 191
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 563,
+          "x": 12,
+          "y": 4,
+          "channel": 3,
+          "local": 133,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_copy_drawImage_solid",
+      "mismatches": 186,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 209,
+          "browser": 213
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 135,
+          "browser": 138
+        },
+        {
+          "index": 558,
+          "x": 11,
+          "y": 4,
+          "channel": 2,
+          "local": 46,
+          "browser": 42
+        },
+        {
+          "index": 559,
+          "x": 11,
+          "y": 4,
+          "channel": 3,
+          "local": 200,
+          "browser": 229
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_copy_drawImage_gradient",
+      "mismatches": 186,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 209,
+          "browser": 213
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 135,
+          "browser": 138
+        },
+        {
+          "index": 558,
+          "x": 11,
+          "y": 4,
+          "channel": 2,
+          "local": 46,
+          "browser": 42
+        },
+        {
+          "index": 559,
+          "x": 11,
+          "y": 4,
+          "channel": 3,
+          "local": 200,
+          "browser": 229
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_copy_drawImage_pattern",
+      "mismatches": 186,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 209,
+          "browser": 213
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 135,
+          "browser": 138
+        },
+        {
+          "index": 558,
+          "x": 11,
+          "y": 4,
+          "channel": 2,
+          "local": 46,
+          "browser": 42
+        },
+        {
+          "index": 559,
+          "x": 11,
+          "y": 4,
+          "channel": 3,
+          "local": 200,
+          "browser": 229
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_source-over_fillRect_solid",
+      "mismatches": 358,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 239,
+          "browser": 238
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 164,
+          "browser": 163
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 222,
+          "browser": 238
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 162,
+          "browser": 163
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_source-over_fillRect_gradient",
+      "mismatches": 140,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 243,
+          "browser": 244
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 156,
+          "browser": 154
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 231,
+          "browser": 244
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 146,
+          "browser": 155
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_source-over_fillRect_pattern",
+      "mismatches": 15,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 253,
+          "browser": 252
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 166,
+          "browser": 165
+        },
+        {
+          "index": 558,
+          "x": 11,
+          "y": 4,
+          "channel": 2,
+          "local": 0,
+          "browser": 1
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 252,
+          "browser": 253
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_source-over_strokeRect_solid",
+      "mismatches": 166,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 252,
+          "browser": 251
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 166,
+          "browser": 165
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 249,
+          "browser": 251
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 166,
+          "browser": 165
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_source-over_strokeRect_gradient",
+      "mismatches": 98,
+      "first": [
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 247,
+          "browser": 250
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 166,
+          "browser": 165
+        },
+        {
+          "index": 562,
+          "x": 12,
+          "y": 4,
+          "channel": 2,
+          "local": 2,
+          "browser": 1
+        },
+        {
+          "index": 564,
+          "x": 13,
+          "y": 4,
+          "channel": 0,
+          "local": 235,
+          "browser": 233
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_source-over_strokeRect_pattern",
+      "mismatches": 5,
+      "first": [
+        {
+          "index": 680,
+          "x": 10,
+          "y": 5,
+          "channel": 0,
+          "local": 254,
+          "browser": 253
+        },
+        {
+          "index": 800,
+          "x": 8,
+          "y": 6,
+          "channel": 0,
+          "local": 251,
+          "browser": 253
+        },
+        {
+          "index": 802,
+          "x": 8,
+          "y": 6,
+          "channel": 2,
+          "local": 1,
+          "browser": 0
+        },
+        {
+          "index": 1172,
+          "x": 5,
+          "y": 9,
+          "channel": 0,
+          "local": 254,
+          "browser": 255
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_source-over_fill_solid",
+      "mismatches": 312,
+      "first": [
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 247,
+          "browser": 251
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 166,
+          "browser": 165
+        },
+        {
+          "index": 562,
+          "x": 12,
+          "y": 4,
+          "channel": 2,
+          "local": 2,
+          "browser": 1
+        },
+        {
+          "index": 564,
+          "x": 13,
+          "y": 4,
+          "channel": 0,
+          "local": 243,
+          "browser": 242
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_source-over_fill_gradient",
+      "mismatches": 105,
+      "first": [
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 245,
+          "browser": 250
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 167,
+          "browser": 166
+        },
+        {
+          "index": 562,
+          "x": 12,
+          "y": 4,
+          "channel": 2,
+          "local": 3,
+          "browser": 1
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_source-over_fill_pattern",
+      "mismatches": 9,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 254,
+          "browser": 253
+        },
+        {
+          "index": 676,
+          "x": 9,
+          "y": 5,
+          "channel": 0,
+          "local": 251,
+          "browser": 249
+        },
+        {
+          "index": 677,
+          "x": 9,
+          "y": 5,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 680,
+          "x": 10,
+          "y": 5,
+          "channel": 0,
+          "local": 242,
+          "browser": 240
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_source-over_stroke_solid",
+      "mismatches": 157,
+      "first": [
+        {
+          "index": 448,
+          "x": 16,
+          "y": 3,
+          "channel": 0,
+          "local": 254,
+          "browser": 255
+        },
+        {
+          "index": 449,
+          "x": 16,
+          "y": 3,
+          "channel": 1,
+          "local": 164,
+          "browser": 165
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 230,
+          "browser": 242
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 160,
+          "browser": 162
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_source-over_stroke_gradient",
+      "mismatches": 96,
+      "first": [
+        {
+          "index": 448,
+          "x": 16,
+          "y": 3,
+          "channel": 0,
+          "local": 254,
+          "browser": 255
+        },
+        {
+          "index": 449,
+          "x": 16,
+          "y": 3,
+          "channel": 1,
+          "local": 164,
+          "browser": 165
+        },
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 247,
+          "browser": 248
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 242,
+          "browser": 249
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_source-over_stroke_pattern",
+      "mismatches": 14,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 253,
+          "browser": 252
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 166,
+          "browser": 165
+        },
+        {
+          "index": 558,
+          "x": 11,
+          "y": 4,
+          "channel": 2,
+          "local": 0,
+          "browser": 1
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 252,
+          "browser": 253
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_source-over_fillText_solid",
+      "mismatches": 58,
+      "first": [
+        {
+          "index": 1329,
+          "x": 12,
+          "y": 10,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 1438,
+          "x": 7,
+          "y": 11,
+          "channel": 2,
+          "local": 53,
+          "browser": 54
+        },
+        {
+          "index": 1561,
+          "x": 6,
+          "y": 12,
+          "channel": 1,
+          "local": 157,
+          "browser": 156
+        },
+        {
+          "index": 1568,
+          "x": 8,
+          "y": 12,
+          "channel": 0,
+          "local": 223,
+          "browser": 222
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_source-over_fillText_gradient",
+      "mismatches": 11,
+      "first": [
+        {
+          "index": 2064,
+          "x": 4,
+          "y": 16,
+          "channel": 0,
+          "local": 251,
+          "browser": 250
+        },
+        {
+          "index": 2065,
+          "x": 4,
+          "y": 16,
+          "channel": 1,
+          "local": 158,
+          "browser": 157
+        },
+        {
+          "index": 2193,
+          "x": 4,
+          "y": 17,
+          "channel": 1,
+          "local": 156,
+          "browser": 157
+        },
+        {
+          "index": 2320,
+          "x": 4,
+          "y": 18,
+          "channel": 0,
+          "local": 245,
+          "browser": 243
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_source-over_strokeText_solid",
+      "mismatches": 137,
+      "first": [
+        {
+          "index": 1176,
+          "x": 6,
+          "y": 9,
+          "channel": 0,
+          "local": 255,
+          "browser": 254
+        },
+        {
+          "index": 1177,
+          "x": 6,
+          "y": 9,
+          "channel": 1,
+          "local": 165,
+          "browser": 164
+        },
+        {
+          "index": 1300,
+          "x": 5,
+          "y": 10,
+          "channel": 0,
+          "local": 255,
+          "browser": 254
+        },
+        {
+          "index": 1301,
+          "x": 5,
+          "y": 10,
+          "channel": 1,
+          "local": 165,
+          "browser": 164
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_source-over_strokeText_gradient",
+      "mismatches": 20,
+      "first": [
+        {
+          "index": 1177,
+          "x": 6,
+          "y": 9,
+          "channel": 1,
+          "local": 164,
+          "browser": 165
+        },
+        {
+          "index": 1300,
+          "x": 5,
+          "y": 10,
+          "channel": 0,
+          "local": 255,
+          "browser": 254
+        },
+        {
+          "index": 1301,
+          "x": 5,
+          "y": 10,
+          "channel": 1,
+          "local": 165,
+          "browser": 164
+        },
+        {
+          "index": 1425,
+          "x": 4,
+          "y": 11,
+          "channel": 1,
+          "local": 164,
+          "browser": 165
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_source-over_drawImage_solid",
+      "mismatches": 111,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 226,
+          "browser": 209
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 150,
+          "browser": 141
+        },
+        {
+          "index": 558,
+          "x": 11,
+          "y": 4,
+          "channel": 2,
+          "local": 25,
+          "browser": 40
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 168,
+          "browser": 209
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_source-over_drawImage_gradient",
+      "mismatches": 111,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 226,
+          "browser": 209
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 150,
+          "browser": 141
+        },
+        {
+          "index": 558,
+          "x": 11,
+          "y": 4,
+          "channel": 2,
+          "local": 25,
+          "browser": 40
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 168,
+          "browser": 209
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_true_source-over_drawImage_pattern",
+      "mismatches": 111,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 226,
+          "browser": 209
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 150,
+          "browser": 141
+        },
+        {
+          "index": 558,
+          "x": 11,
+          "y": 4,
+          "channel": 2,
+          "local": 25,
+          "browser": 40
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 168,
+          "browser": 209
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_copy_fillRect_solid",
+      "mismatches": 224,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 198,
+          "browser": 195
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 133,
+          "browser": 131
+        },
+        {
+          "index": 558,
+          "x": 11,
+          "y": 4,
+          "channel": 2,
+          "local": 15,
+          "browser": 14
+        },
+        {
+          "index": 559,
+          "x": 11,
+          "y": 4,
+          "channel": 3,
+          "local": 216,
+          "browser": 255
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_copy_fillRect_gradient",
+      "mismatches": 163,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 206,
+          "browser": 205
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 123,
+          "browser": 124
+        },
+        {
+          "index": 559,
+          "x": 11,
+          "y": 4,
+          "channel": 3,
+          "local": 219,
+          "browser": 255
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 115,
+          "browser": 204
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_copy_fillRect_pattern",
+      "mismatches": 150,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 205,
+          "browser": 191
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 132,
+          "browser": 124
+        },
+        {
+          "index": 559,
+          "x": 11,
+          "y": 4,
+          "channel": 3,
+          "local": 204,
+          "browser": 255
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 92,
+          "browser": 191
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_copy_strokeRect_solid",
+      "mismatches": 147,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 215,
+          "browser": 191
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 139,
+          "browser": 124
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 133,
+          "browser": 191
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 86,
+          "browser": 124
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_copy_strokeRect_gradient",
+      "mismatches": 134,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 215,
+          "browser": 191
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 139,
+          "browser": 124
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 133,
+          "browser": 191
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 86,
+          "browser": 124
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_copy_strokeRect_pattern",
+      "mismatches": 132,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 215,
+          "browser": 191
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 139,
+          "browser": 124
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 133,
+          "browser": 191
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 86,
+          "browser": 124
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_copy_fill_solid",
+      "mismatches": 181,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 215,
+          "browser": 191
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 139,
+          "browser": 124
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 133,
+          "browser": 191
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 86,
+          "browser": 124
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_copy_fill_gradient",
+      "mismatches": 146,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 215,
+          "browser": 191
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 139,
+          "browser": 124
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 133,
+          "browser": 191
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 86,
+          "browser": 124
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_copy_fill_pattern",
+      "mismatches": 137,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 215,
+          "browser": 191
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 139,
+          "browser": 124
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 133,
+          "browser": 191
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 86,
+          "browser": 124
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_copy_stroke_solid",
+      "mismatches": 164,
+      "first": [
+        {
+          "index": 448,
+          "x": 16,
+          "y": 3,
+          "channel": 0,
+          "local": 254,
+          "browser": 255
+        },
+        {
+          "index": 449,
+          "x": 16,
+          "y": 3,
+          "channel": 1,
+          "local": 164,
+          "browser": 165
+        },
+        {
+          "index": 451,
+          "x": 16,
+          "y": 3,
+          "channel": 3,
+          "local": 253,
+          "browser": 255
+        },
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 198,
+          "browser": 195
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_copy_stroke_gradient",
+      "mismatches": 140,
+      "first": [
+        {
+          "index": 448,
+          "x": 16,
+          "y": 3,
+          "channel": 0,
+          "local": 254,
+          "browser": 255
+        },
+        {
+          "index": 449,
+          "x": 16,
+          "y": 3,
+          "channel": 1,
+          "local": 164,
+          "browser": 165
+        },
+        {
+          "index": 451,
+          "x": 16,
+          "y": 3,
+          "channel": 3,
+          "local": 253,
+          "browser": 255
+        },
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 206,
+          "browser": 205
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_copy_stroke_pattern",
+      "mismatches": 136,
+      "first": [
+        {
+          "index": 451,
+          "x": 16,
+          "y": 3,
+          "channel": 3,
+          "local": 252,
+          "browser": 255
+        },
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 205,
+          "browser": 191
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 132,
+          "browser": 124
+        },
+        {
+          "index": 559,
+          "x": 11,
+          "y": 4,
+          "channel": 3,
+          "local": 204,
+          "browser": 255
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_copy_fillText_solid",
+      "mismatches": 129,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 215,
+          "browser": 191
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 139,
+          "browser": 124
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 133,
+          "browser": 191
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 86,
+          "browser": 124
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_copy_fillText_gradient",
+      "mismatches": 124,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 215,
+          "browser": 191
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 139,
+          "browser": 124
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 133,
+          "browser": 191
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 86,
+          "browser": 124
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_copy_fillText_pattern",
+      "mismatches": 123,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 215,
+          "browser": 191
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 139,
+          "browser": 124
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 133,
+          "browser": 191
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 86,
+          "browser": 124
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_copy_strokeText_solid",
+      "mismatches": 151,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 215,
+          "browser": 191
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 139,
+          "browser": 124
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 133,
+          "browser": 191
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 86,
+          "browser": 124
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_copy_strokeText_gradient",
+      "mismatches": 127,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 215,
+          "browser": 191
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 139,
+          "browser": 124
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 133,
+          "browser": 191
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 86,
+          "browser": 124
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_copy_strokeText_pattern",
+      "mismatches": 123,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 215,
+          "browser": 191
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 139,
+          "browser": 124
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 133,
+          "browser": 191
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 86,
+          "browser": 124
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_copy_drawImage_solid",
+      "mismatches": 194,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 178,
+          "browser": 191
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 115,
+          "browser": 124
+        },
+        {
+          "index": 558,
+          "x": 11,
+          "y": 4,
+          "channel": 2,
+          "local": 39,
+          "browser": 38
+        },
+        {
+          "index": 559,
+          "x": 11,
+          "y": 4,
+          "channel": 3,
+          "local": 235,
+          "browser": 255
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_copy_drawImage_gradient",
+      "mismatches": 194,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 178,
+          "browser": 191
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 115,
+          "browser": 124
+        },
+        {
+          "index": 558,
+          "x": 11,
+          "y": 4,
+          "channel": 2,
+          "local": 39,
+          "browser": 38
+        },
+        {
+          "index": 559,
+          "x": 11,
+          "y": 4,
+          "channel": 3,
+          "local": 235,
+          "browser": 255
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_copy_drawImage_pattern",
+      "mismatches": 194,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 178,
+          "browser": 191
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 115,
+          "browser": 124
+        },
+        {
+          "index": 558,
+          "x": 11,
+          "y": 4,
+          "channel": 2,
+          "local": 39,
+          "browser": 38
+        },
+        {
+          "index": 559,
+          "x": 11,
+          "y": 4,
+          "channel": 3,
+          "local": 235,
+          "browser": 255
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_source-over_fillRect_solid",
+      "mismatches": 358,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 239,
+          "browser": 238
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 164,
+          "browser": 163
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 222,
+          "browser": 238
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 162,
+          "browser": 163
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_source-over_fillRect_gradient",
+      "mismatches": 140,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 243,
+          "browser": 244
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 156,
+          "browser": 154
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 231,
+          "browser": 244
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 146,
+          "browser": 155
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_source-over_fillRect_pattern",
+      "mismatches": 15,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 253,
+          "browser": 252
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 166,
+          "browser": 165
+        },
+        {
+          "index": 558,
+          "x": 11,
+          "y": 4,
+          "channel": 2,
+          "local": 0,
+          "browser": 1
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 252,
+          "browser": 253
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_source-over_strokeRect_solid",
+      "mismatches": 166,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 252,
+          "browser": 251
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 166,
+          "browser": 165
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 249,
+          "browser": 251
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 166,
+          "browser": 165
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_source-over_strokeRect_gradient",
+      "mismatches": 98,
+      "first": [
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 247,
+          "browser": 250
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 166,
+          "browser": 165
+        },
+        {
+          "index": 562,
+          "x": 12,
+          "y": 4,
+          "channel": 2,
+          "local": 2,
+          "browser": 1
+        },
+        {
+          "index": 564,
+          "x": 13,
+          "y": 4,
+          "channel": 0,
+          "local": 235,
+          "browser": 233
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_source-over_strokeRect_pattern",
+      "mismatches": 5,
+      "first": [
+        {
+          "index": 680,
+          "x": 10,
+          "y": 5,
+          "channel": 0,
+          "local": 254,
+          "browser": 253
+        },
+        {
+          "index": 800,
+          "x": 8,
+          "y": 6,
+          "channel": 0,
+          "local": 251,
+          "browser": 253
+        },
+        {
+          "index": 802,
+          "x": 8,
+          "y": 6,
+          "channel": 2,
+          "local": 1,
+          "browser": 0
+        },
+        {
+          "index": 1172,
+          "x": 5,
+          "y": 9,
+          "channel": 0,
+          "local": 254,
+          "browser": 255
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_source-over_fill_solid",
+      "mismatches": 312,
+      "first": [
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 247,
+          "browser": 251
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 166,
+          "browser": 165
+        },
+        {
+          "index": 562,
+          "x": 12,
+          "y": 4,
+          "channel": 2,
+          "local": 2,
+          "browser": 1
+        },
+        {
+          "index": 564,
+          "x": 13,
+          "y": 4,
+          "channel": 0,
+          "local": 243,
+          "browser": 242
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_source-over_fill_gradient",
+      "mismatches": 105,
+      "first": [
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 245,
+          "browser": 250
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 167,
+          "browser": 166
+        },
+        {
+          "index": 562,
+          "x": 12,
+          "y": 4,
+          "channel": 2,
+          "local": 3,
+          "browser": 1
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_source-over_fill_pattern",
+      "mismatches": 9,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 254,
+          "browser": 253
+        },
+        {
+          "index": 676,
+          "x": 9,
+          "y": 5,
+          "channel": 0,
+          "local": 251,
+          "browser": 249
+        },
+        {
+          "index": 677,
+          "x": 9,
+          "y": 5,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 680,
+          "x": 10,
+          "y": 5,
+          "channel": 0,
+          "local": 242,
+          "browser": 240
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_source-over_stroke_solid",
+      "mismatches": 157,
+      "first": [
+        {
+          "index": 448,
+          "x": 16,
+          "y": 3,
+          "channel": 0,
+          "local": 254,
+          "browser": 255
+        },
+        {
+          "index": 449,
+          "x": 16,
+          "y": 3,
+          "channel": 1,
+          "local": 164,
+          "browser": 165
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 230,
+          "browser": 242
+        },
+        {
+          "index": 561,
+          "x": 12,
+          "y": 4,
+          "channel": 1,
+          "local": 160,
+          "browser": 162
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_source-over_stroke_gradient",
+      "mismatches": 96,
+      "first": [
+        {
+          "index": 448,
+          "x": 16,
+          "y": 3,
+          "channel": 0,
+          "local": 254,
+          "browser": 255
+        },
+        {
+          "index": 449,
+          "x": 16,
+          "y": 3,
+          "channel": 1,
+          "local": 164,
+          "browser": 165
+        },
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 247,
+          "browser": 248
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 242,
+          "browser": 249
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_source-over_stroke_pattern",
+      "mismatches": 14,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 253,
+          "browser": 252
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 166,
+          "browser": 165
+        },
+        {
+          "index": 558,
+          "x": 11,
+          "y": 4,
+          "channel": 2,
+          "local": 0,
+          "browser": 1
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 252,
+          "browser": 253
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_source-over_fillText_solid",
+      "mismatches": 74,
+      "first": [
+        {
+          "index": 1329,
+          "x": 12,
+          "y": 10,
+          "channel": 1,
+          "local": 165,
+          "browser": 166
+        },
+        {
+          "index": 1440,
+          "x": 8,
+          "y": 11,
+          "channel": 0,
+          "local": 228,
+          "browser": 227
+        },
+        {
+          "index": 1461,
+          "x": 13,
+          "y": 11,
+          "channel": 1,
+          "local": 157,
+          "browser": 156
+        },
+        {
+          "index": 1560,
+          "x": 6,
+          "y": 12,
+          "channel": 0,
+          "local": 232,
+          "browser": 231
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_source-over_fillText_gradient",
+      "mismatches": 7,
+      "first": [
+        {
+          "index": 2193,
+          "x": 4,
+          "y": 17,
+          "channel": 1,
+          "local": 156,
+          "browser": 157
+        },
+        {
+          "index": 2320,
+          "x": 4,
+          "y": 18,
+          "channel": 0,
+          "local": 248,
+          "browser": 247
+        },
+        {
+          "index": 2321,
+          "x": 4,
+          "y": 18,
+          "channel": 1,
+          "local": 150,
+          "browser": 149
+        },
+        {
+          "index": 2448,
+          "x": 4,
+          "y": 19,
+          "channel": 0,
+          "local": 246,
+          "browser": 250
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_source-over_strokeText_solid",
+      "mismatches": 120,
+      "first": [
+        {
+          "index": 1176,
+          "x": 6,
+          "y": 9,
+          "channel": 0,
+          "local": 255,
+          "browser": 254
+        },
+        {
+          "index": 1177,
+          "x": 6,
+          "y": 9,
+          "channel": 1,
+          "local": 165,
+          "browser": 164
+        },
+        {
+          "index": 1300,
+          "x": 5,
+          "y": 10,
+          "channel": 0,
+          "local": 255,
+          "browser": 254
+        },
+        {
+          "index": 1301,
+          "x": 5,
+          "y": 10,
+          "channel": 1,
+          "local": 165,
+          "browser": 164
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_source-over_strokeText_gradient",
+      "mismatches": 18,
+      "first": [
+        {
+          "index": 1177,
+          "x": 6,
+          "y": 9,
+          "channel": 1,
+          "local": 164,
+          "browser": 165
+        },
+        {
+          "index": 1300,
+          "x": 5,
+          "y": 10,
+          "channel": 0,
+          "local": 255,
+          "browser": 254
+        },
+        {
+          "index": 1301,
+          "x": 5,
+          "y": 10,
+          "channel": 1,
+          "local": 165,
+          "browser": 164
+        },
+        {
+          "index": 1681,
+          "x": 4,
+          "y": 13,
+          "channel": 1,
+          "local": 162,
+          "browser": 163
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_source-over_drawImage_solid",
+      "mismatches": 111,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 226,
+          "browser": 209
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 150,
+          "browser": 141
+        },
+        {
+          "index": 558,
+          "x": 11,
+          "y": 4,
+          "channel": 2,
+          "local": 25,
+          "browser": 40
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 168,
+          "browser": 209
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_source-over_drawImage_gradient",
+      "mismatches": 111,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 226,
+          "browser": 209
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 150,
+          "browser": 141
+        },
+        {
+          "index": 558,
+          "x": 11,
+          "y": 4,
+          "channel": 2,
+          "local": 25,
+          "browser": 40
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 168,
+          "browser": 209
+        }
+      ]
+    },
+    {
+      "name": "clipPaint_false_source-over_drawImage_pattern",
+      "mismatches": 111,
+      "first": [
+        {
+          "index": 556,
+          "x": 11,
+          "y": 4,
+          "channel": 0,
+          "local": 226,
+          "browser": 209
+        },
+        {
+          "index": 557,
+          "x": 11,
+          "y": 4,
+          "channel": 1,
+          "local": 150,
+          "browser": 141
+        },
+        {
+          "index": 558,
+          "x": 11,
+          "y": 4,
+          "channel": 2,
+          "local": 25,
+          "browser": 40
+        },
+        {
+          "index": 560,
+          "x": 12,
+          "y": 4,
+          "channel": 0,
+          "local": 168,
+          "browser": 209
+        }
+      ]
+    }
+  ]
+}
