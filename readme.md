@@ -182,6 +182,149 @@ npm install $canvasArchive.FullName
 
 编码失败需区分调用层级：C++ 编码函数可能返回 `nullptr`，Node 原生 `encodeImage()` 对可恢复失败返回 `undefined`；`convertToBlob()` 对实际编码失败拒绝 Promise 并抛出 `EncodingError`。无效尺寸、未创建上下文等状态有各自的异常。具体例子、JPEG/WebP 尺寸裁剪及避免方式见 [编码空值说明](docs/2026-09-22_png-encoding-null.md)。
 
+## API 导出与方法
+
+以下清单依据当前已安装的 `require('canvas')` 实际导出和源码核对，共 **41 个顶层导出项**：39 个函数或接口构造器、1 个常量对象、1 个 Symbol。实例上的方法需要先取得对应对象，例如 `ctx.getImageData()`；它们不是 `require('canvas').getImageData()` 这样的顶层函数。
+
+### Canvas、图像与几何对象
+
+| 导出名 | 创建或获取方式 | 用途 |
+| --- | --- | --- |
+| `OffscreenCanvas` | `new OffscreenCanvas(width, height)` | 创建离屏画布，取得上下文、读取绘图结果及导出 Blob |
+| `HTMLCanvasElement` | `new HTMLCanvasElement()` | 本地 Canvas 元素包装，默认 300 × 150；不是真实浏览器 DOM 元素 |
+| `OffscreenCanvasRenderingContext2D` | `offscreen.getContext('2d', options)` | 离屏 2D 上下文的接口类型，不能直接 new |
+| `CanvasRenderingContext2D` | `element.getContext('2d', options)` | 元素 2D 上下文的接口类型，不能直接 new |
+| `ImageData` | `new ImageData(width, height, settings)` 或 `new ImageData(data, width, height, settings)` | 像素数据对象；缓冲区形式可省略 height，由数据长度推导 |
+| `ImageBitmap` | `await createImageBitmap(source)` 或 `canvas.transferToImageBitmap()` | 位图类型，不能直接 new；使用后可调用 close |
+| `ImageBitmapRenderingContext` | `canvas.getContext('bitmaprenderer')` | 接收 ImageBitmap 的上下文类型，不能直接 new |
+| `CanvasGradient` | `ctx.createLinearGradient(...)` 等 | 渐变类型，不能直接 new |
+| `CanvasPattern` | `ctx.createPattern(source, repetition)` | 图案类型，不能直接 new |
+| `TextMetrics` | `ctx.measureText(text)` | 文字度量类型，不能直接 new |
+| `Path2D` | `new Path2D()`、`new Path2D(path)`、`new Path2D(svgPath)` | 可复用路径，支持复制现有路径或解析 SVG 路径字符串 |
+| `DOMMatrix` | `new DOMMatrix()` 或传入矩阵数组、CSS transform 字符串 | 可修改的矩阵 |
+| `DOMMatrixReadOnly` | `new DOMMatrixReadOnly()` 或传入上述初始化值 | 只读矩阵；运算返回新矩阵 |
+| `DOMPoint` | `new DOMPoint(x, y, z, w)` | 可修改的点，默认值为 0、0、0、1 |
+| `DOMPointReadOnly` | `new DOMPointReadOnly(x, y, z, w)` | 只读点，默认值同上 |
+| `Float16Array` | `new Float16Array(length)` 或传入数组、缓冲区 | 半精度数组；优先使用 Node 自带实现，否则使用内嵌兼容实现 |
+
+`getContext('2d', options)` 的配置涉及 `alpha`、`colorSpace`、`colorType`、`willReadFrequently`、`desynchronized`，实际接收结果可通过 `ctx.getContextAttributes()` 查看。ImageData 的 `settings` 使用 `colorSpace`、`pixelFormat`；默认是 `srgb` 与 `rgba-unorm8`，半精度像素使用 `rgba-float16`。
+
+### 顶层函数与辅助导出
+
+| 导出名 / 调用方式 | 返回值 | 说明 |
+| --- | --- | --- |
+| `createImageBitmap(source, options)` | `Promise<ImageBitmap>` | 从本项目 Canvas、ImageBitmap、ImageData 或可解码 Blob 创建位图 |
+| `createImageBitmap(source, sx, sy, sw, sh, options)` | `Promise<ImageBitmap>` | 指定源裁剪区域；options 可设置 resizeWidth、resizeHeight、resizeQuality、imageOrientation、premultiplyAlpha、colorSpaceConversion；支持范围以当前实现为准 |
+| `installWebGLGlobals(target = globalThis)` | target | 将 Canvas、矩阵、位图及 WebGL 类型安装到指定对象；没有 document 时补充最小 createElement 包装，会修改目标对象 |
+| `createWebGLContext(type = 'webgl')` | WebGL 兼容上下文 | 传入 'webgl2' 选择 WebGL2；不是完整 GPU WebGL 绘制实现 |
+| `encodeImage(pixels, width, height, type, quality)` | `Uint8Array` 或 `undefined` | 底层同步编码；传入 RGBA8 的 Uint8Array / Uint8ClampedArray，type 使用 image/png、image/jpeg、image/webp；quality 可省略。错误参数也可能抛异常 |
+| `decodeImage(bytes)` | 含 width、height、data 的像素对象，或 `undefined` | 底层同步解码；传入 Uint8Array / Buffer 编码字节，失败可返回 undefined，错误参数也可能抛异常 |
+| `getRenderDiagnostics()` | JSON 字符串 | 当前进程的后端、实际适配器、表面计数和字体诊断；使用 JSON.parse 解析 |
+| `nativeFunction(target, name, length, isConstructor)` | 函数 | 内部辅助：用 Node-API 函数转发 JS 实现，设置名称、参数数量和构造语义；一般业务无需调用 |
+| `constants` | 对象 | 当前含 57 个 WebGL 数值常量，可用 Object.keys(constants) 枚举 |
+| `canvasPixels` | Symbol | 内部像素读取入口的键，用于 canvas[canvasPixels]() 等内部调用；业务读取优先使用 getImageData |
+
+`createImageBitmap()` 当前不接受 float16 ImageData 作为源。底层 `encodeImage()` 不包含 `convertToBlob()` 的完整状态检查和超限裁剪，业务导出建议使用后者。`getRenderDiagnostics()` 中实际使用的字体追踪需在启动 Node 前设置 `CANVAS_DIAGNOSTICS=1`，然后执行文字绘制；它不等于构建时的完整环境报告。
+
+### WebGL 兼容类型
+
+其余 16 个顶层导出如下。它们保留 WebGL 接口和对象形状，不能据此推断完整 WebGL 渲染能力。
+
+| 导出名 | 用途 |
+| --- | --- |
+| `WebGLRenderingContext`、`WebGL2RenderingContext` | WebGL 1 / 2 兼容上下文类型，可通过 createWebGLContext 获取 |
+| `WebGLBuffer`、`WebGLFramebuffer`、`WebGLRenderbuffer`、`WebGLTexture` | 缓冲区、帧缓冲、渲染缓冲、纹理的兼容类型名 |
+| `WebGLProgram`、`WebGLShader`、`WebGLUniformLocation` | 程序、着色器和 uniform 位置的兼容类型名 |
+| `WebGLQuery`、`WebGLSampler`、`WebGLSync` | 查询、采样器和同步对象的兼容类型名 |
+| `WebGLTransformFeedback`、`WebGLVertexArrayObject` | 变换反馈和顶点数组对象的兼容类型名 |
+| `WebGLActiveInfo`、`WebGLShaderPrecisionFormat` | 活动变量和着色器精度信息的兼容类型名 |
+
+这些资源类型的底层构造器当前是对象占位实现；业务主路径为 Canvas 2D。
+
+### 画布和 2D 上下文的全部方法
+
+`OffscreenCanvas` 提供 `getContext(type, options)`、`transferToImageBitmap()`、`convertToBlob(options)`，以及 `width`、`height`、`oncontextlost`、`oncontextrestored` 属性。`convertToBlob({type, quality})` 返回 `Promise<Blob>`。
+
+`HTMLCanvasElement` 提供 `getContext(type, options)`、`transferControlToOffscreen()` 和 `width`、`height` 属性。当前没有 `toDataURL()` 或 `toBlob()`；需要文件编码时使用 OffscreenCanvas 的 `convertToBlob()`。
+
+两种 2D 上下文共有以下 **44 个方法**：
+
+| 类别 | 方法及常用签名 |
+| --- | --- |
+| 状态 | `save()`、`restore()`、`reset()`、`getContextAttributes()`、`isContextLost()` |
+| 变换 | `scale(x, y)`、`rotate(angle)`、`translate(x, y)`、`transform(a, b, c, d, e, f)`、`setTransform(matrix)` / `setTransform(a, b, c, d, e, f)`、`resetTransform()`、`getTransform()` |
+| 路径 | `beginPath()`、`closePath()`、`moveTo(x, y)`、`lineTo(x, y)`、`quadraticCurveTo(cpx, cpy, x, y)`、`bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y)` |
+| 路径形状 | `arc(x, y, radius, startAngle, endAngle, counterclockwise)`、`arcTo(x1, y1, x2, y2, radius)`、`ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, counterclockwise)`、`rect(x, y, width, height)`、`roundRect(x, y, width, height, radii)` |
+| 填充、描边、裁剪 | `fill()` / `fill(fillRule)` / `fill(path, fillRule)`、`stroke()` / `stroke(path)`、`clip()` / `clip(fillRule)` / `clip(path, fillRule)` |
+| 矩形 | `fillRect(x, y, width, height)`、`strokeRect(x, y, width, height)`、`clearRect(x, y, width, height)` |
+| 命中测试 | `isPointInPath(x, y, fillRule)` / `isPointInPath(path, x, y, fillRule)`、`isPointInStroke(x, y)` / `isPointInStroke(path, x, y)` |
+| 虚线 | `setLineDash(segments)`、`getLineDash()` |
+| 渐变、图案 | `createLinearGradient(x0, y0, x1, y1)`、`createRadialGradient(x0, y0, r0, x1, y1, r1)`、`createConicGradient(startAngle, x, y)`、`createPattern(source, repetition)` |
+| 文字 | `fillText(text, x, y, maxWidth)`、`strokeText(text, x, y, maxWidth)`、`measureText(text)` |
+| 图像 | `drawImage(source, dx, dy)`、`drawImage(source, dx, dy, dw, dh)`、`drawImage(source, sx, sy, sw, sh, dx, dy, dw, dh)` |
+| 像素 | `createImageData(width, height, settings)` / `createImageData(imageData)`、`getImageData(sx, sy, sw, sh, settings)`、`putImageData(imageData, dx, dy)` / `putImageData(imageData, dx, dy, dirtyX, dirtyY, dirtyWidth, dirtyHeight)` |
+
+上表的 `options` / `settings`、`counterclockwise`、`radii`、`fillRule`、`maxWidth` 等按对应重载可省略；角度单位为弧度。`fillRule` 使用 `nonzero` 或 `evenodd`。`createPattern` 的 repetition 使用 `repeat`、`repeat-x`、`repeat-y` 或 `no-repeat`。
+
+上下文的全部公开属性：
+
+| 类别 | 属性 |
+| --- | --- |
+| 所属画布 | `canvas`（只读） |
+| 颜色与合成 | `fillStyle`、`strokeStyle`、`globalAlpha`、`globalCompositeOperation` |
+| 线条 | `lineWidth`、`lineCap`、`lineJoin`、`miterLimit`、`lineDashOffset` |
+| 阴影与滤镜 | `shadowColor`、`shadowBlur`、`shadowOffsetX`、`shadowOffsetY`、`filter` |
+| 文字 | `font`、`textAlign`、`textBaseline`、`direction`、`letterSpacing`、`wordSpacing`、`fontKerning`、`fontStretch`、`fontVariantCaps`、`textRendering`、`lang` |
+| 图像平滑 | `imageSmoothingEnabled`、`imageSmoothingQuality` |
+
+### 路径、矩阵及返回对象的方法
+
+| 对象 | 方法 / 属性 |
+| --- | --- |
+| `Path2D` | `closePath`、`moveTo`、`lineTo`、`quadraticCurveTo`、`bezierCurveTo`、`arcTo`、`arc`、`ellipse`、`rect`、`roundRect`；参数与上下文同名方法一致。另外提供 `addPath(path, transform)`，transform 可省略 |
+| `CanvasGradient` | `addColorStop(offset, color)`，添加 0～1 范围内的色标 |
+| `CanvasPattern` | `setTransform(matrix)`，设置图案矩阵 |
+| `ImageBitmap` | `close()` 释放位图；`width`、`height` 只读 |
+| `ImageBitmapRenderingContext` | `transferFromImageBitmap(bitmap)` 接收位图；`canvas` 只读 |
+| `ImageData` | `width`、`height`、`data`、`colorSpace`、`pixelFormat` 为只读属性；data 中的像素元素可以修改 |
+| `TextMetrics` | 只读度量：`width`、`actualBoundingBoxLeft`、`actualBoundingBoxRight`、`actualBoundingBoxAscent`、`actualBoundingBoxDescent`、`fontBoundingBoxAscent`、`fontBoundingBoxDescent`、`hangingBaseline`、`alphabeticBaseline`、`ideographicBaseline` |
+
+`DOMMatrixReadOnly` 的全部实例方法为 `translate`、`scale`、`scaleNonUniform`、`scale3d`、`rotate`、`rotateFromVector`、`rotateAxisAngle`、`skewX`、`skewY`、`multiply`、`flipX`、`flipY`、`inverse`、`transformPoint`、`toFloat32Array`、`toFloat64Array`、`toJSON`、`toString`。矩阵旋转、倾斜方法的角度单位为度，与 Canvas 上下文不同。
+
+`DOMMatrix` 继承上述方法，另外提供修改自身的 `multiplySelf`、`preMultiplySelf`、`translateSelf`、`scaleSelf`、`scale3dSelf`、`rotateSelf`、`rotateFromVectorSelf`、`rotateAxisAngleSelf`、`skewXSelf`、`skewYSelf`、`invertSelf`、`setMatrixValue`。两个矩阵类型均有静态方法 `fromMatrix`、`fromFloat32Array`、`fromFloat64Array`，以及分量 `m11`～`m44`、二维别名 `a`～`f`、状态 `is2D` / `isIdentity`；DOMMatrix 的分量可写。
+
+`DOMPointReadOnly` 提供静态方法 `fromPoint(point)`、实例方法 `matrixTransform(matrix)` / `toJSON()`，以及 `x`、`y`、`z`、`w` 属性。`DOMPoint` 继承这些方法，分量可写。
+
+### 调用示例与导出自查
+
+```js
+const { OffscreenCanvas, createImageBitmap, getRenderDiagnostics } = require('canvas');
+
+(async () => {
+    const canvas = new OffscreenCanvas(64, 64);
+    const ctx = canvas.getContext('2d');
+    const gradient = ctx.createLinearGradient(0, 0, 64, 0);
+    gradient.addColorStop(0, 'red');
+    gradient.addColorStop(1, 'blue');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 64, 64);
+    const blob = await canvas.convertToBlob({ type: 'image/png' });
+    const bitmap = await createImageBitmap(blob);
+    console.log(blob.type, bitmap.width, bitmap.height);
+    bitmap.close();
+    console.log(JSON.parse(getRenderDiagnostics()).defaultBackend);
+})().catch(console.error);
+```
+
+查看当前实际加载包的全部顶层导出：
+
+```js
+const canvas = require('canvas');
+console.table(Object.keys(canvas).map(name => ({ name, type: typeof canvas[name] })));
+```
+
+本项目不提供其他同名 npm 包的 `createCanvas`、`loadImage`、`registerFont` API。使用本 README 中的接口；未来重新构建或修改导出后，应以实际加载包为准。
+
 ## 验证与已知限制
 
 2026-09-22 归档的本机构建在 Chrome 153.0.8010.48 下完成了 6108 项对照，demo 的 9216 个 RGBA 值零差异，并通过 Worker、GC 和分发包隔离加载验证。证据见 [构建验证归档](docs/2026-09-22_windows-canvas-build-verification.json)。这些是目录调整前的验收记录。
