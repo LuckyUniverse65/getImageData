@@ -8,6 +8,7 @@ import platform
 import re
 import shutil
 import subprocess
+import runpy
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SKIA = ROOT / 'third_party/skia'
@@ -51,28 +52,29 @@ def main():
     output = ROOT / 'dist/canvas-linux'
     output.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(ROOT / 'target/release/libwebgl.so', output / 'canvas.node')
-    (output / 'package.json').write_text(json.dumps({'name': 'canvas', 'version': '0.3.0',
+    (output / 'package.json').write_text(json.dumps({'name': 'canvas', 'version': '0.3.1',
         'private': True, 'main': 'canvas.node', 'os': ['linux'], 'cpu': ['x64']}, indent=2) + '\n')
     binary = output / 'canvas.node'
     notices = ['Portions of this software are copyright (c) 2026 The FreeType Project (www.freetype.org). All rights reserved.\nFreeType is used under the FreeType License (FTL).\n']
     for relative in ['freetype/LICENSE.TXT', 'freetype/docs/FTL.TXT', 'freetype/src/bdf/README',
                      'freetype/src/pcf/README', 'fontconfig/COPYING', 'highway/LICENSE']:
         notices.append(relative + '\n\n' + (SKIA / 'third_party/externals' / relative).read_text())
+    runtime = runpy.run_path(str(ROOT / 'scripts/bundle-linux-runtime.py'))
+    bundled, dependencies, runtime_notices = runtime['bundle'](output, SKIA / 'out/npm-fonts')
+    notices.append(runtime_notices)
     (output / 'LINUX_NOTICES.txt').write_text('\n\n'.join(notices), encoding='utf-8')
-    dependencies = subprocess.check_output(['ldd', str(binary)], text=True)
-    if 'not found' in dependencies:
-        raise RuntimeError(dependencies)
     (output / 'build-info.json').write_text(json.dumps({
         'platform': 'linux', 'arch': 'x64', 'backend': 'skia-raster',
         'skiaRevision': REVISION, 'sha256': hashlib.sha256(binary.read_bytes()).hexdigest(),
         'fontconfigHeadersRevision': FONTCONFIG_REVISION,
         'libc': platform.libc_ver(), 'dependencies': dependencies,
+        'bundledFiles': bundled,
         'compiler': subprocess.check_output(['clang++', '--version'], text=True).splitlines()[0],
         'rust': subprocess.check_output(['rustc', '--version'], text=True).strip(),
         'sources': {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in [
             'build.rs', 'index.js', 'src/webgl_native.rs', 'src/canvas_css.rs', 'src/skia_backend.cpp',
-            'src/render_diagnostics.h', 'src/dommatrix.js', 'scripts/prepare-native.cjs',
-            'scripts/bundle-canvas.cjs', 'snapshot/linux-skia-args.gn']},
+            'src/render_diagnostics.h', 'src/linux_fontconfig.h', 'src/dommatrix.js', 'scripts/prepare-native.cjs',
+            'scripts/bundle-canvas.cjs', 'scripts/build-linux.py', 'scripts/bundle-linux-runtime.py', 'snapshot/linux-skia-args.gn']},
     }, indent=2) + '\n')
     print('Built', binary, flush=True)
 

@@ -62,6 +62,9 @@ fn main() {
 fn build_linux(root: &std::path::Path, out: &std::path::Path) {
     // Node-API is resolved with dlsym; all other symbols must resolve at link time.
     println!("cargo:rustc-link-arg=-Wl,-z,defs");
+    // DT_RPATH applies to indirect dependencies too. Paths are relative to the addon,
+    // so npm installations can move without LD_LIBRARY_PATH or install scripts.
+    println!("cargo:rustc-link-arg=-Wl,--disable-new-dtags,-rpath,$ORIGIN/linux-libs");
     let skia = env::var_os("CANVAS_SKIA_ROOT").map(PathBuf::from).unwrap_or(root.join("third_party/skia"));
     let libs = env::var_os("CANVAS_SKIA_OUT").map(PathBuf::from).unwrap_or(skia.join("out/canvas-linux"));
     let object = out.join("skia_backend.o");

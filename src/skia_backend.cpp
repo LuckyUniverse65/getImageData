@@ -89,11 +89,14 @@ extern "C" uint32_t canvas_lowercase(uint32_t codepoint, uint32_t* output);
 #include <vector>
 
 #include "canvas_machine_config.h"
+#ifndef _WIN32
+#include "linux_fontconfig.h"
+#endif
 static sk_sp<SkFontMgr> canvas_font_manager() {
 #ifdef _WIN32
     return SkFontMgr_New_DirectWrite();
 #else
-    return SkFontMgr_New_FontConfig(nullptr, SkFontScanner_Make_FreeType());
+    return canvas_linux_font_manager();
 #endif
 }
 #include "render_diagnostics.h"
