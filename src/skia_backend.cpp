@@ -2,7 +2,9 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkGraphics.h"
 #include "include/core/SkTiledImageUtils.h"
+#ifndef CANVAS_CPU_ONLY
 #include "include/private/chromium/Slug.h"
+#endif
 #include "include/core/SkData.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkBlurTypes.h"
@@ -1906,6 +1908,7 @@ void skia_canvas_draw_text(void* value, const char* text, uint32_t length,
                                  ? make_shaped_text_blob(text, length, draw_font, position_font, nullptr, small_caps != 0,options)
                                  : make_positioned_text_blob(text, length, draw_font, position_font);
                              if (blob) {
+#ifndef CANVAS_CPU_ONLY
                                  if (source_style.pattern) {
                                      // Chromium prepares glyph strikes before resolving image
                                      // shaders, using their black fallback for mask luminance.
@@ -1916,7 +1919,9 @@ void skia_canvas_draw_text(void* value, const char* text, uint32_t length,
                                          draw_canvas, *blob, {text_x, text_y}, analysis);
                                      if (slug) slug->draw(draw_canvas, paint);
                                      else draw_canvas->drawTextBlob(blob, text_x, text_y, paint);
-                                 } else draw_canvas->drawTextBlob(blob, text_x, text_y, paint);
+                                 } else
+#endif
+                                 draw_canvas->drawTextBlob(blob, text_x, text_y, paint);
                              }
                          } else {
                              SkTextUtils::Draw(draw_canvas, text, length, SkTextEncoding::kUTF8,

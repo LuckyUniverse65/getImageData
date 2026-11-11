@@ -20,9 +20,21 @@ function run(executable, args, options = {}) {
 function json(file, value) { fs.writeFileSync(file, JSON.stringify(value, null, 2) + '\n'); }
 function progress(message) { console.log('[canvas] ' + message); }
 async function main() {
-    if (process.platform !== 'win32' || process.arch !== 'x64' || Number(os.release().split('.')[0]) < 10)
-        throw new Error('Only Windows 10/11 x64 is supported. Linux, macOS, ARM64 and older Windows are not supported.');
     if (Number(process.versions.node.split('.')[0]) < 22) throw new Error('Node.js 22 or newer is required');
+    if (process.platform === 'linux' && process.arch === 'x64') {
+        progress('Building the complete Linux native module with Skia CPU and system fonts');
+        const result = spawnSync('python3', [path.join(__dirname, 'build-linux.py')], {
+            cwd: root, env: process.env, stdio: 'inherit', timeout: 3600000
+        });
+        if (result.status !== 0) throw new Error(result.error?.message || 'Linux native build failed');
+        const linuxDir = path.join(root, 'dist/canvas-linux');
+        const tested = JSON.parse(run(process.execPath, ['--expose-gc', path.join(__dirname, 'test-native-api.js'), path.join(linuxDir, 'canvas.node')]));
+        json(path.join(linuxDir, 'test-result.json'), tested);
+        progress('Linux build and complete API checks passed: ' + linuxDir);
+        return;
+    }
+    if (process.platform !== 'win32' || process.arch !== 'x64' || Number(os.release().split('.')[0]) < 10)
+        throw new Error('Supported builds: Windows 10/11 x64 and Linux x64/glibc.');
     fs.mkdirSync(candidate, {recursive:true});
     const lock = path.join(root, 'out/canvas-build.lock');
     const fd = fs.openSync(lock, 'wx');

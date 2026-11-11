@@ -7,7 +7,7 @@ permissions:
   contents: read
 jobs:
   linux:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
@@ -16,19 +16,20 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22.13.1'
-      - name: Install build dependencies
+      - name: Check build dependencies
         timeout-minutes: 8
         run: |
-          uname -a
-          command -v clang clang++ clang-18 clang++-18 gcc g++ ninja make cmake pkg-config pkgconf rustc cargo python3 || true
-          ls /usr/bin/clang* /usr/bin/*ninja* /usr/bin/pkg* /usr/include/fontconfig/fontconfig.h /usr/include/freetype2/ft2build.h || true
-          fc-list | head -20 || true
+          clang++ --version
+          ninja --version
+          rustc --version
+          ldconfig -p | sed -n '/libfontconfig.so.1/p'
+          fc-list | head -5 || true
       - uses: actions/cache/restore@v4
         id: skia-cache
         with:
           path: third_party/skia
-          key: skia-linux-24-v1-${{ hashFiles('snapshot/linux-skia-args.gn', 'scripts/build-linux.py') }}
-          restore-keys: skia-linux-24-v1-
+          key: skia-linux-22-v1-${{ hashFiles('snapshot/linux-skia-args.gn', 'scripts/build-linux.py') }}
+          restore-keys: skia-linux-22-v1-
       - name: Build complete native Canvas
         run: python3 scripts/build-linux.py
       - uses: actions/cache/save@v4

@@ -54,6 +54,11 @@ def main():
     (output / 'package.json').write_text(json.dumps({'name': 'canvas', 'version': '0.3.0',
         'private': True, 'main': 'canvas.node', 'os': ['linux'], 'cpu': ['x64']}, indent=2) + '\n')
     binary = output / 'canvas.node'
+    notices = ['Portions of this software are copyright (c) 2026 The FreeType Project (www.freetype.org). All rights reserved.\nFreeType is used under the FreeType License (FTL).\n']
+    for relative in ['freetype/LICENSE.TXT', 'freetype/docs/FTL.TXT', 'freetype/src/bdf/README',
+                     'freetype/src/pcf/README', 'fontconfig/COPYING', 'highway/LICENSE']:
+        notices.append(relative + '\n\n' + (SKIA / 'third_party/externals' / relative).read_text())
+    (output / 'LINUX_NOTICES.txt').write_text('\n\n'.join(notices), encoding='utf-8')
     dependencies = subprocess.check_output(['ldd', str(binary)], text=True)
     if 'not found' in dependencies:
         raise RuntimeError(dependencies)
