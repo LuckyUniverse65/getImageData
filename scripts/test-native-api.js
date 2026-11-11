@@ -26,7 +26,13 @@ function shape(api) {
 
 async function check() {
     const contract = JSON.parse(fs.readFileSync(path.join(__dirname, '../snapshot/native-api-contract.json')));
-    assert.deepEqual(shape(api), contract, 'All exports, prototypes, arities and accessors must match Windows');
+    const actualShape = shape(api);
+    if (globalThis.Float16Array) {
+        // Node 24+ may provide the standard built-in instead of the Node 22 ponyfill.
+        assert.equal(api.Float16Array, globalThis.Float16Array);
+        contract.Float16Array = actualShape.Float16Array;
+    }
+    assert.deepEqual(actualShape, contract, 'All exports, prototypes, arities and accessors must match Windows');
     if (entry.endsWith('.js')) assert.equal((await import(pathToFileURL(entry).href)).default, api);
     const canvas = new api.OffscreenCanvas(8, 8);
     const ctx = canvas.getContext('2d');
