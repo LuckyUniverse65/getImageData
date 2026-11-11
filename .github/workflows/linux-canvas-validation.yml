@@ -1,0 +1,31 @@
+name: Linux Canvas validation
+on:
+  push:
+    branches: ['codex/linux-canvas-validation-*']
+permissions:
+  contents: read
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.1'
+      - name: Install system fonts
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq libfontconfig1 fonts-dejavu-core fonts-noto-cjk
+      - name: Install exact tarball and test
+        shell: bash
+        run: |
+          mkdir linux-consumer
+          cd linux-consumer
+          npm install ../.ci/lucky65_canvas-0.2.0.tgz --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org
+          cp ../.ci/test-linux.js .
+          node test-linux.js | tee ../linux-result.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-canvas-result
+          path: linux-result.json
