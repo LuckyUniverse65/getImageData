@@ -65,7 +65,7 @@ fn build_linux(root: &std::path::Path, out: &std::path::Path) {
     let object = out.join("skia_backend.o");
     let flags = Command::new("pkg-config").args(["--cflags", "fontconfig", "freetype2"]).output().expect("install pkg-config/fontconfig/freetype development packages");
     assert!(flags.status.success(), "fontconfig/freetype development headers missing");
-    let status = Command::new("clang++").args(["-std=c++20", "-O2", "-fPIC", "-DCANVAS_CPU_ONLY", "-DSK_GAMMA_SRGB", "-DSK_GAMMA_CONTRAST=1.0"])
+    let status = Command::new("clang++").args(["-std=c++20", "-O2", "-fPIC", "-DNDEBUG", "-DCANVAS_CPU_ONLY", "-DSK_GAMMA_SRGB", "-DSK_GAMMA_CONTRAST=1.0"])
         .arg("-I").arg(&skia).arg("-I").arg(out)
         .args(String::from_utf8(flags.stdout).unwrap().split_whitespace())
         .arg("-c").arg(root.join("src/skia_backend.cpp")).arg("-o").arg(&object)
