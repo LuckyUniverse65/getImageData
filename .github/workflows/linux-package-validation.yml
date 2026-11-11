@@ -2,7 +2,7 @@ name: Native Linux npm package validation
 on:
   push:
     branches: ['codex/linux-canvas-validation-*']
-    paths: ['.ci/lucky65_canvas-*.tgz', '.github/workflows/linux-package-validation.yml']
+    paths: ['.ci/lucky65_canvas-*.tgz*', '.github/workflows/linux-package-validation.yml']
 permissions:
   contents: read
 jobs:
@@ -23,6 +23,10 @@ jobs:
           node-version: ${{ matrix.node }}
       - name: Check runtime fonts
         run: fc-match sans-serif
+      - name: Reassemble exact release tarball
+        run: |
+          cat .ci/lucky65_canvas-0.3.1.tgz.part-* > .ci/lucky65_canvas-0.3.1.tgz
+          sha256sum -c .ci/lucky65_canvas-0.3.1.tgz.sha256
       - name: Install exact tarball and verify complete API
         env:
           CANVAS_DIAGNOSTICS: '1'
@@ -31,10 +35,46 @@ jobs:
           mkdir -p linux-consumer
           cd linux-consumer
           npm init -y
-          npm install ../.ci/lucky65_canvas-0.3.0.tgz --ignore-scripts --omit=optional --no-audit --no-fund
+          npm install ../.ci/lucky65_canvas-0.3.1.tgz --ignore-scripts --omit=optional --no-audit --no-fund
           cd ..
           node --expose-gc scripts/test-native-api.js ./linux-consumer/node_modules/lucky65_canvas/index.js | tee package-result.json
+          node scripts/test-bundled-linux.js ./linux-consumer/node_modules/lucky65_canvas/index.js package-result.json
       - uses: actions/upload-artifact@v4
         with:
           name: linux-package-${{ matrix.os }}-${{ matrix.node }}
+          path: package-result.json
+  minimal:
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['22', '24']
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Pull minimal image
+        run: docker pull node:${{ matrix.node }}-bookworm-slim
+      - name: Reassemble exact release tarball
+        run: |
+          cat .ci/lucky65_canvas-0.3.1.tgz.part-* > .ci/lucky65_canvas-0.3.1.tgz
+          sha256sum -c .ci/lucky65_canvas-0.3.1.tgz.sha256
+      - name: Test without system Fontconfig or fonts
+        shell: bash
+        run: |
+          docker run --rm --network none -v "$PWD:/workspace" -w /workspace node:${{ matrix.node }}-bookworm-slim bash -euc '
+            if ldconfig -p | grep -q libfontconfig; then echo "Unexpected system Fontconfig"; exit 1; fi
+            if find /usr/share/fonts /usr/local/share/fonts -type f 2>/dev/null | grep -q .; then echo "Unexpected system fonts"; exit 1; fi
+            mkdir /tmp/consumer
+            cd /tmp/consumer
+            npm init -y
+            npm install /workspace/.ci/lucky65_canvas-0.3.1.tgz --offline --ignore-scripts --omit=optional --no-audit --no-fund
+            chmod -R a-w node_modules/lucky65_canvas
+            node --expose-gc /workspace/scripts/test-native-api.js /tmp/consumer/node_modules/lucky65_canvas/index.js > /workspace/package-result.json
+            node /workspace/scripts/test-bundled-linux.js /tmp/consumer/node_modules/lucky65_canvas/index.js /workspace/package-result.json
+          '
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-minimal-node-${{ matrix.node }}
           path: package-result.json
