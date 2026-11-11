@@ -16,13 +16,13 @@ jobs:
         with:
           node-version: '22.13.1'
       - name: Install build dependencies
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq clang-18 ninja-build pkg-config libfontconfig1-dev libfreetype-dev fonts-dejavu-core fonts-noto-cjk
-      - name: Select compiler
+        timeout-minutes: 8
         run: |
-          mkdir -p .ci/bin
-          ln -s /usr/bin/clang-18 .ci/bin/clang
-          ln -s /usr/bin/clang++-18 .ci/bin/clang++
-          echo "$PWD/.ci/bin" >> "$GITHUB_PATH"
+          if [ -f /etc/apt/apt-mirrors.txt ]; then
+            echo 'http://archive.ubuntu.com/ubuntu/' | sudo tee /etc/apt/apt-mirrors.txt
+          fi
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq clang ninja-build pkg-config libfontconfig1-dev libfreetype-dev fonts-dejavu-core fonts-noto-cjk
       - uses: actions/cache@v4
         with:
           path: third_party/skia

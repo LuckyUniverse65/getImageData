@@ -42,7 +42,105 @@ async function check() {
     assert.ok(f.data instanceof api.Float16Array); assert.equal(f.data[0], 1);
     ctx.font = '18px sans-serif'; ctx.fillStyle = 'black'; ctx.fillText('Canvas 中文 العربية', 0, 7);
     assert.ok(ctx.measureText('Canvas').width > 0);
-    return {exports: Object.keys(api).length, shapeParity: true, codecs: ['png','jpeg','webp']};
+    const methods = exercise2D(api.OffscreenCanvas, api.OffscreenCanvasRenderingContext2D);
+    exercise2D(api.HTMLCanvasElement, api.CanvasRenderingContext2D);
+    const html = new api.HTMLCanvasElement(8, 8);
+    const transferred = html.transferControlToOffscreen();
+    assert.ok(transferred instanceof api.OffscreenCanvas);
+    assert.throws(() => html.getContext('2d'), {name: 'InvalidStateError'});
+    assert.throws(() => html.transferControlToOffscreen(), {name: 'InvalidStateError'});
+    transferred.getContext('2d').fillRect(0, 0, 8, 8);
+    assert.equal(html[api.canvasPixels]()[3], 255);
+    const src = new api.OffscreenCanvas(2, 2);
+    src.getContext('2d').fillStyle = 'lime'; src.getContext('2d').fillRect(0, 0, 2, 2);
+    const frame = src.transferToImageBitmap();
+    assert.equal(src.getContext('2d').getImageData(0, 0, 1, 1).data[3], 0);
+    const dest = new api.OffscreenCanvas(2, 2);
+    const renderer = dest.getContext('bitmaprenderer');
+    assert.ok(renderer instanceof api.ImageBitmapRenderingContext);
+    renderer.transferFromImageBitmap(frame);
+    assert.equal(frame.width, 0);
+    const decoded = api.decodeImage(new Uint8Array(await (await dest.convertToBlob()).arrayBuffer()));
+    assert.deepEqual(Array.from(decoded.data.slice(0, 4)), [0, 255, 0, 255]);
+    const crop = await api.createImageBitmap(dest, 0, 0, 1, 1, {resizeWidth: 4, resizeHeight: 3});
+    assert.equal(crop.width, 4); assert.equal(crop.height, 3); crop.close();
+    for (const mode of ['webgl', 'webgl2']) {
+        const gl = new api.OffscreenCanvas(2, 2).getContext(mode);
+        // The original WebGL compatibility implementation returns plain host objects.
+        assert.ok(gl); assert.equal(typeof gl.createBuffer, 'function');
+        assert.equal(gl.NO_ERROR, 0); assert.equal(gl.getError(), 0);
+        const buffer = gl.createBuffer(); assert.ok(buffer);
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 1]), gl.STATIC_DRAW);
+        gl.deleteBuffer(buffer);
+        assert.ok(api.createWebGLContext(mode));
+    }
+    const target = {};
+    api.installWebGLGlobals(target);
+    assert.equal(target.OffscreenCanvas, api.OffscreenCanvas);
+    assert.ok(target.document.createElement('canvas') instanceof api.HTMLCanvasElement);
+    assert.deepEqual([new api.DOMPoint(1, 2).matrixTransform(new api.DOMMatrix([2, 0, 0, 3, 4, 5])).x,
+        new api.DOMPoint(1, 2).matrixTransform(new api.DOMMatrix([2, 0, 0, 3, 4, 5])).y], [6, 11]);
+    const p3 = new api.OffscreenCanvas(2, 2).getContext('2d', {colorSpace: 'display-p3', colorType: 'float16'});
+    p3.fillStyle = 'red'; p3.fillRect(0, 0, 2, 2);
+    const p3data = p3.getImageData(0, 0, 1, 1, {colorSpace: 'display-p3', pixelFormat: 'rgba-float16'});
+    assert.equal(p3data.colorSpace, 'display-p3'); assert.ok(p3data.data instanceof api.Float16Array);
+    assert.ok(p3data.data[0] > 0.9 && p3data.data[0] < 0.94); assert.equal(p3data.data[3], 1);
+    const diagnostics = JSON.parse(api.getRenderDiagnostics());
+    assert.ok(diagnostics.availableFontFamilies.length);
+    if (process.platform === 'linux') {
+        assert.equal(diagnostics.defaultBackend, 'raster'); assert.ok(diagnostics.rasterSurfaces > 0);
+    }
+    for (let i = 0; i < 30; i++) {
+        const c = new api.OffscreenCanvas(16,16), g = c.getContext('2d');
+        const p = new api.Path2D('M0 0 H16 V16 H0 Z');
+        g.fillStyle = 'blue'; g.fill(p);
+        const b = c.transferToImageBitmap(); g.drawImage(b, 0, 0); b.close();
+        assert.deepEqual(Array.from(g.getImageData(1,1,1,1).data), [0,0,255,255]);
+        if (i % 10 === 0) global.gc?.();
+    }
+    return {exports: Object.keys(api).length, shapeParity: true, contextMethodsExercised: methods,
+        codecs: ['png','jpeg','webp'], bitmaprenderer: true, htmlTransfer: true,
+        float16: true, displayP3: true, webglCompatibility: true, lifecycleIterations: 30};
+}
+
+function exercise2D(Canvas, Context) {
+    const c = new Canvas(32, 32), g = c.getContext('2d');
+    assert.ok(g instanceof Context); assert.equal(g.canvas, c);
+    assert.equal(c.getContext('2d'), g); assert.equal(c.getContext('webgl'), null);
+    const called = new Set();
+    const call = (name, ...args) => {called.add(name); return g[name](...args);};
+    call('save'); call('translate', 3, 4); call('scale', 2, 2); call('rotate', 0);
+    call('transform', 1, 0, 0, 1, 0, 0);
+    assert.equal(call('getTransform').e, 3); call('restore');
+    call('setTransform', new api.DOMMatrix([1,0,0,1,2,3])); call('resetTransform');
+    call('setLineDash', [2,3]); assert.deepEqual(call('getLineDash'), [2,3]); call('setLineDash', []);
+    call('beginPath'); call('moveTo', 1,1); call('lineTo', 10,1);
+    call('quadraticCurveTo', 12,3,10,10); call('bezierCurveTo', 8,12,3,12,1,10); call('closePath');
+    call('fill'); call('stroke'); call('beginPath'); call('rect', 0,0,20,20);
+    assert.equal(call('isPointInPath', 5,5), true); assert.equal(call('isPointInStroke', 0,5), true);
+    call('save'); call('clip'); call('fillRect', 0,0,32,32); call('restore');
+    call('beginPath'); call('arc', 10,10,3,0,Math.PI); call('arcTo', 12,10,15,15,2);
+    call('ellipse', 10,10,5,3,0,0,2*Math.PI); call('roundRect', 0,0,10,10,2); call('stroke');
+    call('clearRect', 0,0,32,32); call('strokeRect', 2,2,20,20);
+    for (const [name,args] of [['createLinearGradient',[0,0,32,0]], ['createRadialGradient',[16,16,0,16,16,16]], ['createConicGradient',[0,16,16]]]) {
+        const gradient = call(name,...args); assert.ok(gradient instanceof api.CanvasGradient);
+        gradient.addColorStop(0,'red'); gradient.addColorStop(1,'blue'); g.fillStyle=gradient;
+        call('fillRect', 0,0,32,32); assert.equal(call('getImageData',16,16,1,1).data[3],255);
+    }
+    const tile = new api.OffscreenCanvas(1,1); tile.getContext('2d').fillStyle='lime'; tile.getContext('2d').fillRect(0,0,1,1);
+    const pattern = call('createPattern',tile,'repeat'); assert.ok(pattern instanceof api.CanvasPattern);
+    pattern.setTransform(new api.DOMMatrix()); g.fillStyle=pattern; call('fillRect',0,0,32,32);
+    assert.deepEqual(Array.from(call('getImageData',3,3,1,1).data),[0,255,0,255]);
+    call('drawImage',tile,0,0,4,4);
+    const data=call('createImageData',1,1); data.data.set([255,0,0,255]); call('putImageData',data,3,3);
+    assert.deepEqual(Array.from(call('getImageData',3,3,1,1).data),[255,0,0,255]);
+    g.font='12px sans-serif'; g.fillStyle='black'; call('fillText','Canvas',0,14); call('strokeText','Canvas',0,28);
+    const metrics=call('measureText','Canvas'); assert.ok(metrics instanceof api.TextMetrics); assert.ok(metrics.width>0);
+    assert.equal(call('getContextAttributes').alpha,true); assert.equal(call('isContextLost'),false);
+    call('reset'); assert.deepEqual(Array.from(call('getImageData',3,3,1,1).data),[0,0,0,0]);
+    const expected = Object.entries(shape(api)[Context.name].prototype).filter(([key,v])=>key!=='constructor'&&v.type==='function').map(([key])=>key).sort();
+    assert.deepEqual([...called].sort(),expected,'Every existing 2D method must be exercised');
+    return called.size;
 }
 async function main() {
     if (process.argv[3] === '--record-contract') {
