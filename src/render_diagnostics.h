@@ -34,11 +34,12 @@ static std::string font_version(SkTypeface* face) {
         if (u16(p + 6) != 5 || (u16(p) != 0 && u16(p) != 3)) continue;
         const size_t length = u16(p + 8), offset = base + u16(p + 10);
         if (offset + length > data->size() || length % 2) continue;
-        std::wstring wide;
-        for (size_t j = 0; j < length; j += 2) wide += static_cast<wchar_t>(u16(offset + j));
-        const int size = WideCharToMultiByte(CP_UTF8, 0, wide.data(), static_cast<int>(wide.size()), nullptr, 0, nullptr, nullptr);
+        std::vector<uint16_t> wide;
+        for (size_t j = 0; j < length; j += 2) wide.push_back(static_cast<uint16_t>(u16(offset + j)));
+        const int size = SkUTF::UTF16ToUTF8(nullptr, 0, wide.data(), wide.size());
+        if (size < 0) continue;
         std::string result(size, '\0');
-        WideCharToMultiByte(CP_UTF8, 0, wide.data(), static_cast<int>(wide.size()), result.data(), size, nullptr, nullptr);
+        SkUTF::UTF16ToUTF8(result.data(), result.size(), wide.data(), wide.size());
         return result;
     }
     return "";
@@ -63,7 +64,7 @@ static std::string render_diagnostics_json() {
     bool first = true;
     for (const auto& item : observed_fonts) { if (!first) out += ','; first = false; out += item.second; }
     out += "],\"availableFontFamilies\":[";
-    auto manager = SkFontMgr_New_DirectWrite();
+    auto manager = canvas_font_manager();
     if (manager) for (int i = 0; i < manager->countFamilies(); ++i) {
         SkString family; manager->getFamilyName(i, &family);
         if (i) out += ',';

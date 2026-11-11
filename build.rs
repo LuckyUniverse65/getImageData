@@ -1,8 +1,9 @@
 use std::{env, fs, path::PathBuf, process::Command};
 
 fn main() {
-    assert_eq!(env::var("CARGO_CFG_TARGET_OS").unwrap(), "windows", "Only Windows 10/11 x64 is supported");
-    assert_eq!(env::var("CARGO_CFG_TARGET_ARCH").unwrap(), "x86_64", "Only Windows x64 is supported");
+    let platform = env::var("CARGO_CFG_TARGET_OS").unwrap();
+    assert!(platform == "windows" || platform == "linux", "Only Windows and Linux are supported");
+    assert_eq!(env::var("CARGO_CFG_TARGET_ARCH").unwrap(), "x86_64", "Only x64 is supported");
     let root = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
     let out = PathBuf::from(env::var("OUT_DIR").unwrap());
     for key in ["CANVAS_VCVARS", "CANVAS_CLANG_ROOT", "CANVAS_SKIA_ROOT", "CANVAS_SKIA_OUT", "CANVAS_MACHINE_CONFIG", "CANVAS_NODE"] {
@@ -15,6 +16,11 @@ fn main() {
     let node = env::var("CANVAS_NODE").unwrap_or_else(|_| "node".into());
     let prepared = Command::new(node).arg(root.join("scripts/prepare-native.cjs")).arg(&out).status().expect("start Node build preparation");
     assert!(prepared.success(), "Canvas bundle/config generation failed; run npm ci first");
+
+    if platform == "linux" {
+        build_linux(&root, &out);
+        return;
+    }
 
     let vcvars = if let Ok(value) = env::var("CANVAS_VCVARS") { PathBuf::from(value) } else {
         let vswhere = PathBuf::from(env::var("ProgramFiles(x86)").expect("ProgramFiles(x86) is missing"))
@@ -50,5 +56,36 @@ fn main() {
     // Graphite/Dawn and software raster only. No ANGLE DLL import libraries.
     for lib in ["dwrite", "ole32", "uuid", "user32", "gdi32", "winmm", "windowscodecs", "usp10", "advapi32", "onecore", "delayimp", "dxguid", "d3d11", "dxgi"] {
         println!("cargo:rustc-link-lib={lib}");
+    }
+}
+
+fn build_linux(root: &std::path::Path, out: &std::path::Path) {
+    let skia = env::var_os("CANVAS_SKIA_ROOT").map(PathBuf::from).unwrap_or(root.join("third_party/skia"));
+    let libs = env::var_os("CANVAS_SKIA_OUT").map(PathBuf::from).unwrap_or(skia.join("out/canvas-linux"));
+    let object = out.join("skia_backend.o");
+    let flags = Command::new("pkg-config").args(["--cflags", "fontconfig", "freetype2"]).output().expect("install pkg-config/fontconfig/freetype development packages");
+    assert!(flags.status.success(), "fontconfig/freetype development headers missing");
+    let status = Command::new("clang++").args(["-std=c++20", "-O2", "-fPIC", "-DCANVAS_CPU_ONLY", "-DSK_GAMMA_SRGB", "-DSK_GAMMA_CONTRAST=1.0"])
+        .arg("-I").arg(&skia).arg("-I").arg(out)
+        .args(String::from_utf8(flags.stdout).unwrap().split_whitespace())
+        .arg("-c").arg(root.join("src/skia_backend.cpp")).arg("-o").arg(&object)
+        .status().expect("start clang++");
+    assert!(status.success(), "Linux C++ compilation failed");
+    assert!(Command::new("ar").arg("crs").arg(out.join("libskia_backend.a")).arg(object).status().unwrap().success());
+    println!("cargo:rustc-link-search=native={}", out.display());
+    println!("cargo:rustc-link-lib=static=skia_backend");
+    // Group mutually dependent Skia/codec archives; no dynamic Skia installation needed.
+    println!("cargo:rustc-link-arg=-Wl,--start-group");
+    let mut archives: Vec<_> = fs::read_dir(&libs).expect("build Skia first").map(|e| e.unwrap().path())
+        .filter(|p| p.extension().is_some_and(|e| e == "a")).collect();
+    archives.sort();
+    assert!(!archives.is_empty(), "No Skia static archives found");
+    for archive in archives {
+        println!("cargo:rerun-if-changed={}", archive.display());
+        println!("cargo:rustc-link-arg={}", archive.display());
+    }
+    println!("cargo:rustc-link-arg=-Wl,--end-group");
+    for lib in ["fontconfig", "freetype", "stdc++", "m", "dl", "pthread"] {
+        println!("cargo:rustc-link-arg=-l{lib}");
     }
 }

@@ -1,0 +1,3255 @@
+{
+  "CanvasGradient": {
+    "type": "function",
+    "length": 0,
+    "name": "CanvasGradient",
+    "prototype": {
+      "addColorStop": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 2,
+        "name": "addColorStop"
+      },
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "CanvasGradient"
+      },
+      "Symbol(Symbol.toStringTag)": {
+        "type": "string",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true
+      }
+    }
+  },
+  "CanvasPattern": {
+    "type": "function",
+    "length": 0,
+    "name": "CanvasPattern",
+    "prototype": {
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "CanvasPattern"
+      },
+      "setTransform": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "setTransform"
+      },
+      "Symbol(Symbol.toStringTag)": {
+        "type": "string",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true
+      }
+    }
+  },
+  "CanvasRenderingContext2D": {
+    "type": "function",
+    "length": 0,
+    "name": "CanvasRenderingContext2D",
+    "prototype": {
+      "arc": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 5,
+        "name": "arc"
+      },
+      "arcTo": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 5,
+        "name": "arcTo"
+      },
+      "beginPath": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "beginPath"
+      },
+      "bezierCurveTo": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 6,
+        "name": "bezierCurveTo"
+      },
+      "canvas": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "clearRect": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 4,
+        "name": "clearRect"
+      },
+      "clip": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "clip"
+      },
+      "closePath": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "closePath"
+      },
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "CanvasRenderingContext2D"
+      },
+      "createConicGradient": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 3,
+        "name": "createConicGradient"
+      },
+      "createImageData": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 1,
+        "name": "createImageData"
+      },
+      "createLinearGradient": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 4,
+        "name": "createLinearGradient"
+      },
+      "createPattern": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 2,
+        "name": "createPattern"
+      },
+      "createRadialGradient": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 6,
+        "name": "createRadialGradient"
+      },
+      "direction": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "drawImage": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 3,
+        "name": "drawImage"
+      },
+      "ellipse": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 7,
+        "name": "ellipse"
+      },
+      "fill": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "fill"
+      },
+      "fillRect": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 4,
+        "name": "fillRect"
+      },
+      "fillStyle": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "fillText": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 3,
+        "name": "fillText"
+      },
+      "filter": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "font": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "fontKerning": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "fontStretch": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "fontVariantCaps": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "getContextAttributes": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "getContextAttributes"
+      },
+      "getImageData": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 4,
+        "name": "getImageData"
+      },
+      "getLineDash": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "getLineDash"
+      },
+      "getTransform": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "getTransform"
+      },
+      "globalAlpha": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "globalCompositeOperation": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "imageSmoothingEnabled": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "imageSmoothingQuality": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "isContextLost": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "isContextLost"
+      },
+      "isPointInPath": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 2,
+        "name": "isPointInPath"
+      },
+      "isPointInStroke": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 2,
+        "name": "isPointInStroke"
+      },
+      "lang": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "letterSpacing": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "lineCap": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "lineDashOffset": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "lineJoin": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "lineTo": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 2,
+        "name": "lineTo"
+      },
+      "lineWidth": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "measureText": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 1,
+        "name": "measureText"
+      },
+      "miterLimit": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "moveTo": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 2,
+        "name": "moveTo"
+      },
+      "putImageData": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 3,
+        "name": "putImageData"
+      },
+      "quadraticCurveTo": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 4,
+        "name": "quadraticCurveTo"
+      },
+      "rect": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 4,
+        "name": "rect"
+      },
+      "reset": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "reset"
+      },
+      "resetTransform": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "resetTransform"
+      },
+      "restore": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "restore"
+      },
+      "rotate": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 1,
+        "name": "rotate"
+      },
+      "roundRect": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 4,
+        "name": "roundRect"
+      },
+      "save": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "save"
+      },
+      "scale": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 2,
+        "name": "scale"
+      },
+      "setLineDash": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 1,
+        "name": "setLineDash"
+      },
+      "setTransform": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "setTransform"
+      },
+      "shadowBlur": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "shadowColor": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "shadowOffsetX": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "shadowOffsetY": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "stroke": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "stroke"
+      },
+      "strokeRect": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 4,
+        "name": "strokeRect"
+      },
+      "strokeStyle": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "strokeText": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 3,
+        "name": "strokeText"
+      },
+      "Symbol(Symbol.toStringTag)": {
+        "type": "string",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true
+      },
+      "textAlign": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "textBaseline": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "textRendering": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "transform": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 6,
+        "name": "transform"
+      },
+      "translate": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 2,
+        "name": "translate"
+      },
+      "wordSpacing": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      }
+    }
+  },
+  "DOMMatrix": {
+    "type": "function",
+    "length": 0,
+    "name": "DOMMatrix",
+    "prototype": {
+      "a": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "b": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "c": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "DOMMatrix"
+      },
+      "d": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "e": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "f": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "invertSelf": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "invertSelf"
+      },
+      "m11": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m12": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m13": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m14": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m21": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m22": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m23": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m24": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m31": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m32": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m33": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m34": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m41": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m42": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m43": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m44": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "multiplySelf": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "multiplySelf"
+      },
+      "preMultiplySelf": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "preMultiplySelf"
+      },
+      "rotateAxisAngleSelf": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "rotateAxisAngleSelf"
+      },
+      "rotateFromVectorSelf": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "rotateFromVectorSelf"
+      },
+      "rotateSelf": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "rotateSelf"
+      },
+      "scale3dSelf": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "scale3dSelf"
+      },
+      "scaleSelf": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "scaleSelf"
+      },
+      "setMatrixValue": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 1,
+        "name": "setMatrixValue"
+      },
+      "skewXSelf": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "skewXSelf"
+      },
+      "skewYSelf": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "skewYSelf"
+      },
+      "Symbol(Symbol.toStringTag)": {
+        "type": "string",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true
+      },
+      "translateSelf": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "translateSelf"
+      }
+    }
+  },
+  "DOMMatrixReadOnly": {
+    "type": "function",
+    "length": 0,
+    "name": "DOMMatrixReadOnly",
+    "prototype": {
+      "a": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "b": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "c": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "DOMMatrixReadOnly"
+      },
+      "d": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "e": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "f": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "flipX": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "flipX"
+      },
+      "flipY": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "flipY"
+      },
+      "inverse": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "inverse"
+      },
+      "is2D": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "isIdentity": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": false,
+        "configurable": true
+      },
+      "m11": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m12": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m13": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m14": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m21": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m22": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m23": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m24": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m31": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m32": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m33": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m34": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m41": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m42": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m43": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "m44": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "multiply": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "multiply"
+      },
+      "rotate": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "rotate"
+      },
+      "rotateAxisAngle": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "rotateAxisAngle"
+      },
+      "rotateFromVector": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "rotateFromVector"
+      },
+      "scale": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "scale"
+      },
+      "scale3d": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "scale3d"
+      },
+      "scaleNonUniform": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "scaleNonUniform"
+      },
+      "skewX": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "skewX"
+      },
+      "skewY": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "skewY"
+      },
+      "Symbol(Symbol.toStringTag)": {
+        "type": "string",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true
+      },
+      "toFloat32Array": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "toFloat32Array"
+      },
+      "toFloat64Array": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "toFloat64Array"
+      },
+      "toJSON": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "toJSON"
+      },
+      "toString": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "toString"
+      },
+      "transformPoint": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "transformPoint"
+      },
+      "translate": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "translate"
+      }
+    }
+  },
+  "DOMPoint": {
+    "type": "function",
+    "length": 0,
+    "name": "DOMPoint",
+    "prototype": {
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "DOMPoint"
+      },
+      "Symbol(Symbol.toStringTag)": {
+        "type": "string",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true
+      },
+      "w": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "x": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "y": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "z": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      }
+    }
+  },
+  "DOMPointReadOnly": {
+    "type": "function",
+    "length": 0,
+    "name": "DOMPointReadOnly",
+    "prototype": {
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "DOMPointReadOnly"
+      },
+      "matrixTransform": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "matrixTransform"
+      },
+      "Symbol(Symbol.toStringTag)": {
+        "type": "string",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true
+      },
+      "toJSON": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "toJSON"
+      },
+      "w": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "x": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "y": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "z": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      }
+    }
+  },
+  "Float16Array": {
+    "type": "function",
+    "length": 3,
+    "name": "Float16Array",
+    "prototype": {
+      "at": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 1,
+        "name": "at"
+      },
+      "BYTES_PER_ELEMENT": {
+        "type": "number",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": false
+      },
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 3,
+        "name": "Float16Array"
+      },
+      "copyWithin": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 2,
+        "name": "copyWithin"
+      },
+      "entries": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "entries"
+      },
+      "every": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 1,
+        "name": "every"
+      },
+      "fill": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 1,
+        "name": "fill"
+      },
+      "filter": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 1,
+        "name": "filter"
+      },
+      "find": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 1,
+        "name": "find"
+      },
+      "findIndex": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 1,
+        "name": "findIndex"
+      },
+      "findLast": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 1,
+        "name": "findLast"
+      },
+      "findLastIndex": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 1,
+        "name": "findLastIndex"
+      },
+      "forEach": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 1,
+        "name": "forEach"
+      },
+      "includes": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 1,
+        "name": "includes"
+      },
+      "indexOf": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 1,
+        "name": "indexOf"
+      },
+      "join": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 1,
+        "name": "join"
+      },
+      "keys": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "keys"
+      },
+      "lastIndexOf": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 1,
+        "name": "lastIndexOf"
+      },
+      "map": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 1,
+        "name": "map"
+      },
+      "reduce": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 1,
+        "name": "reduce"
+      },
+      "reduceRight": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 1,
+        "name": "reduceRight"
+      },
+      "reverse": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "reverse"
+      },
+      "set": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 1,
+        "name": "set"
+      },
+      "slice": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 2,
+        "name": "slice"
+      },
+      "some": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 1,
+        "name": "some"
+      },
+      "sort": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 1,
+        "name": "sort"
+      },
+      "subarray": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 2,
+        "name": "subarray"
+      },
+      "Symbol(Symbol.iterator)": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "values"
+      },
+      "Symbol(Symbol.toStringTag)": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": false,
+        "configurable": true
+      },
+      "toLocaleString": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "toLocaleString"
+      },
+      "toReversed": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "toReversed"
+      },
+      "toSorted": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 1,
+        "name": "toSorted"
+      },
+      "values": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "values"
+      },
+      "with": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 2,
+        "name": "with"
+      }
+    }
+  },
+  "HTMLCanvasElement": {
+    "type": "function",
+    "length": 0,
+    "name": "HTMLCanvasElement",
+    "prototype": {
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "HTMLCanvasElement"
+      },
+      "getContext": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 1,
+        "name": "getContext"
+      },
+      "height": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": false,
+        "configurable": true
+      },
+      "Symbol(canvas backing store)": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "[canvas backing store]"
+      },
+      "Symbol(Symbol.toStringTag)": {
+        "type": "string",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true
+      },
+      "transferControlToOffscreen": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "transferControlToOffscreen"
+      },
+      "width": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": false,
+        "configurable": true
+      }
+    }
+  },
+  "ImageBitmap": {
+    "type": "function",
+    "length": 0,
+    "name": "ImageBitmap",
+    "prototype": {
+      "close": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "close"
+      },
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "ImageBitmap"
+      },
+      "height": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": false,
+        "configurable": true
+      },
+      "Symbol(canvas backing store)": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "[canvas backing store]"
+      },
+      "Symbol(Symbol.toStringTag)": {
+        "type": "string",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true
+      },
+      "width": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": false,
+        "configurable": true
+      }
+    }
+  },
+  "ImageBitmapRenderingContext": {
+    "type": "function",
+    "length": 0,
+    "name": "ImageBitmapRenderingContext",
+    "prototype": {
+      "canvas": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "ImageBitmapRenderingContext"
+      },
+      "Symbol(Symbol.toStringTag)": {
+        "type": "string",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true
+      },
+      "transferFromImageBitmap": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 1,
+        "name": "transferFromImageBitmap"
+      }
+    }
+  },
+  "ImageData": {
+    "type": "function",
+    "length": 2,
+    "name": "ImageData",
+    "prototype": {
+      "colorSpace": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 2,
+        "name": "ImageData"
+      },
+      "data": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "height": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "pixelFormat": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "Symbol(Symbol.toStringTag)": {
+        "type": "string",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true
+      },
+      "width": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      }
+    }
+  },
+  "OffscreenCanvas": {
+    "type": "function",
+    "length": 2,
+    "name": "OffscreenCanvas",
+    "prototype": {
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 2,
+        "name": "OffscreenCanvas"
+      },
+      "convertToBlob": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "convertToBlob"
+      },
+      "getContext": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 1,
+        "name": "getContext"
+      },
+      "height": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": false,
+        "configurable": true
+      },
+      "oncontextlost": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "oncontextrestored": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "Symbol(canvas backing store)": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "[canvas backing store]"
+      },
+      "Symbol(Symbol.toStringTag)": {
+        "type": "string",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true
+      },
+      "transferToImageBitmap": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "transferToImageBitmap"
+      },
+      "width": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": false,
+        "configurable": true
+      }
+    }
+  },
+  "OffscreenCanvasRenderingContext2D": {
+    "type": "function",
+    "length": 0,
+    "name": "OffscreenCanvasRenderingContext2D",
+    "prototype": {
+      "arc": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 5,
+        "name": "arc"
+      },
+      "arcTo": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 5,
+        "name": "arcTo"
+      },
+      "beginPath": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "beginPath"
+      },
+      "bezierCurveTo": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 6,
+        "name": "bezierCurveTo"
+      },
+      "canvas": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "clearRect": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 4,
+        "name": "clearRect"
+      },
+      "clip": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "clip"
+      },
+      "closePath": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "closePath"
+      },
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "OffscreenCanvasRenderingContext2D"
+      },
+      "createConicGradient": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 3,
+        "name": "createConicGradient"
+      },
+      "createImageData": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 1,
+        "name": "createImageData"
+      },
+      "createLinearGradient": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 4,
+        "name": "createLinearGradient"
+      },
+      "createPattern": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 2,
+        "name": "createPattern"
+      },
+      "createRadialGradient": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 6,
+        "name": "createRadialGradient"
+      },
+      "direction": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "drawImage": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 3,
+        "name": "drawImage"
+      },
+      "ellipse": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 7,
+        "name": "ellipse"
+      },
+      "fill": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "fill"
+      },
+      "fillRect": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 4,
+        "name": "fillRect"
+      },
+      "fillStyle": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "fillText": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 3,
+        "name": "fillText"
+      },
+      "filter": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "font": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "fontKerning": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "fontStretch": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "fontVariantCaps": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "getContextAttributes": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "getContextAttributes"
+      },
+      "getImageData": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 4,
+        "name": "getImageData"
+      },
+      "getLineDash": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "getLineDash"
+      },
+      "getTransform": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "getTransform"
+      },
+      "globalAlpha": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "globalCompositeOperation": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "imageSmoothingEnabled": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "imageSmoothingQuality": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "isContextLost": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "isContextLost"
+      },
+      "isPointInPath": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 2,
+        "name": "isPointInPath"
+      },
+      "isPointInStroke": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 2,
+        "name": "isPointInStroke"
+      },
+      "lang": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "letterSpacing": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "lineCap": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "lineDashOffset": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "lineJoin": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "lineTo": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 2,
+        "name": "lineTo"
+      },
+      "lineWidth": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "measureText": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 1,
+        "name": "measureText"
+      },
+      "miterLimit": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "moveTo": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 2,
+        "name": "moveTo"
+      },
+      "putImageData": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 3,
+        "name": "putImageData"
+      },
+      "quadraticCurveTo": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 4,
+        "name": "quadraticCurveTo"
+      },
+      "rect": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 4,
+        "name": "rect"
+      },
+      "reset": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "reset"
+      },
+      "resetTransform": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "resetTransform"
+      },
+      "restore": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "restore"
+      },
+      "rotate": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 1,
+        "name": "rotate"
+      },
+      "roundRect": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 4,
+        "name": "roundRect"
+      },
+      "save": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "save"
+      },
+      "scale": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 2,
+        "name": "scale"
+      },
+      "setLineDash": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 1,
+        "name": "setLineDash"
+      },
+      "setTransform": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "setTransform"
+      },
+      "shadowBlur": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "shadowColor": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "shadowOffsetX": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "shadowOffsetY": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "stroke": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "stroke"
+      },
+      "strokeRect": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 4,
+        "name": "strokeRect"
+      },
+      "strokeStyle": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "strokeText": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 3,
+        "name": "strokeText"
+      },
+      "Symbol(Symbol.toStringTag)": {
+        "type": "string",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true
+      },
+      "textAlign": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "textBaseline": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "textRendering": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      },
+      "transform": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 6,
+        "name": "transform"
+      },
+      "translate": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 2,
+        "name": "translate"
+      },
+      "wordSpacing": {
+        "type": "undefined",
+        "get": true,
+        "set": true,
+        "enumerable": true,
+        "configurable": true
+      }
+    }
+  },
+  "Path2D": {
+    "type": "function",
+    "length": 0,
+    "name": "Path2D",
+    "prototype": {
+      "addPath": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 1,
+        "name": "addPath"
+      },
+      "arc": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 5,
+        "name": "arc"
+      },
+      "arcTo": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 5,
+        "name": "arcTo"
+      },
+      "bezierCurveTo": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 6,
+        "name": "bezierCurveTo"
+      },
+      "closePath": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 0,
+        "name": "closePath"
+      },
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "Path2D"
+      },
+      "ellipse": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 7,
+        "name": "ellipse"
+      },
+      "lineTo": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 2,
+        "name": "lineTo"
+      },
+      "moveTo": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 2,
+        "name": "moveTo"
+      },
+      "quadraticCurveTo": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 4,
+        "name": "quadraticCurveTo"
+      },
+      "rect": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 4,
+        "name": "rect"
+      },
+      "roundRect": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": true,
+        "configurable": true,
+        "length": 4,
+        "name": "roundRect"
+      },
+      "Symbol(Symbol.toStringTag)": {
+        "type": "string",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true
+      }
+    }
+  },
+  "TextMetrics": {
+    "type": "function",
+    "length": 0,
+    "name": "TextMetrics",
+    "prototype": {
+      "actualBoundingBoxAscent": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "actualBoundingBoxDescent": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "actualBoundingBoxLeft": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "actualBoundingBoxRight": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "alphabeticBaseline": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "TextMetrics"
+      },
+      "fontBoundingBoxAscent": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "fontBoundingBoxDescent": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "hangingBaseline": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "ideographicBaseline": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      },
+      "Symbol(Symbol.toStringTag)": {
+        "type": "string",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true
+      },
+      "width": {
+        "type": "undefined",
+        "get": true,
+        "set": false,
+        "enumerable": true,
+        "configurable": true
+      }
+    }
+  },
+  "WebGL2RenderingContext": {
+    "type": "function",
+    "length": 0,
+    "name": "WebGL2RenderingContext",
+    "prototype": {
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "WebGL2RenderingContext"
+      }
+    }
+  },
+  "WebGLActiveInfo": {
+    "type": "function",
+    "length": 0,
+    "name": "WebGLActiveInfo",
+    "prototype": {
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "WebGLActiveInfo"
+      }
+    }
+  },
+  "WebGLBuffer": {
+    "type": "function",
+    "length": 0,
+    "name": "WebGLBuffer",
+    "prototype": {
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "WebGLBuffer"
+      }
+    }
+  },
+  "WebGLFramebuffer": {
+    "type": "function",
+    "length": 0,
+    "name": "WebGLFramebuffer",
+    "prototype": {
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "WebGLFramebuffer"
+      }
+    }
+  },
+  "WebGLProgram": {
+    "type": "function",
+    "length": 0,
+    "name": "WebGLProgram",
+    "prototype": {
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "WebGLProgram"
+      }
+    }
+  },
+  "WebGLQuery": {
+    "type": "function",
+    "length": 0,
+    "name": "WebGLQuery",
+    "prototype": {
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "WebGLQuery"
+      }
+    }
+  },
+  "WebGLRenderbuffer": {
+    "type": "function",
+    "length": 0,
+    "name": "WebGLRenderbuffer",
+    "prototype": {
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "WebGLRenderbuffer"
+      }
+    }
+  },
+  "WebGLRenderingContext": {
+    "type": "function",
+    "length": 0,
+    "name": "WebGLRenderingContext",
+    "prototype": {
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "WebGLRenderingContext"
+      }
+    }
+  },
+  "WebGLSampler": {
+    "type": "function",
+    "length": 0,
+    "name": "WebGLSampler",
+    "prototype": {
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "WebGLSampler"
+      }
+    }
+  },
+  "WebGLShader": {
+    "type": "function",
+    "length": 0,
+    "name": "WebGLShader",
+    "prototype": {
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "WebGLShader"
+      }
+    }
+  },
+  "WebGLShaderPrecisionFormat": {
+    "type": "function",
+    "length": 0,
+    "name": "WebGLShaderPrecisionFormat",
+    "prototype": {
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "WebGLShaderPrecisionFormat"
+      }
+    }
+  },
+  "WebGLSync": {
+    "type": "function",
+    "length": 0,
+    "name": "WebGLSync",
+    "prototype": {
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "WebGLSync"
+      }
+    }
+  },
+  "WebGLTexture": {
+    "type": "function",
+    "length": 0,
+    "name": "WebGLTexture",
+    "prototype": {
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "WebGLTexture"
+      }
+    }
+  },
+  "WebGLTransformFeedback": {
+    "type": "function",
+    "length": 0,
+    "name": "WebGLTransformFeedback",
+    "prototype": {
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "WebGLTransformFeedback"
+      }
+    }
+  },
+  "WebGLUniformLocation": {
+    "type": "function",
+    "length": 0,
+    "name": "WebGLUniformLocation",
+    "prototype": {
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "WebGLUniformLocation"
+      }
+    }
+  },
+  "WebGLVertexArrayObject": {
+    "type": "function",
+    "length": 0,
+    "name": "WebGLVertexArrayObject",
+    "prototype": {
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "WebGLVertexArrayObject"
+      }
+    }
+  },
+  "canvasPixels": {
+    "type": "symbol"
+  },
+  "constants": {
+    "type": "object"
+  },
+  "createImageBitmap": {
+    "type": "function",
+    "length": 1,
+    "name": "createImageBitmap",
+    "prototype": {
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 1,
+        "name": "createImageBitmap"
+      }
+    }
+  },
+  "createWebGLContext": {
+    "type": "function",
+    "length": 0,
+    "name": "createWebGLContext",
+    "prototype": {
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "createWebGLContext"
+      }
+    }
+  },
+  "decodeImage": {
+    "type": "function",
+    "length": 0,
+    "name": "decodeImage",
+    "prototype": {
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "decodeImage"
+      }
+    }
+  },
+  "encodeImage": {
+    "type": "function",
+    "length": 0,
+    "name": "encodeImage",
+    "prototype": {
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "encodeImage"
+      }
+    }
+  },
+  "getRenderDiagnostics": {
+    "type": "function",
+    "length": 0,
+    "name": "getRenderDiagnostics",
+    "prototype": {
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "getRenderDiagnostics"
+      }
+    }
+  },
+  "installWebGLGlobals": {
+    "type": "function",
+    "length": 0,
+    "name": "installWebGLGlobals",
+    "prototype": {
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "installWebGLGlobals"
+      }
+    }
+  },
+  "nativeFunction": {
+    "type": "function",
+    "length": 0,
+    "name": "nativeFunction",
+    "prototype": {
+      "constructor": {
+        "type": "function",
+        "get": false,
+        "set": false,
+        "enumerable": false,
+        "configurable": true,
+        "length": 0,
+        "name": "nativeFunction"
+      }
+    }
+  }
+}

@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "main": "index.js",
-  "scripts": { "test": "node test.js", "build:canvas": "node scripts/build-canvas.cjs" },
+  "scripts": {
+    "test": "node test.js",
+    "build:canvas": "node scripts/build-canvas.cjs",
+    "pack:npm": "node scripts/pack-npm.js"
+  },
   "dependencies": { "@petamoriken/float16": "3.9.3" }
 }

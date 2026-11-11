@@ -29,6 +29,7 @@
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkStrokeRec.h"
+#ifndef CANVAS_CPU_ONLY
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/Image.h"
@@ -37,7 +38,13 @@
 #include "include/gpu/graphite/Recording.h"
 #include "include/gpu/graphite/Surface.h"
 #include "include/gpu/graphite/dawn/DawnBackendContext.h"
+#endif
+#ifdef _WIN32
 #include "include/ports/SkTypeface_win.h"
+#else
+#include "include/ports/SkFontMgr_fontconfig.h"
+#include "include/ports/SkFontScanner_FreeType.h"
+#endif
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkJpegDecoder.h"
 #include "include/codec/SkPngDecoder.h"
@@ -56,15 +63,19 @@
 #include "src/core/SkPathPriv.h"
 #include "third_party/externals/harfbuzz/src/hb.h"
 #include "third_party/externals/harfbuzz/src/hb-ot.h"
+#ifdef _WIN32
 #include <Windows.h>
+#endif
 
 extern "C" uint32_t canvas_uppercase(uint32_t codepoint, uint32_t* output);
 extern "C" uint32_t canvas_lowercase(uint32_t codepoint, uint32_t* output);
 
+#ifndef CANVAS_CPU_ONLY
 #include "dawn/dawn_proc.h"
 #include "dawn/native/DawnNative.h"
 #include "webgpu/webgpu_cpp.h"
 
+#endif
 #include <algorithm>
 #include <cmath>
 #include <climits>
@@ -76,9 +87,17 @@ extern "C" uint32_t canvas_lowercase(uint32_t codepoint, uint32_t* output);
 #include <vector>
 
 #include "canvas_machine_config.h"
+static sk_sp<SkFontMgr> canvas_font_manager() {
+#ifdef _WIN32
+    return SkFontMgr_New_DirectWrite();
+#else
+    return SkFontMgr_New_FontConfig(nullptr, SkFontScanner_Make_FreeType());
+#endif
+}
 #include "render_diagnostics.h"
 
 namespace {
+#ifndef CANVAS_CPU_ONLY
 struct DawnGraphiteContext {
     std::unique_ptr<dawn::native::Instance> instance;
     wgpu::Adapter adapter;
@@ -186,6 +205,7 @@ static DawnGraphiteContext& dawn_graphite_context() {
     return *context;
 }
 
+#endif
 static float runtime_float(const char* name, float fallback) {
     const char* value = std::getenv(name);
     if (!value || !*value) return fallback;
@@ -286,6 +306,7 @@ struct SpaceShapeEntry {
 struct TextCache { std::vector<SpaceShapeEntry> spaces; };
 // SkCanvas splits oversized raster images into texture-sized tiles. Graphite
 // asks the client to upload each tile; its default provider drops these draws.
+#ifndef CANVAS_CPU_ONLY
 class CanvasImageProvider final : public skgpu::graphite::ImageProvider {
 public:
     sk_sp<SkImage> findOrCreate(skgpu::graphite::Recorder* recorder,
@@ -293,10 +314,13 @@ public:
         return SkImages::TextureFromImage(recorder,image,props);
     }
 };
+#endif
 struct Canvas {
     TextOptions text_options;
     TextCache* text_cache=nullptr; // Owned by the context, independent of its surface.
+#ifndef CANVAS_CPU_ONLY
     std::unique_ptr<skgpu::graphite::Recorder> recorder;
+#endif
     sk_sp<SkSurface> surface;
     bool graphite = false;
     bool raster = false;
@@ -740,7 +764,7 @@ static bool use_linear_metrics(const SkFont& font) {
 }
 
 static SkFont resolve_font(const char* family, float size, int weight, int slant, int stretch=5) {
-    static sk_sp<SkFontMgr> font_manager = SkFontMgr_New_DirectWrite();
+    static sk_sp<SkFontMgr> font_manager = canvas_font_manager();
     const int clamped_weight = std::clamp(weight, 1, 1000);
     const auto font_slant = (slant == 1 || slant == 2 || slant == 3) ? SkFontStyle::kItalic_Slant
                                                     : SkFontStyle::kUpright_Slant;
@@ -1138,7 +1162,7 @@ static std::vector<CapsRun> synthetic_caps_runs(const char* text, size_t length,
 
 struct FontTextRun { std::string text; sk_sp<SkTypeface> face; };
 static std::vector<FontTextRun> fallback_runs(const std::string& text,const SkFont& font,const char* families, int slant) {
-    static sk_sp<SkFontMgr> manager=SkFontMgr_New_DirectWrite();
+    static sk_sp<SkFontMgr> manager=canvas_font_manager();
     std::vector<FontTextRun> runs;
     const char* cursor=text.data();const char* end=cursor+text.size();
     while(cursor<end){
@@ -1319,6 +1343,10 @@ void* skia_canvas_create(uint32_t width, uint32_t height, int alpha, int color_s
         ? kRGBA_8888_SkColorType : kBGRA_8888_SkColorType;
     const SkImageInfo image_info = SkImageInfo::Make(
         width, height, color_type, kPremul_SkAlphaType, canvas_color_space(color_space));
+#ifdef CANVAS_CPU_ONLY
+    canvas->surface = SkSurfaces::Raster(image_info, &surface_props);
+    canvas->raster = true;
+#else
     if (runtime_float("CANVAS_RASTER_SURFACE", canvas_default_raster ? 1.0f : 0.0f) != 0.0f) {
         canvas->surface = SkSurfaces::Raster(image_info, &surface_props);
         canvas->raster = true;
@@ -1337,6 +1365,7 @@ void* skia_canvas_create(uint32_t width, uint32_t height, int alpha, int color_s
         canvas->recorder.reset();canvas->graphite=false;canvas->raster=true;
         canvas->surface=SkSurfaces::Raster(image_info,&surface_props);
     }
+#endif
     if (!canvas->surface) return nullptr;
     // A protected root frame lets reset remove even clips made before save().
     canvas->surface->getCanvas()->clear(canvas->opaque ? SK_ColorBLACK : SK_ColorTRANSPARENT);
@@ -1344,6 +1373,7 @@ void* skia_canvas_create(uint32_t width, uint32_t height, int alpha, int color_s
     // Chrome initializes the backing texture before replaying canvas draws.
     // A pending clear otherwise forces a full-size MSAA attachment and shifts
     // the dithering origin relative to Chrome's cropped attachment.
+#ifndef CANVAS_CPU_ONLY
     if (canvas->graphite) {
         auto recording = canvas->recorder->snap();
         if (!recording) return nullptr;
@@ -1352,6 +1382,7 @@ void* skia_canvas_create(uint32_t width, uint32_t height, int alpha, int color_s
         if (dawn_graphite_context().graphite->insertRecording(info) !=
             skgpu::graphite::InsertStatus::kSuccess) return nullptr;
     }
+#endif
     if (canvas->graphite) ++graphite_surfaces; else ++raster_surfaces;
     return canvas.release();
 }
@@ -1739,10 +1770,12 @@ void skia_canvas_set_pattern(void* value, int stroke, const uint8_t* pixels, uin
              info, data->writable_data(), width * stride)) return;
     auto image = SkImages::RasterFromData(info, std::move(data), width * stride);
     if (!image) return;
+#ifndef CANVAS_CPU_ONLY
     if (c->graphite) {
         image = SkImages::TextureFromImage(c->recorder.get(), image);
         if (!image) return;
     }
+#endif
     const SkTileMode tx = repeat_x ? SkTileMode::kRepeat : SkTileMode::kDecal;
     const SkTileMode ty = repeat_y ? SkTileMode::kRepeat : SkTileMode::kDecal;
     selected_style(c, stroke).gradient.reset();
@@ -2044,11 +2077,13 @@ void skia_canvas_draw_rgba_image(void* value, const uint8_t* input, uint32_t ima
     auto image = SkImages::RasterFromData(info, std::move(pixels), image_width * stride);
     if (!image) return;
     // Keep oversized raster images available to SkCanvas' tiled upload path.
+#ifndef CANVAS_CPU_ONLY
     if (c->graphite && image_width <= c->recorder->maxTextureSize() &&
         image_height <= c->recorder->maxTextureSize()) {
         image = SkImages::TextureFromImage(c->recorder.get(), image);
         if (!image) return;
     }
+#endif
     SkPaint paint;
     paint.setAntiAlias(!c->surface->getCanvas()->getTotalMatrix().rectStaysRect());
     // Blink quantizes the image paint alpha to a byte before GPU composition.
@@ -2096,6 +2131,7 @@ void skia_canvas_read(void* value, int32_t x, int32_t y, uint32_t width, uint32_
     const uint32_t copy_width = static_cast<uint32_t>(right - left);
     const uint32_t copy_height = static_cast<uint32_t>(bottom - top);
     const size_t destination_offset = (static_cast<size_t>(top - y) * width + static_cast<uint32_t>(left - x)) * stride;
+#ifndef CANVAS_CPU_ONLY
     if (c->graphite) {
         auto& gpu = dawn_graphite_context();
         if (!gpu.valid() || !c->recorder) return;
@@ -2154,6 +2190,7 @@ void skia_canvas_read(void* value, int32_t x, int32_t y, uint32_t width, uint32_
         return;
     }
 
+#endif
     if(c->raster) {
         SkPixmap pixels;
         if(c->surface->peekPixels(&pixels)) {
