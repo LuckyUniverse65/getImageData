@@ -2,6 +2,9 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const vm = require('node:vm');
+const crypto = require('node:crypto');
+const { pathToFileURL } = require('node:url');
 const { Worker, isMainThread, parentPort, workerData } = require('node:worker_threads');
 const entry = path.resolve(isMainThread ? process.argv[2] : workerData);
 const api = require(entry);
@@ -24,6 +27,7 @@ function shape(api) {
 async function check() {
     const contract = JSON.parse(fs.readFileSync(path.join(__dirname, '../snapshot/native-api-contract.json')));
     assert.deepEqual(shape(api), contract, 'All exports, prototypes, arities and accessors must match Windows');
+    if (entry.endsWith('.js')) assert.equal((await import(pathToFileURL(entry).href)).default, api);
     const canvas = new api.OffscreenCanvas(8, 8);
     const ctx = canvas.getContext('2d');
     ctx.fillStyle = 'red'; ctx.fillRect(0, 0, 8, 8);
@@ -90,6 +94,17 @@ async function check() {
     if (process.platform === 'linux') {
         assert.equal(diagnostics.defaultBackend, 'raster'); assert.ok(diagnostics.rasterSurfaces > 0);
     }
+    if (process.env.CANVAS_DIAGNOSTICS === '1') {
+        assert.ok(diagnostics.usedFonts.length > 0);
+        assert.ok(diagnostics.usedFonts.every(f => typeof f.version === 'string'));
+    }
+    const demo = fs.readFileSync(path.join(__dirname, '../demo/demo_server.js'), 'utf8');
+    const start = demo.indexOf('    gl.scale('), end = demo.indexOf('    const data = Array.from(', start);
+    assert.ok(start >= 0 && end > start);
+    const draw = demo.slice(start, end) + '\nArray.from(gl.getImageData(0, 0, 48, 48).data)';
+    const paint = () => Array.from(vm.runInNewContext(draw, {gl: new api.OffscreenCanvas(48,48).getContext('2d')}));
+    const pixels = paint(); assert.equal(pixels.length,9216); assert.ok(pixels.some(v=>v!==0));
+    assert.deepEqual(pixels, paint(), 'Repeated demo draws must be deterministic on this machine');
     for (let i = 0; i < 30; i++) {
         const c = new api.OffscreenCanvas(16,16), g = c.getContext('2d');
         const p = new api.Path2D('M0 0 H16 V16 H0 Z');
@@ -100,7 +115,8 @@ async function check() {
     }
     return {exports: Object.keys(api).length, shapeParity: true, contextMethodsExercised: methods,
         codecs: ['png','jpeg','webp'], bitmaprenderer: true, htmlTransfer: true,
-        float16: true, displayP3: true, webglCompatibility: true, lifecycleIterations: 30};
+        float16: true, displayP3: true, webglCompatibility: true, lifecycleIterations: 30,
+        demoRGBAValues: pixels.length, demoSHA256: crypto.createHash('sha256').update(Buffer.from(pixels)).digest('hex'), esmDefaultImport: entry.endsWith('.js')};
 }
 
 function exercise2D(Canvas, Context) {
@@ -138,6 +154,13 @@ function exercise2D(Canvas, Context) {
     const metrics=call('measureText','Canvas'); assert.ok(metrics instanceof api.TextMetrics); assert.ok(metrics.width>0);
     assert.equal(call('getContextAttributes').alpha,true); assert.equal(call('isContextLost'),false);
     call('reset'); assert.deepEqual(Array.from(call('getImageData',3,3,1,1).data),[0,0,0,0]);
+    g.fillStyle = 'red'; g.globalAlpha = 0.5; call('fillRect',0,0,32,32);
+    const half = call('getImageData',10,10,1,1).data; assert.equal(half[0],255); assert.ok(half[3]>=127 && half[3]<=128);
+    call('reset'); g.filter = 'opacity(50%)'; call('fillRect',0,0,32,32);
+    assert.ok(call('getImageData',10,10,1,1).data[3]>=127); assert.ok(call('getImageData',10,10,1,1).data[3]<=128);
+    call('reset'); g.shadowColor = 'red'; g.shadowOffsetX = 12; g.fillStyle = 'blue'; call('fillRect',0,0,4,4);
+    assert.deepEqual(Array.from(call('getImageData',13,1,1,1).data),[255,0,0,255]);
+    c.width = c.width; assert.equal(g.shadowOffsetX,0); assert.equal(call('getImageData',13,1,1,1).data[3],0);
     const expected = Object.entries(shape(api)[Context.name].prototype).filter(([key,v])=>key!=='constructor'&&v.type==='function').map(([key])=>key).sort();
     assert.deepEqual([...called].sort(),expected,'Every existing 2D method must be exercised');
     return called.size;

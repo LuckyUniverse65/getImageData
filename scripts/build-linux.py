@@ -49,6 +49,8 @@ def main():
     output = ROOT / 'dist/canvas-linux'
     output.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(ROOT / 'target/release/libwebgl.so', output / 'canvas.node')
+    (output / 'package.json').write_text(json.dumps({'name': 'canvas', 'version': '0.3.0',
+        'private': True, 'main': 'canvas.node', 'os': ['linux'], 'cpu': ['x64']}, indent=2) + '\n')
     binary = output / 'canvas.node'
     dependencies = subprocess.check_output(['ldd', str(binary)], text=True)
     if 'not found' in dependencies:
@@ -59,6 +61,10 @@ def main():
         'libc': platform.libc_ver(), 'dependencies': dependencies,
         'compiler': subprocess.check_output(['clang++', '--version'], text=True).splitlines()[0],
         'rust': subprocess.check_output(['rustc', '--version'], text=True).strip(),
+        'sources': {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in [
+            'build.rs', 'index.js', 'src/webgl_native.rs', 'src/canvas_css.rs', 'src/skia_backend.cpp',
+            'src/render_diagnostics.h', 'src/dommatrix.js', 'scripts/prepare-native.cjs',
+            'scripts/bundle-canvas.cjs', 'snapshot/linux-skia-args.gn']},
     }, indent=2) + '\n')
     print('Built', binary, flush=True)
 

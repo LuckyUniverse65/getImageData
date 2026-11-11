@@ -6,7 +6,8 @@
   "scripts": {
     "test": "node test.js",
     "build:canvas": "node scripts/build-canvas.cjs",
-    "pack:npm": "node scripts/pack-npm.js"
+    "pack:npm": "node scripts/pack-npm.js",
+    "build:linux": "python3 scripts/build-linux.py && node --expose-gc scripts/test-native-api.js ./dist/canvas-linux/canvas.node"
   },
   "dependencies": { "@petamoriken/float16": "3.9.3" }
 }

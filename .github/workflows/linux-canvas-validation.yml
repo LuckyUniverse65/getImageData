@@ -6,7 +6,7 @@ permissions:
   contents: read
 jobs:
   linux:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
@@ -18,19 +18,24 @@ jobs:
       - name: Install build dependencies
         timeout-minutes: 8
         run: |
-          if [ -f /etc/apt/apt-mirrors.txt ]; then
-            echo 'http://archive.ubuntu.com/ubuntu/' | sudo tee /etc/apt/apt-mirrors.txt
-          fi
           sudo apt-get update -qq
           sudo apt-get install -y -qq clang ninja-build pkg-config libfontconfig1-dev libfreetype-dev fonts-dejavu-core fonts-noto-cjk
-      - uses: actions/cache@v4
+      - uses: actions/cache/restore@v4
+        id: skia-cache
         with:
           path: third_party/skia
-          key: skia-linux-22-v1-${{ hashFiles('snapshot/linux-skia-args.gn', 'scripts/build-linux.py') }}
-          restore-keys: skia-linux-22-v1-
+          key: skia-linux-24-v1-${{ hashFiles('snapshot/linux-skia-args.gn', 'scripts/build-linux.py') }}
+          restore-keys: skia-linux-24-v1-
       - name: Build complete native Canvas
         run: python3 scripts/build-linux.py
+      - uses: actions/cache/save@v4
+        if: always() && steps.skia-cache.outputs.cache-hit != 'true'
+        with:
+          path: third_party/skia
+          key: ${{ steps.skia-cache.outputs.cache-primary-key }}
       - name: Test original API
+        env:
+          CANVAS_DIAGNOSTICS: '1'
         run: node --expose-gc scripts/test-native-api.js ./dist/canvas-linux/canvas.node | tee dist/canvas-linux/test-result.json
       - uses: actions/upload-artifact@v4
         with:
