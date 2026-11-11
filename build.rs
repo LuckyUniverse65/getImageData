@@ -9,7 +9,7 @@ fn main() {
     for key in ["CANVAS_VCVARS", "CANVAS_CLANG_ROOT", "CANVAS_SKIA_ROOT", "CANVAS_SKIA_OUT", "CANVAS_MACHINE_CONFIG", "CANVAS_NODE"] {
         println!("cargo:rerun-if-env-changed={key}");
     }
-    for file in ["index.js", "src/dommatrix.js", "src/skia_backend.cpp", "src/render_diagnostics.h", "scripts/bundle-canvas.cjs", "scripts/prepare-native.cjs", "node_modules/@petamoriken/float16/browser/float16.js"] {
+    for file in ["index.js", "src/dommatrix.js", "src/skia_backend.cpp", "src/linux_fontconfig.h", "src/render_diagnostics.h", "scripts/bundle-canvas.cjs", "scripts/prepare-native.cjs", "node_modules/@petamoriken/float16/browser/float16.js"] {
         println!("cargo:rerun-if-changed={}", root.join(file).display());
     }
     if let Ok(config) = env::var("CANVAS_MACHINE_CONFIG") { println!("cargo:rerun-if-changed={config}"); }

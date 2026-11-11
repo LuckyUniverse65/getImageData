@@ -55,7 +55,7 @@ def bundle(output, cache):
         files.append(fonts / filename)
     notices.append('DejaVu fonts\n\n' + pathlib.Path('/usr/share/doc/fonts-dejavu-core/copyright').read_text())
     cache.mkdir(parents=True, exist_ok=True)
-    for filename, relative in [('NotoSansCJKsc-Regular.otf', 'Sans/OTF/SimplifiedChinese/NotoSansCJKsc-Regular.otf'), ('Noto-OFL.txt', 'Sans/LICENSE')]:
+    for filename, relative in [('NotoSansCJKsc-Regular.otf', 'Sans/OTF/SimplifiedChinese/NotoSansCJKsc-Regular.otf'), ('Noto-OFL.txt', 'LICENSE')]:
         target = cache / filename
         if not target.exists():
             url = 'https://raw.githubusercontent.com/notofonts/noto-cjk/' + FONT_RELEASE + '/' + relative
