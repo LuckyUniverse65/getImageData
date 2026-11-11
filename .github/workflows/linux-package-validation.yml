@@ -1,0 +1,38 @@
+name: Native Linux npm package validation
+on:
+  push:
+    branches: ['codex/linux-canvas-validation-*']
+    paths: ['.ci/lucky65_canvas-*.tgz', '.github/workflows/linux-package-validation.yml']
+permissions:
+  contents: read
+jobs:
+  package:
+    strategy:
+      matrix:
+        os: ['ubuntu-22.04', 'ubuntu-24.04']
+        node: ['22.13.1', '24']
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Check runtime fonts
+        run: fc-match sans-serif
+      - name: Install exact tarball and verify complete API
+        env:
+          CANVAS_DIAGNOSTICS: '1'
+        shell: bash
+        run: |
+          mkdir -p linux-consumer
+          cd linux-consumer
+          npm install ../.ci/lucky65_canvas-0.3.0.tgz --ignore-scripts --omit=optional --no-audit --no-fund
+          cd ..
+          node --expose-gc scripts/test-native-api.js ./linux-consumer/node_modules/lucky65_canvas/index.js | tee package-result.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-package-${{ matrix.os }}-${{ matrix.node }}
+          path: package-result.json
