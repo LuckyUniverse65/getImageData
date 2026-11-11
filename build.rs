@@ -63,11 +63,9 @@ fn build_linux(root: &std::path::Path, out: &std::path::Path) {
     let skia = env::var_os("CANVAS_SKIA_ROOT").map(PathBuf::from).unwrap_or(root.join("third_party/skia"));
     let libs = env::var_os("CANVAS_SKIA_OUT").map(PathBuf::from).unwrap_or(skia.join("out/canvas-linux"));
     let object = out.join("skia_backend.o");
-    let flags = Command::new("pkg-config").args(["--cflags", "fontconfig", "freetype2"]).output().expect("install pkg-config/fontconfig/freetype development packages");
-    assert!(flags.status.success(), "fontconfig/freetype development headers missing");
-    let status = Command::new("clang++").args(["-std=c++20", "-O2", "-fPIC", "-DNDEBUG", "-DCANVAS_CPU_ONLY", "-DSK_GAMMA_SRGB", "-DSK_GAMMA_CONTRAST=1.0"])
+    let status = Command::new("clang++").args(["-std=c++20", "-O2", "-fPIC", "-DNDEBUG", "-DCANVAS_CPU_ONLY", "-DSK_R32_SHIFT=16", "-DSK_GAMMA_SRGB", "-DSK_GAMMA_CONTRAST=1.0"])
         .arg("-I").arg(&skia).arg("-I").arg(out)
-        .args(String::from_utf8(flags.stdout).unwrap().split_whitespace())
+        .arg("-I").arg(skia.join("third_party/externals/fontconfig"))
         .arg("-c").arg(root.join("src/skia_backend.cpp")).arg("-o").arg(&object)
         .status().expect("start clang++");
     assert!(status.success(), "Linux C++ compilation failed");
@@ -85,7 +83,7 @@ fn build_linux(root: &std::path::Path, out: &std::path::Path) {
         println!("cargo:rustc-link-arg={}", archive.display());
     }
     println!("cargo:rustc-link-arg=-Wl,--end-group");
-    for lib in ["fontconfig", "freetype", "stdc++", "m", "dl", "pthread"] {
+    for lib in [":libfontconfig.so.1", "stdc++", "m", "dl", "pthread"] {
         println!("cargo:rustc-link-arg=-l{lib}");
     }
 }

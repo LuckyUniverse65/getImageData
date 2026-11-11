@@ -12,6 +12,7 @@ import subprocess
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SKIA = ROOT / 'third_party/skia'
 REVISION = '4f574af2444846ceca4d277a8095c5d4229d175f'
+FONTCONFIG_REVISION = '00fbdb00e3efafbde7cac84d70678ff87dbed866'
 
 def run(*args, cwd=ROOT):
     subprocess.run(args, cwd=cwd, check=True)
@@ -30,7 +31,7 @@ def main():
         raise SystemExit('This build requires Linux x64 (glibc).')
     checkout(SKIA, 'https://skia.googlesource.com/skia.git', REVISION)
     # Only dependencies used by the CPU build. Revisions come from pinned Skia DEPS.
-    required = {'buildtools', 'harfbuzz', 'highway', 'icu', 'libjpeg-turbo', 'libpng', 'libwebp', 'wuffs', 'zlib'}
+    required = {'buildtools', 'freetype', 'harfbuzz', 'highway', 'icu', 'libjpeg-turbo', 'libpng', 'libwebp', 'wuffs', 'zlib'}
     deps = re.findall(r'[\"\']([^\"\']+)[\"\']\s*:\s*[\"\'](https://[^\"\']+)@([0-9a-f]{40})[\"\']', (SKIA / 'DEPS').read_text())
     selected = [(d, u, r) for d, u, r in deps if d.split('/')[-1] in required]
     assert len(selected) == len(required), 'Pinned dependency list changed'
@@ -38,6 +39,7 @@ def main():
         futures = [pool.submit(checkout, SKIA / d, u, r) for d, u, r in selected]
         for future in futures:
             future.result()
+    checkout(SKIA / 'third_party/externals/fontconfig', 'https://github.com/fontconfig/fontconfig.git', FONTCONFIG_REVISION)
     run('python3', 'bin/fetch-gn', cwd=SKIA)
     build = SKIA / 'out/canvas-linux'
     build.mkdir(parents=True, exist_ok=True)
@@ -58,6 +60,7 @@ def main():
     (output / 'build-info.json').write_text(json.dumps({
         'platform': 'linux', 'arch': 'x64', 'backend': 'skia-raster',
         'skiaRevision': REVISION, 'sha256': hashlib.sha256(binary.read_bytes()).hexdigest(),
+        'fontconfigHeadersRevision': FONTCONFIG_REVISION,
         'libc': platform.libc_ver(), 'dependencies': dependencies,
         'compiler': subprocess.check_output(['clang++', '--version'], text=True).splitlines()[0],
         'rust': subprocess.check_output(['rustc', '--version'], text=True).strip(),

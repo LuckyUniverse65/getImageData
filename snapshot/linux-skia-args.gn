@@ -21,10 +21,10 @@ skia_use_icu = false
 skia_use_bidi = true
 skia_use_fontconfig = true
 skia_use_freetype = true
-skia_use_system_freetype2 = true
+skia_use_system_freetype2 = false
 skia_use_system_harfbuzz = false
 skia_use_system_libjpeg_turbo = false
 skia_use_system_libpng = false
 skia_use_system_libwebp = false
 skia_use_system_zlib = false
-extra_cflags = [ "-DSK_GAMMA_SRGB", "-DSK_GAMMA_CONTRAST=1.0" ]
+extra_cflags = [ "-DSK_GAMMA_SRGB", "-DSK_GAMMA_CONTRAST=1.0", "-I../../third_party/externals/fontconfig" ]
