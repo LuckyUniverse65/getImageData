@@ -167,6 +167,9 @@ function exercise2D(Canvas, Context) {
     call('reset'); g.shadowColor = 'red'; g.shadowOffsetX = 12; g.fillStyle = 'blue'; call('fillRect',0,0,4,4);
     assert.deepEqual(Array.from(call('getImageData',13,1,1,1).data),[255,0,0,255]);
     c.width = c.width; assert.equal(g.shadowOffsetX,0); assert.equal(call('getImageData',13,1,1,1).data[3],0);
+    g.fillStyle = pattern; g.font = '24px sans-serif'; call('fillText','H',2,26);
+    const textPixels = call('getImageData',0,0,32,32).data;
+    assert.ok(Array.from({length: 32*32}, (_,i)=>i*4).some(i => textPixels[i+3] > 0 && textPixels[i+1] > textPixels[i] && textPixels[i+1] > textPixels[i+2]), 'Pattern-filled text must render');
     const expected = Object.entries(shape(api)[Context.name].prototype).filter(([key,v])=>key!=='constructor'&&v.type==='function').map(([key])=>key).sort();
     assert.deepEqual([...called].sort(),expected,'Every existing 2D method must be exercised');
     return called.size;

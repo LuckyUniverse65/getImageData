@@ -38,9 +38,12 @@ jobs:
           path: third_party/skia
           key: ${{ steps.skia-cache.outputs.cache-primary-key }}
       - name: Test original API
+        shell: bash
         env:
           CANVAS_DIAGNOSTICS: '1'
-        run: node --expose-gc scripts/test-native-api.js ./dist/canvas-linux/canvas.node | tee dist/canvas-linux/test-result.json
+        run: |
+          set -euo pipefail
+          node --expose-gc scripts/test-native-api.js ./dist/canvas-linux/canvas.node | tee dist/canvas-linux/test-result.json
       - uses: actions/upload-artifact@v4
         with:
           name: linux-canvas-native
