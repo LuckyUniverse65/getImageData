@@ -42,7 +42,7 @@ def main():
             future.result()
     checkout(SKIA / 'third_party/externals/fontconfig', 'https://github.com/fontconfig/fontconfig.git', FONTCONFIG_REVISION)
     run('python3', 'bin/fetch-gn', cwd=SKIA)
-    build = SKIA / 'out/canvas-linux'
+    build = pathlib.Path(os.environ.get('CANVAS_SKIA_OUT', str(SKIA / 'out/canvas-linux')))
     build.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(ROOT / 'snapshot/linux-skia-args.gn', build / 'args.gn')
     run('bin/gn', 'gen', str(build), cwd=SKIA)
@@ -52,7 +52,7 @@ def main():
     output = ROOT / 'dist/canvas-linux'
     output.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(ROOT / 'target/release/libwebgl.so', output / 'canvas.node')
-    (output / 'package.json').write_text(json.dumps({'name': 'canvas', 'version': '0.3.1',
+    (output / 'package.json').write_text(json.dumps({'name': 'canvas', 'version': '0.3.2',
         'private': True, 'main': 'canvas.node', 'os': ['linux'], 'cpu': ['x64']}, indent=2) + '\n')
     binary = output / 'canvas.node'
     notices = ['Portions of this software are copyright (c) 2026 The FreeType Project (www.freetype.org). All rights reserved.\nFreeType is used under the FreeType License (FTL).\n']
@@ -61,6 +61,7 @@ def main():
         notices.append(relative + '\n\n' + (SKIA / 'third_party/externals' / relative).read_text())
     runtime = runpy.run_path(str(ROOT / 'scripts/bundle-linux-runtime.py'))
     bundled, dependencies, runtime_notices = runtime['bundle'](output, SKIA / 'out/npm-fonts')
+    abi = runtime['verify_glibc']([binary] + [output / name for name in bundled if name.startswith('linux-libs/')])
     notices.append(runtime_notices)
     (output / 'LINUX_NOTICES.txt').write_text('\n\n'.join(notices), encoding='utf-8')
     (output / 'build-info.json').write_text(json.dumps({
@@ -68,7 +69,7 @@ def main():
         'skiaRevision': REVISION, 'sha256': hashlib.sha256(binary.read_bytes()).hexdigest(),
         'fontconfigHeadersRevision': FONTCONFIG_REVISION,
         'libc': platform.libc_ver(), 'dependencies': dependencies,
-        'bundledFiles': bundled,
+        'bundledFiles': bundled, 'glibcRequirements': abi, 'minimumGlibc': '2.31',
         'compiler': subprocess.check_output(['clang++', '--version'], text=True).splitlines()[0],
         'rust': subprocess.check_output(['rustc', '--version'], text=True).strip(),
         'sources': {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in [

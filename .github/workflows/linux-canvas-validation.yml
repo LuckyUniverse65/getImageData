@@ -2,7 +2,7 @@ name: Native Linux Canvas validation
 on:
   push:
     branches: ['codex/linux-canvas-validation-*']
-    paths: ['src/**', 'index.js', 'build.rs', 'Cargo*', 'package*.json', 'snapshot/**', 'scripts/build-linux.py', 'scripts/bundle-linux-runtime.py', 'scripts/prepare-native.cjs', 'scripts/bundle-canvas.cjs', '.github/workflows/linux-canvas-validation.yml']
+    paths: ['src/**', 'index.js', 'build.rs', 'Cargo*', 'package*.json', 'snapshot/**', 'scripts/build-linux.py', 'scripts/bundle-linux-runtime.py', 'scripts/linux-builder.Dockerfile', 'scripts/prepare-native.cjs', 'scripts/bundle-canvas.cjs', '.github/workflows/linux-canvas-validation.yml']
 permissions:
   contents: read
 jobs:
@@ -13,39 +13,39 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22.13.1'
-      - name: Check build dependencies
-        timeout-minutes: 8
-        run: |
-          clang++ --version
-          ninja --version
-          rustc --version
-          ldconfig -p | sed -n '/libfontconfig.so.1/p'
-          fc-list | head -5 || true
       - uses: actions/cache/restore@v4
         id: skia-cache
         with:
           path: third_party/skia
-          key: skia-linux-22-v1-${{ hashFiles('snapshot/linux-skia-args.gn', 'scripts/build-linux.py') }}
-          restore-keys: skia-linux-22-v1-
+          key: skia-linux-bullseye-v1-${{ hashFiles('snapshot/linux-skia-args.gn', 'scripts/build-linux.py', 'scripts/linux-builder.Dockerfile') }}
+          restore-keys: |
+            skia-linux-bullseye-v1-
+            skia-linux-22-v1-
+      - name: Install build environment (Debian 11 glibc 2.31)
+        run: docker build -f scripts/linux-builder.Dockerfile -t canvas-bullseye-builder scripts
       - name: Build complete native Canvas
-        run: python3 scripts/build-linux.py
+        run: |
+          docker run --rm -v "$PWD:/workspace" -w /workspace \
+            -e CANVAS_SKIA_OUT=/workspace/third_party/skia/out/canvas-linux-glibc231 \
+            canvas-bullseye-builder bash -euc '
+              ldd --version
+              clang++ --version
+              rustc --version
+              python3 scripts/build-linux.py
+            '
+      - name: Test original API
+        run: |
+          docker run --rm --network none -v "$PWD:/workspace" -w /workspace \
+            -e CANVAS_DIAGNOSTICS=1 canvas-bullseye-builder bash -euo pipefail -c '
+              node --expose-gc scripts/test-native-api.js ./dist/canvas-linux/canvas.node | tee dist/canvas-linux/test-result.json
+              node scripts/test-bundled-linux.js ./dist/canvas-linux/canvas.node dist/canvas-linux/test-result.json
+            '
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-canvas-native
+          path: dist/canvas-linux/
       - uses: actions/cache/save@v4
         if: always() && steps.skia-cache.outputs.cache-hit != 'true'
         with:
           path: third_party/skia
           key: ${{ steps.skia-cache.outputs.cache-primary-key }}
-      - name: Test original API
-        shell: bash
-        env:
-          CANVAS_DIAGNOSTICS: '1'
-        run: |
-          set -euo pipefail
-          node --expose-gc scripts/test-native-api.js ./dist/canvas-linux/canvas.node | tee dist/canvas-linux/test-result.json
-          node scripts/test-bundled-linux.js ./dist/canvas-linux/canvas.node dist/canvas-linux/test-result.json
-      - uses: actions/upload-artifact@v4
-        with:
-          name: linux-canvas-native
-          path: dist/canvas-linux/

@@ -9,6 +9,17 @@ import urllib.request
 CORE = {'libc.so.6', 'libm.so.6', 'libdl.so.2', 'libpthread.so.0', 'librt.so.1', 'ld-linux-x86-64.so.2'}
 FONT_RELEASE = 'Sans2.004'
 
+def verify_glibc(files):
+    requirements = {}
+    for file in files:
+        symbols = subprocess.check_output(['readelf', '--dyn-syms', '--wide', str(file)], text=True)
+        versions = {tuple(map(int, v.split('.'))) for line in symbols.splitlines() if ' UND ' in line
+                    for v in re.findall(r'@GLIBC_([0-9.]+)', line)}
+        if any(v > (2, 31) for v in versions):
+            raise RuntimeError('glibc > 2.31 required by ' + str(file) + ': ' + str(sorted(versions)))
+        requirements[file.name] = '.'.join(map(str, max(versions))) if versions else None
+    return requirements
+
 def linked(binary):
     output = subprocess.check_output(['ldd', str(binary)], text=True)
     if 'not found' in output:
