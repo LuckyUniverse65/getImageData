@@ -15,3 +15,6 @@ RUN curl -fsSL --retry 3 https://sh.rustup.rs -o /tmp/rustup.sh \
     && sh /tmp/rustup.sh -y --profile minimal --default-toolchain 1.99.1
 ENV PATH="/root/.cargo/bin:${PATH}"
 WORKDIR /workspace
+RUN for directory in . buildtools third_party/externals/freetype third_party/externals/harfbuzz third_party/externals/highway third_party/externals/icu third_party/externals/libjpeg-turbo third_party/externals/libpng third_party/externals/libwebp third_party/externals/wuffs third_party/externals/zlib third_party/externals/fontconfig; do \
+      git config --global --add safe.directory "$(realpath -m /workspace/third_party/skia/$directory)"; \
+    done
