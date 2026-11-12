@@ -5,6 +5,8 @@ on:
     paths: ['.ci/lucky65_canvas-*.tgz*', '.github/workflows/linux-package-validation.yml']
 permissions:
   contents: read
+env:
+  RELEASE_TARBALL: lucky65_canvas-0.3.2.tgz
 jobs:
   package:
     strategy:
@@ -25,8 +27,8 @@ jobs:
         run: fc-match sans-serif
       - name: Reassemble exact release tarball
         run: |
-          cat .ci/lucky65_canvas-0.3.1.tgz.part-* > .ci/lucky65_canvas-0.3.1.tgz
-          sha256sum -c .ci/lucky65_canvas-0.3.1.tgz.sha256
+          cat .ci/$RELEASE_TARBALL.part-* > .ci/$RELEASE_TARBALL
+          sha256sum -c .ci/$RELEASE_TARBALL.sha256
       - name: Install exact tarball and verify complete API
         env:
           CANVAS_DIAGNOSTICS: '1'
@@ -35,7 +37,7 @@ jobs:
           mkdir -p linux-consumer
           cd linux-consumer
           npm init -y
-          npm install ../.ci/lucky65_canvas-0.3.1.tgz --ignore-scripts --omit=optional --no-audit --no-fund
+          npm install ../.ci/$RELEASE_TARBALL --ignore-scripts --omit=optional --no-audit --no-fund
           cd ..
           node --expose-gc scripts/test-native-api.js ./linux-consumer/node_modules/lucky65_canvas/index.js | tee package-result.json
           node scripts/test-bundled-linux.js ./linux-consumer/node_modules/lucky65_canvas/index.js package-result.json
@@ -47,7 +49,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: ['22', '24']
+        include:
+          - distro: bullseye
+            node: '22.13.1'
+          - distro: bullseye
+            node: '22'
+          - distro: bookworm
+            node: '22.13.1'
+          - distro: bookworm
+            node: '24'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -55,26 +65,29 @@ jobs:
         with:
           persist-credentials: false
       - name: Pull minimal image
-        run: docker pull node:${{ matrix.node }}-bookworm-slim
+        run: docker pull node:${{ matrix.node }}-${{ matrix.distro }}-slim
       - name: Reassemble exact release tarball
         run: |
-          cat .ci/lucky65_canvas-0.3.1.tgz.part-* > .ci/lucky65_canvas-0.3.1.tgz
-          sha256sum -c .ci/lucky65_canvas-0.3.1.tgz.sha256
+          cat .ci/$RELEASE_TARBALL.part-* > .ci/$RELEASE_TARBALL
+          sha256sum -c .ci/$RELEASE_TARBALL.sha256
       - name: Test without system Fontconfig or fonts
         shell: bash
         run: |
-          docker run --rm --network none -v "$PWD:/workspace" -w /workspace node:${{ matrix.node }}-bookworm-slim bash -euc '
+          docker run --rm --network none -e RELEASE_TARBALL -e EXPECTED_DISTRO=${{ matrix.distro }} -v "$PWD:/workspace" -w /workspace node:${{ matrix.node }}-${{ matrix.distro }}-slim bash -euc '
+            . /etc/os-release
+            test "$VERSION_CODENAME" = "$EXPECTED_DISTRO"
+            if [ "$EXPECTED_DISTRO" = bullseye ]; then test "$(getconf GNU_LIBC_VERSION)" = "glibc 2.31"; fi
             if ldconfig -p | grep -q libfontconfig; then echo "Unexpected system Fontconfig"; exit 1; fi
             if find /usr/share/fonts /usr/local/share/fonts -type f 2>/dev/null | grep -q .; then echo "Unexpected system fonts"; exit 1; fi
             mkdir /tmp/consumer
             cd /tmp/consumer
             npm init -y
-            npm install /workspace/.ci/lucky65_canvas-0.3.1.tgz --offline --ignore-scripts --omit=optional --no-audit --no-fund
+            npm install /workspace/.ci/$RELEASE_TARBALL --offline --ignore-scripts --omit=optional --no-audit --no-fund
             chmod -R a-w node_modules/lucky65_canvas
             node --expose-gc /workspace/scripts/test-native-api.js /tmp/consumer/node_modules/lucky65_canvas/index.js > /workspace/package-result.json
             node /workspace/scripts/test-bundled-linux.js /tmp/consumer/node_modules/lucky65_canvas/index.js /workspace/package-result.json
           '
       - uses: actions/upload-artifact@v4
         with:
-          name: linux-minimal-node-${{ matrix.node }}
+          name: linux-minimal-${{ matrix.distro }}-node-${{ matrix.node }}
           path: package-result.json
