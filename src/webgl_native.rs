@@ -26,10 +26,18 @@ static OFFSCREEN_CANVAS_HOST_TAG: NapiTypeTag = NapiTypeTag { lower: 0x755b_0ff1
 static HTML_CANVAS_2D_TYPE_TAG: NapiTypeTag = NapiTypeTag { lower: 0x67b9_76d2_e348_432a, upper: 0xb12a_a550_d405_1773 };
 static CANVAS_2D_TYPE_TAG: NapiTypeTag = NapiTypeTag { lower: 0x7c42_825d_163a_4e61, upper: 0x8f2c_d940_ab13_916d };
 
+#[cfg(target_os = "windows")]
 #[link(name = "kernel32")]
 extern "system" {
     fn GetModuleHandleW(name: *const u16) -> *mut c_void;
     fn GetProcAddress(module: *mut c_void, name: *const c_char) -> *mut c_void;
+}
+
+#[cfg(target_os = "linux")]
+#[link(name = "dl")]
+extern "C" {
+    fn dlopen(name: *const c_char, flags: i32) -> *mut c_void;
+    fn dlsym(module: *mut c_void, name: *const c_char) -> *mut c_void;
 }
 
 #[link(name = "skia_backend", kind = "static")]
@@ -165,14 +173,21 @@ struct Napi {
 static NAPI: OnceLock<Napi> = OnceLock::new();
 
 unsafe fn symbol<T>(module: *mut c_void, name: &'static [u8]) -> T {
+    #[cfg(target_os = "windows")]
     let address = GetProcAddress(module, name.as_ptr() as *const c_char);
+    #[cfg(target_os = "linux")]
+    let address = dlsym(module, name.as_ptr() as *const c_char);
     assert!(!address.is_null(), "Node-API symbol is unavailable");
     std::mem::transmute_copy(&address)
 }
 
 unsafe fn load_napi() {
     NAPI.get_or_init(|| unsafe {
+        #[cfg(target_os = "windows")]
         let module = GetModuleHandleW(ptr::null());
+        // Keep the process handle for the lifetime of this Node-API table.
+        #[cfg(target_os = "linux")]
+        let module = dlopen(ptr::null(), 1);
         assert!(!module.is_null(), "cannot find the Node executable");
         Napi {
             create_reference: symbol(module, b"napi_create_reference\0"),

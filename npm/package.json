@@ -1,0 +1,17 @@
+{
+  "name": "lucky65_canvas",
+  "version": "0.3.2",
+  "description": "Prebuilt Canvas 2D and OffscreenCanvas for Node.js on Windows and Linux x64",
+  "main": "index.js",
+  "type": "commonjs",
+  "os": ["win32", "linux"],
+  "cpu": ["x64"],
+  "engines": { "node": ">=22" },
+  "files": ["index.js", "canvas-win32-x64.node", "canvas-linux-x64-gnu.node", "linux-libs", "fonts", "build-info.json", "THIRD_PARTY_NOTICES.txt", "README.md"],
+  "author": "LuckyUniverse65",
+  "homepage": "https://github.com/LuckyUniverse65/getImageData#readme",
+  "repository": { "type": "git", "url": "git+https://github.com/LuckyUniverse65/getImageData.git" },
+  "bugs": { "url": "https://github.com/LuckyUniverse65/getImageData/issues" },
+  "keywords": ["canvas", "offscreen-canvas", "skia", "windows", "linux", "napi", "getImageData"],
+  "publishConfig": { "access": "public", "registry": "https://registry.npmjs.org/" }
+}

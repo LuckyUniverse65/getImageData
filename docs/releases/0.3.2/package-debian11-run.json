@@ -1,0 +1,11 @@
+{
+  "commit": "ffab896a1f036ed68279568fb8528c80584f8bea",
+  "branch": "codex/linux-canvas-validation-cd58bb79",
+  "version": "0.3.2",
+  "mode": "package",
+  "tarballSHA256": "51736401374562d28f860ce859386a425a5205b366d7a237a360abe8295839df",
+  "id": 43169892389,
+  "status": "completed",
+  "conclusion": "success",
+  "html_url": "https://github.com/LuckyUniverse65/getImageData/actions/runs/43169892389"
+}

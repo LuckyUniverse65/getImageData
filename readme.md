@@ -2,7 +2,7 @@
 
 作者微信号：`LuckyUniverse65`
 
-在 Windows 上运行的 Node.js 原生 Canvas 项目。使用本机字体、Skia 渲染实现、GPU 和驱动执行 Canvas 2D 绘图，并通过本机 Chrome 的实际输出校验兼容性。
+在 Windows 和 Linux 上运行的 Node.js Canvas 项目。Windows 使用本项目原生模块及本机字体、GPU 和驱动；`0.3.0` 将相同源码完整编译为 Linux 原生模块，使用 Fontconfig/FreeType 和 Skia CPU，不要求 GPU 或桌面环境。
 
 构建后的包支持直接调用：
 
@@ -10,7 +10,25 @@
 const { OffscreenCanvas } = require('canvas');
 ```
 
-支持范围为 **Windows 10/11 x64、Node.js 22 及以上**。暂不支持 Windows Server、旧版 Windows、Linux、macOS、ARM64 或 x86。当前实体机验证环境为 Windows 11、Node 22.13.1、Chrome 153.0.8010.48；Windows 10 和其他电脑仍需独立验证。
+`0.3.2` 起支持 **Windows 10/11 x64、Linux x64（glibc 2.31+）、Node.js 22 及以上**，包括 Debian 11。旧版 0.3.0/0.3.1 仍要求 glibc 2.35+。暂不支持 Windows Server、旧版 Windows、Alpine/musl、macOS、ARM64 或 x86。Windows 的历史实体机验证环境为 Windows 11、Node 22.13.1、Chrome 153.0.8010.48；Linux 保留原项目全部公开接口，不承诺与 Chrome 或 Windows 像素一致。兼容构建和验收状态见 [Debian 11 兼容说明](docs/2026-11-12_debian11-compatibility.md)。
+
+## npm 分发：lucky65_canvas
+
+[`lucky65_canvas`](https://www.npmjs.com/package/lucky65_canvas) 的 `0.3.2` 已公开，npm 的 latest 已更新。Windows 安装验收及八组 Linux 安装测试全部通过，包含 Debian 11、glibc 2.31、Node 22.13.1；已从官方仓库重新安装并核对二进制、运行库与字体哈希。新版自带 Linux 运行库与兜底字体，证据见 [Debian 11 兼容说明](docs/2026-11-12_debian11-compatibility.md)。安装命令：
+
+```powershell
+npm install lucky65_canvas
+```
+
+```js
+const { OffscreenCanvas } = require('lucky65_canvas');
+```
+
+无需编译工具或 Chrome。需要保留 `require('canvas')` 的项目，可使用 `npm install canvas@npm:lucky65_canvas` 别名安装。普通 `npm install canvas` 仍然安装 npm 上另一个同名项目。两平台原生文件直接内置于包中，无 npm 运行时依赖。`0.3.1` 自带 Linux Fontconfig 依赖库及中西文兜底字体，无需 apt 安装；请保留整个 npm 包。详见 [运行库打包说明](docs/2026-11-12_linux-bundled-runtime.md)。
+
+预编译版使用运行电脑的可用字体和图形环境，但保留构建时的配置，不会在安装时自动校准到该电脑的 Chrome。严格像素对齐仍需本机构建校验。
+
+维护者执行 `npm run pack:npm`，会从已校验的 Windows `dist/canvas` 及实际编译、验收的 `dist/canvas-linux` 生成 `dist/lucky65_canvas-0.3.2.tgz`，并实际安装、测试该包；Linux 实机测试另外执行。根目录继续作为私有开发工程；公开包清单位于 [npm/package.json](npm/package.json)，用户安装说明见 [npm/README.md](npm/README.md)，完整发布步骤见 [npm 发布说明](docs/2026-11-11_npm-publishing.md)。
 
 **当前目录状态：**示例已移至 `demo/`，可以运行下文的单次示例和 HTTP 服务。完整构建验收、主回归及性能脚本仍有旧路径引用：根目录的 `demo.js`、`data.js` 已不存在。重新执行这些流程前需要修复入口与浏览器采集路径；历史验收结果不代表当前目录已重新通过完整验收。
 
@@ -186,7 +204,7 @@ npm install $canvasArchive.FullName
 
 ## API 导出与方法
 
-以下清单依据当前已安装的 `require('canvas')` 实际导出和源码核对，共 **41 个顶层导出项**：39 个函数或接口构造器、1 个常量对象、1 个 Symbol。实例上的方法需要先取得对应对象，例如 `ctx.getImageData()`；它们不是 `require('canvas').getImageData()` 这样的顶层函数。
+以下清单依据 Windows 本机构建的 `require('canvas')` 实际导出和源码核对，共 **41 个顶层导出项**：39 个函数或接口构造器、1 个常量对象、1 个 Symbol。Linux 0.3.0 起保留相同导出，包括原有 WebGL 兼容及内部接口；WebGL 不代表完整 GPU 绘图能力。详细支持范围见 [npm 使用说明](npm/README.md)。实例上的方法需要先取得对应对象，例如 `ctx.getImageData()`；它们不是 `require('canvas').getImageData()` 这样的顶层函数。
 
 ### Canvas、图像与几何对象
 
@@ -380,7 +398,10 @@ Copy-Item target/release/webgl.dll webgl.node -Force
 | [snapshot/](snapshot/) | 上游补丁与构建配置快照 |
 | [docs/](docs/) | 构建流程、专项报告与历史交接记录 |
 | `third_party/` | 本地上游源码、工具链和静态库，不提交到 Git |
-| `dist/`、`out/`、`target/` | 分发包、验证证据和编译中间产物，不提交到 Git |
+| [dist/](dist/) | 保留并提交当前 0.3.2 安装包及已验收的 Windows/Linux 构建产物；其他临时包忽略 |
+| [skills/native-canvas-workflow/](skills/native-canvas-workflow/SKILL.md) | 本项目的构建、行为对齐、移植、集成和发布 skill |
+| [docs/releases/](docs/releases/) | 按版本归档的构建、测试和发布证据 |
+| `out/`、`target/` | 可重新生成的测试输出与编译中间产物，不提交到 Git |
 
 详细资料：
 
@@ -390,3 +411,9 @@ Copy-Item target/release/webgl.dll webgl.node -Force
 - [第二十二轮接口补全及偏差记录](docs/2026-09-21_twentysecond-round-features-report.md)
 - [第二十三轮函数身份与原型差异](docs/2026-09-21_twentythird-round-function-identity-report.md)
 - [历史会话交接](docs/2026-09-22_session-handoff.md)（记录当时状态；已删除文件及旧路径以当前代码为准）
+
+## 项目维护 skill 与归档
+
+[native-canvas-workflow](skills/native-canvas-workflow/SKILL.md) 汇总本项目会话决策、源码入口、Windows Chrome 校准、Linux glibc 2.31 适配、运行库与字体打包、Canvas 复用、框架接入及 npm/GitHub 发布流程。将整个 `skills/native-canvas-workflow` 文件夹复制到 Codex 的 `~/.codex/skills/`，在新会话中使用 `$native-canvas-workflow` 即可调用。
+
+本次清理保留了可恢复的旧回归基线和当前发布证据。路径、恢复方式和清理清单见 [2026-11-12 清理与归档](docs/2026-11-12_project-archive.md)。

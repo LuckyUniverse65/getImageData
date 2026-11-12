@@ -1,0 +1,219 @@
+{
+  "package": "lucky65_canvas",
+  "version": "0.3.1",
+  "tarball": "D:\\python\\getImageData\\dist\\lucky65_canvas-0.3.1.tgz",
+  "tarballSHA256": "3b0e35305c1237e628c63aff90446383f97dada32fae81ecf33ed0a2ba6d50cf",
+  "integrity": "sha512-P+Lj4r1KWyf+mwssxMYUhZVc7jD7adyuVUXcqjl0RVHEL1wz6JJ1jHDU33ijSrfzjO5UsGGfOb4UpzAXl2mEIA==",
+  "packedBytes": 25480707,
+  "files": [
+    {
+      "path": "README.md",
+      "size": 15186,
+      "mode": 420
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.txt",
+      "size": 461562,
+      "mode": 420
+    },
+    {
+      "path": "build-info.json",
+      "size": 4292,
+      "mode": 420
+    },
+    {
+      "path": "canvas-linux-x64-gnu.node",
+      "size": 6948304,
+      "mode": 420
+    },
+    {
+      "path": "canvas-win32-x64.node",
+      "size": 14701568,
+      "mode": 420
+    },
+    {
+      "path": "fonts/DejaVuSans.ttf",
+      "size": 757076,
+      "mode": 420
+    },
+    {
+      "path": "fonts/DejaVuSansMono.ttf",
+      "size": 340712,
+      "mode": 420
+    },
+    {
+      "path": "fonts/DejaVuSerif.ttf",
+      "size": 380132,
+      "mode": 420
+    },
+    {
+      "path": "fonts/NotoSansCJKsc-Regular.otf",
+      "size": 16437364,
+      "mode": 420
+    },
+    {
+      "path": "index.js",
+      "size": 1063,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libbrotlicommon.so.1",
+      "size": 137560,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libbrotlidec.so.1",
+      "size": 51512,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libexpat.so.1",
+      "size": 198968,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libfontconfig.so.1",
+      "size": 298120,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libfreetype.so.6",
+      "size": 813128,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libgcc_s.so.1",
+      "size": 125488,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libpng16.so.16",
+      "size": 235592,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libstdc++.so.6",
+      "size": 2260296,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libuuid.so.1",
+      "size": 30936,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libz.so.1",
+      "size": 108936,
+      "mode": 420
+    },
+    {
+      "path": "package.json",
+      "size": 900,
+      "mode": 420
+    }
+  ],
+  "smoke": {
+    "passed": true,
+    "exports": 41,
+    "demoRGBAValues": 9216,
+    "demoMismatches": 0,
+    "codecs": [
+      "png",
+      "jpeg",
+      "webp"
+    ],
+    "worker": true,
+    "esmDefaultImport": true
+  },
+  "nativeSmoke": {
+    "exports": 41,
+    "shapeParity": true,
+    "contextMethodsExercised": 44,
+    "codecs": [
+      "png",
+      "jpeg",
+      "webp"
+    ],
+    "bitmaprenderer": true,
+    "htmlTransfer": true,
+    "float16": true,
+    "displayP3": true,
+    "webglCompatibility": true,
+    "lifecycleIterations": 30,
+    "demoRGBAValues": 9216,
+    "demoSHA256": "13e5a02ac5a22db0361f7e10b4278ecab36e8776bcd61d5451c5f1f56c740348",
+    "esmDefaultImport": true,
+    "platform": "win32",
+    "workers": 4,
+    "passed": true
+  },
+  "linuxTest": {
+    "exports": 41,
+    "shapeParity": true,
+    "contextMethodsExercised": 44,
+    "codecs": [
+      "png",
+      "jpeg",
+      "webp"
+    ],
+    "bitmaprenderer": true,
+    "htmlTransfer": true,
+    "float16": true,
+    "displayP3": true,
+    "webglCompatibility": true,
+    "lifecycleIterations": 30,
+    "demoRGBAValues": 9216,
+    "demoSHA256": "848dab3bcaa919e27fcf4ac9bed84a72db26698c6f63b930fd791a91072cb881",
+    "esmDefaultImport": false,
+    "platform": "linux",
+    "workers": 4,
+    "passed": true,
+    "bundledRuntime": {
+      "fontconfigFromPackage": true,
+      "textRendered": true,
+      "cjkFontUsed": true,
+      "availableFamilies": [
+        "DejaVu Math TeX Gyre",
+        "DejaVu Sans",
+        "DejaVu Sans Light",
+        "DejaVu Sans Condensed",
+        "DejaVu Sans Mono",
+        "DejaVu Serif",
+        "DejaVu Serif Condensed",
+        "Lato",
+        "Lato Black",
+        "Lato Hairline",
+        "Lato Heavy",
+        "Lato Light",
+        "Lato Medium",
+        "Lato Semibold",
+        "Lato Thin",
+        "Liberation Mono",
+        "Liberation Sans",
+        "Liberation Sans Narrow",
+        "Liberation Serif",
+        "Noto Color Emoji",
+        "Noto Sans CJK SC"
+      ],
+      "usedFonts": [
+        {
+          "family": "DejaVu Sans",
+          "postScriptName": "DejaVuSans",
+          "version": "Version 2.37",
+          "weight": 400,
+          "width": 5,
+          "slant": 0
+        },
+        {
+          "family": "Noto Sans CJK SC",
+          "postScriptName": "NotoSansCJKsc-Regular",
+          "version": "Version 2.004;hotconv 1.0.118;makeotfexe 2.5.65603",
+          "weight": 400,
+          "width": 5,
+          "slant": 0
+        }
+      ]
+    }
+  },
+  "published": false
+}

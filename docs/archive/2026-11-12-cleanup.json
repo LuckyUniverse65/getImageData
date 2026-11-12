@@ -1,0 +1,1333 @@
+{
+    "date":  "2026-11-12",
+    "status":  "completed",
+    "archivedEvidenceFiles":  172,
+    "archive":  "docs/archive/2026-11-12-regression-evidence.zip",
+    "archiveSHA256":  "4374a996b65289e2ad321bb444d95a476d583cfe625fb7719d944a8bc69a4e66",
+    "archiveBytes":  28076887,
+    "targets":  [
+                    {
+                        "path":  "out/additional-review-browser.json",
+                        "files":  1,
+                        "bytes":  2014
+                    },
+                    {
+                        "path":  "out/additional-review-diff.json",
+                        "files":  1,
+                        "bytes":  8758
+                    },
+                    {
+                        "path":  "out/additional-review-f12.png",
+                        "files":  1,
+                        "bytes":  104043
+                    },
+                    {
+                        "path":  "out/additional-review-local.json",
+                        "files":  1,
+                        "bytes":  3289
+                    },
+                    {
+                        "path":  "out/baseline-f12.png",
+                        "files":  1,
+                        "bytes":  103369
+                    },
+                    {
+                        "path":  "out/build-20260922054335927",
+                        "files":  39,
+                        "bytes":  96052404
+                    },
+                    {
+                        "path":  "out/canvas_2d_recorder_context.cc",
+                        "files":  1,
+                        "bytes":  98982
+                    },
+                    {
+                        "path":  "out/canvas_2d_recorder_context.h",
+                        "files":  1,
+                        "bytes":  38949
+                    },
+                    {
+                        "path":  "out/cdp-additional-review-browser.json",
+                        "files":  1,
+                        "bytes":  3348
+                    },
+                    {
+                        "path":  "out/cdp-additional-review-diff.json",
+                        "files":  1,
+                        "bytes":  1886
+                    },
+                    {
+                        "path":  "out/cdp-additional-review-local.json",
+                        "files":  1,
+                        "bytes":  6695
+                    },
+                    {
+                        "path":  "out/cdp-compatibility-browser.json",
+                        "files":  1,
+                        "bytes":  42536
+                    },
+                    {
+                        "path":  "out/cdp-demo-browser.json",
+                        "files":  1,
+                        "bytes":  26485
+                    },
+                    {
+                        "path":  "out/cdp-eighteenth-round-browser.json",
+                        "files":  1,
+                        "bytes":  46345474
+                    },
+                    {
+                        "path":  "out/cdp-eighteenth-round-diff.json",
+                        "files":  1,
+                        "bytes":  1506
+                    },
+                    {
+                        "path":  "out/cdp-eighteenth-round-local.json",
+                        "files":  1,
+                        "bytes":  26303639
+                    },
+                    {
+                        "path":  "out/cdp-eighth-round-browser.json",
+                        "files":  1,
+                        "bytes":  46345474
+                    },
+                    {
+                        "path":  "out/cdp-eighth-round-diff.json",
+                        "files":  1,
+                        "bytes":  3689
+                    },
+                    {
+                        "path":  "out/cdp-eighth-round-local.json",
+                        "files":  1,
+                        "bytes":  2215175
+                    },
+                    {
+                        "path":  "out/cdp-eleventh-round-browser.json",
+                        "files":  1,
+                        "bytes":  46345474
+                    },
+                    {
+                        "path":  "out/cdp-eleventh-round-diff.json",
+                        "files":  1,
+                        "bytes":  3194
+                    },
+                    {
+                        "path":  "out/cdp-eleventh-round-first-browser.json",
+                        "files":  1,
+                        "bytes":  3684319
+                    },
+                    {
+                        "path":  "out/cdp-eleventh-round-local.json",
+                        "files":  1,
+                        "bytes":  1540083
+                    },
+                    {
+                        "path":  "out/cdp-fifteenth-round-browser.json",
+                        "files":  1,
+                        "bytes":  46345474
+                    },
+                    {
+                        "path":  "out/cdp-fifteenth-round-diff.json",
+                        "files":  1,
+                        "bytes":  10024
+                    },
+                    {
+                        "path":  "out/cdp-fifteenth-round-local.json",
+                        "files":  1,
+                        "bytes":  9536697
+                    },
+                    {
+                        "path":  "out/cdp-fifth-round-browser.json",
+                        "files":  1,
+                        "bytes":  46345474
+                    },
+                    {
+                        "path":  "out/cdp-fifth-round-diff.json",
+                        "files":  1,
+                        "bytes":  3021
+                    },
+                    {
+                        "path":  "out/cdp-fifth-round-local.json",
+                        "files":  1,
+                        "bytes":  7854
+                    },
+                    {
+                        "path":  "out/cdp-fourteenth-round-browser.json",
+                        "files":  1,
+                        "bytes":  46345474
+                    },
+                    {
+                        "path":  "out/cdp-fourteenth-round-diff.json",
+                        "files":  1,
+                        "bytes":  8276
+                    },
+                    {
+                        "path":  "out/cdp-fourteenth-round-local.json",
+                        "files":  1,
+                        "bytes":  20734137
+                    },
+                    {
+                        "path":  "out/cdp-fourth-round-browser.json",
+                        "files":  1,
+                        "bytes":  46345474
+                    },
+                    {
+                        "path":  "out/cdp-fourth-round-diff.json",
+                        "files":  1,
+                        "bytes":  2934
+                    },
+                    {
+                        "path":  "out/cdp-fourth-round-local.json",
+                        "files":  1,
+                        "bytes":  9311
+                    },
+                    {
+                        "path":  "out/cdp-nineteenth-round-browser.json",
+                        "files":  1,
+                        "bytes":  46345474
+                    },
+                    {
+                        "path":  "out/cdp-nineteenth-round-diff.json",
+                        "files":  1,
+                        "bytes":  274
+                    },
+                    {
+                        "path":  "out/cdp-ninth-round-browser.json",
+                        "files":  1,
+                        "bytes":  46345474
+                    },
+                    {
+                        "path":  "out/cdp-ninth-round-diff.json",
+                        "files":  1,
+                        "bytes":  3563
+                    },
+                    {
+                        "path":  "out/cdp-ninth-round-first-browser.json",
+                        "files":  1,
+                        "bytes":  2395791
+                    },
+                    {
+                        "path":  "out/cdp-ninth-round-local.json",
+                        "files":  1,
+                        "bytes":  3749651
+                    },
+                    {
+                        "path":  "out/cdp-session.log",
+                        "files":  1,
+                        "bytes":  0
+                    },
+                    {
+                        "path":  "out/cdp-seventeenth-round-browser.json",
+                        "files":  1,
+                        "bytes":  46345474
+                    },
+                    {
+                        "path":  "out/cdp-seventeenth-round-diff.json",
+                        "files":  1,
+                        "bytes":  1202
+                    },
+                    {
+                        "path":  "out/cdp-seventeenth-round-local.json",
+                        "files":  1,
+                        "bytes":  1655071
+                    },
+                    {
+                        "path":  "out/cdp-seventh-round-browser.json",
+                        "files":  1,
+                        "bytes":  46345474
+                    },
+                    {
+                        "path":  "out/cdp-seventh-round-diff.json",
+                        "files":  1,
+                        "bytes":  2574
+                    },
+                    {
+                        "path":  "out/cdp-seventh-round-local.json",
+                        "files":  1,
+                        "bytes":  6112530
+                    },
+                    {
+                        "path":  "out/cdp-sixteenth-round-browser.json",
+                        "files":  1,
+                        "bytes":  46345474
+                    },
+                    {
+                        "path":  "out/cdp-sixteenth-round-diff.json",
+                        "files":  1,
+                        "bytes":  1202
+                    },
+                    {
+                        "path":  "out/cdp-sixteenth-round-local.json",
+                        "files":  1,
+                        "bytes":  2228282
+                    },
+                    {
+                        "path":  "out/cdp-sixth-round-browser.json",
+                        "files":  1,
+                        "bytes":  46345474
+                    },
+                    {
+                        "path":  "out/cdp-sixth-round-diff.json",
+                        "files":  1,
+                        "bytes":  2778
+                    },
+                    {
+                        "path":  "out/cdp-sixth-round-local.json",
+                        "files":  1,
+                        "bytes":  240133
+                    },
+                    {
+                        "path":  "out/cdp-tenth-round-browser.json",
+                        "files":  1,
+                        "bytes":  46345474
+                    },
+                    {
+                        "path":  "out/cdp-tenth-round-diff.json",
+                        "files":  1,
+                        "bytes":  3970
+                    },
+                    {
+                        "path":  "out/cdp-tenth-round-first-browser.json",
+                        "files":  1,
+                        "bytes":  3160010
+                    },
+                    {
+                        "path":  "out/cdp-tenth-round-local.json",
+                        "files":  1,
+                        "bytes":  4114965
+                    },
+                    {
+                        "path":  "out/cdp-third-round-browser.json",
+                        "files":  1,
+                        "bytes":  4293
+                    },
+                    {
+                        "path":  "out/cdp-third-round-diff.json",
+                        "files":  1,
+                        "bytes":  2916
+                    },
+                    {
+                        "path":  "out/cdp-third-round-local-preliminary.json",
+                        "files":  1,
+                        "bytes":  5716
+                    },
+                    {
+                        "path":  "out/cdp-third-round-local.json",
+                        "files":  1,
+                        "bytes":  6715
+                    },
+                    {
+                        "path":  "out/cdp-thirteenth-round-browser.json",
+                        "files":  1,
+                        "bytes":  46345474
+                    },
+                    {
+                        "path":  "out/cdp-thirteenth-round-diff.json",
+                        "files":  1,
+                        "bytes":  4694
+                    },
+                    {
+                        "path":  "out/cdp-thirteenth-round-local.json",
+                        "files":  1,
+                        "bytes":  12986570
+                    },
+                    {
+                        "path":  "out/cdp-twelfth-round-browser.json",
+                        "files":  1,
+                        "bytes":  46345474
+                    },
+                    {
+                        "path":  "out/cdp-twelfth-round-diff.json",
+                        "files":  1,
+                        "bytes":  3735
+                    },
+                    {
+                        "path":  "out/cdp-twelfth-round-local.json",
+                        "files":  1,
+                        "bytes":  7409811
+                    },
+                    {
+                        "path":  "out/cdp-twentieth-review-browser.json",
+                        "files":  1,
+                        "bytes":  46345474
+                    },
+                    {
+                        "path":  "out/cdp-twentyfirst-probe-browser.json",
+                        "files":  1,
+                        "bytes":  9959
+                    },
+                    {
+                        "path":  "out/cdp-twentysecond-b-browser.json",
+                        "files":  1,
+                        "bytes":  4805
+                    },
+                    {
+                        "path":  "out/cdp-twentysecond-c-browser.json",
+                        "files":  1,
+                        "bytes":  1712
+                    },
+                    {
+                        "path":  "out/cdp-twentysecond-d-browser.json",
+                        "files":  1,
+                        "bytes":  1814
+                    },
+                    {
+                        "path":  "out/cdp-twentysecond-probe-browser.json",
+                        "files":  1,
+                        "bytes":  6565
+                    },
+                    {
+                        "path":  "out/cdp-twentythird-browser.json",
+                        "files":  1,
+                        "bytes":  15119
+                    },
+                    {
+                        "path":  "out/cdp-unicode-color-browser.json",
+                        "files":  1,
+                        "bytes":  527
+                    },
+                    {
+                        "path":  "out/cdp-unicode-color-diff.json",
+                        "files":  1,
+                        "bytes":  896
+                    },
+                    {
+                        "path":  "out/cdp-verification-result.json",
+                        "files":  1,
+                        "bytes":  3754
+                    },
+                    {
+                        "path":  "out/check-windows-port.js",
+                        "files":  1,
+                        "bytes":  1005
+                    },
+                    {
+                        "path":  "out/chrome-base-rendering-context.cc",
+                        "files":  1,
+                        "bytes":  62090
+                    },
+                    {
+                        "path":  "out/chrome-skia-Device.cpp",
+                        "files":  1,
+                        "bytes":  119792
+                    },
+                    {
+                        "path":  "out/chrome153-visible-f12-result.json",
+                        "files":  1,
+                        "bytes":  477
+                    },
+                    {
+                        "path":  "out/chrome153-visible-f12.json",
+                        "files":  1,
+                        "bytes":  26583
+                    },
+                    {
+                        "path":  "out/chrome153-visible-f12.png",
+                        "files":  1,
+                        "bytes":  138297
+                    },
+                    {
+                        "path":  "out/chromium-bitmap-glyphs-block-list.cc",
+                        "files":  1,
+                        "bytes":  1038
+                    },
+                    {
+                        "path":  "out/chromium-canvas-path.cc",
+                        "files":  1,
+                        "bytes":  27663
+                    },
+                    {
+                        "path":  "out/chromium-canvas-recorder.cc",
+                        "files":  1,
+                        "bytes":  98982
+                    },
+                    {
+                        "path":  "out/chromium-color-conversions.cc",
+                        "files":  1,
+                        "bytes":  13255
+                    },
+                    {
+                        "path":  "out/chromium-color-function-parser.cc",
+                        "files":  1,
+                        "bytes":  27365
+                    },
+                    {
+                        "path":  "out/chromium-color.cc",
+                        "files":  1,
+                        "bytes":  47550
+                    },
+                    {
+                        "path":  "out/chromium-css-fast-paths.cc",
+                        "files":  1,
+                        "bytes":  89677
+                    },
+                    {
+                        "path":  "out/chromium-css-parser-files.json",
+                        "files":  1,
+                        "bytes":  101339
+                    },
+                    {
+                        "path":  "out/chromium-css-parsing-utils.cc",
+                        "files":  1,
+                        "bytes":  382114
+                    },
+                    {
+                        "path":  "out/chromium-DEPS",
+                        "files":  1,
+                        "bytes":  196718
+                    },
+                    {
+                        "path":  "out/chromium-font-cache-key.h",
+                        "files":  1,
+                        "bytes":  7755
+                    },
+                    {
+                        "path":  "out/chromium-font-cache-skia-win.cc",
+                        "files":  1,
+                        "bytes":  21271
+                    },
+                    {
+                        "path":  "out/chromium-font-fallback-win.cc",
+                        "files":  1,
+                        "bytes":  26763
+                    },
+                    {
+                        "path":  "out/chromium-font-metrics.cc",
+                        "files":  1,
+                        "bytes":  9130
+                    },
+                    {
+                        "path":  "out/chromium-font-platform-data-win.cc",
+                        "files":  1,
+                        "bytes":  3986
+                    },
+                    {
+                        "path":  "out/chromium-gradient.cc",
+                        "files":  1,
+                        "bytes":  20963
+                    },
+                    {
+                        "path":  "out/chromium-harfbuzz-face.cc",
+                        "files":  1,
+                        "bytes":  27341
+                    },
+                    {
+                        "path":  "out/chromium-paint-flags.cc",
+                        "files":  1,
+                        "bytes":  9168
+                    },
+                    {
+                        "path":  "out/chromium-paint-op-reader.cc",
+                        "files":  1,
+                        "bytes":  54131
+                    },
+                    {
+                        "path":  "out/chromium-paint-op-writer.cc",
+                        "files":  1,
+                        "bytes":  42654
+                    },
+                    {
+                        "path":  "out/chromium-paint-op.cc",
+                        "files":  1,
+                        "bytes":  96831
+                    },
+                    {
+                        "path":  "out/chromium-paint-shader.cc",
+                        "files":  1,
+                        "bytes":  27977
+                    },
+                    {
+                        "path":  "out/chromium-path-builder.cc",
+                        "files":  1,
+                        "bytes":  17990
+                    },
+                    {
+                        "path":  "out/chromium-record-paint-canvas.cc",
+                        "files":  1,
+                        "bytes":  18345
+                    },
+                    {
+                        "path":  "out/chromium-simple-font-data.cc",
+                        "files":  1,
+                        "bytes":  23809
+                    },
+                    {
+                        "path":  "out/chromium-text-metrics.cc",
+                        "files":  1,
+                        "bytes":  26738
+                    },
+                    {
+                        "path":  "out/cleanup-20260922.json",
+                        "files":  1,
+                        "bytes":  2508
+                    },
+                    {
+                        "path":  "out/cleanup-project.py",
+                        "files":  1,
+                        "bytes":  5368
+                    },
+                    {
+                        "path":  "out/compatibility-browser.json",
+                        "files":  1,
+                        "bytes":  42394
+                    },
+                    {
+                        "path":  "out/compatibility-f12.png",
+                        "files":  1,
+                        "bytes":  101056
+                    },
+                    {
+                        "path":  "out/context-separation-full-regression.txt",
+                        "files":  1,
+                        "bytes":  6462
+                    },
+                    {
+                        "path":  "out/continuation-diff.json",
+                        "files":  1,
+                        "bytes":  1371
+                    },
+                    {
+                        "path":  "out/continuation-local.json",
+                        "files":  1,
+                        "bytes":  2058321
+                    },
+                    {
+                        "path":  "out/demo-browser.json",
+                        "files":  1,
+                        "bytes":  26343
+                    },
+                    {
+                        "path":  "out/demo-f12.png",
+                        "files":  1,
+                        "bytes":  115084
+                    },
+                    {
+                        "path":  "out/demo-performance-package.json",
+                        "files":  1,
+                        "bytes":  89951
+                    },
+                    {
+                        "path":  "out/demo-performance-source.json",
+                        "files":  1,
+                        "bytes":  89999
+                    },
+                    {
+                        "path":  "out/demo-review-20260917-browser.json",
+                        "files":  1,
+                        "bytes":  26485
+                    },
+                    {
+                        "path":  "out/desktop-inspect.png",
+                        "files":  1,
+                        "bytes":  993174
+                    },
+                    {
+                        "path":  "out/eighteenth-10104-trace.txt",
+                        "files":  1,
+                        "bytes":  3698
+                    },
+                    {
+                        "path":  "out/eighteenth-8061-trace.txt",
+                        "files":  1,
+                        "bytes":  4272
+                    },
+                    {
+                        "path":  "out/eighteenth-before-final-sweeps.json",
+                        "files":  1,
+                        "bytes":  1204
+                    },
+                    {
+                        "path":  "out/eighteenth-build.txt",
+                        "files":  1,
+                        "bytes":  9416
+                    },
+                    {
+                        "path":  "out/eighteenth-dither-diagnostic.txt",
+                        "files":  1,
+                        "bytes":  63054
+                    },
+                    {
+                        "path":  "out/eighteenth-flush-image-diagnostic.txt",
+                        "files":  1,
+                        "bytes":  47296
+                    },
+                    {
+                        "path":  "out/eighteenth-full-regression.txt",
+                        "files":  1,
+                        "bytes":  0
+                    },
+                    {
+                        "path":  "out/eighteenth-last-compare.txt",
+                        "files":  1,
+                        "bytes":  2146
+                    },
+                    {
+                        "path":  "out/eighteenth-phase2-before.json",
+                        "files":  1,
+                        "bytes":  535139
+                    },
+                    {
+                        "path":  "out/eighteenth-phase3-before.json",
+                        "files":  1,
+                        "bytes":  9843
+                    },
+                    {
+                        "path":  "out/eighteenth-phase4-before.json",
+                        "files":  1,
+                        "bytes":  9948
+                    },
+                    {
+                        "path":  "out/eighteenth-phase5-before.json",
+                        "files":  1,
+                        "bytes":  12716
+                    },
+                    {
+                        "path":  "out/eighteenth-pre-final-full-pass.json",
+                        "files":  1,
+                        "bytes":  2460
+                    },
+                    {
+                        "path":  "out/eighteenth-sequence-traces.txt",
+                        "files":  1,
+                        "bytes":  10488
+                    },
+                    {
+                        "path":  "out/eighteenth-sweepI-pass.json",
+                        "files":  1,
+                        "bytes":  1204
+                    },
+                    {
+                        "path":  "out/eighteenth-sweepJ-fixed.json",
+                        "files":  1,
+                        "bytes":  1204
+                    },
+                    {
+                        "path":  "out/eighteenth-sweepK-pass.json",
+                        "files":  1,
+                        "bytes":  1204
+                    },
+                    {
+                        "path":  "out/eighteenth-sweepM-pass.json",
+                        "files":  1,
+                        "bytes":  1204
+                    },
+                    {
+                        "path":  "out/eighteenth-sweepN-pass.json",
+                        "files":  1,
+                        "bytes":  1204
+                    },
+                    {
+                        "path":  "out/exact-canvas_image_source.h",
+                        "files":  1,
+                        "bytes":  4467
+                    },
+                    {
+                        "path":  "out/exact-dawn-printer.base64",
+                        "files":  1,
+                        "bytes":  121248
+                    },
+                    {
+                        "path":  "out/exact-dawn-printer.cc",
+                        "files":  1,
+                        "bytes":  90935
+                    },
+                    {
+                        "path":  "out/exact-dawn_context_provider.cc",
+                        "files":  1,
+                        "bytes":  51835
+                    },
+                    {
+                        "path":  "out/exact-Device.cpp",
+                        "files":  1,
+                        "bytes":  119792
+                    },
+                    {
+                        "path":  "out/exact-gl_features.cc",
+                        "files":  1,
+                        "bytes":  13809
+                    },
+                    {
+                        "path":  "out/exact-gpu_finch_features.cc",
+                        "files":  1,
+                        "bytes":  35517
+                    },
+                    {
+                        "path":  "out/exact-gpu_finch_features.h",
+                        "files":  1,
+                        "bytes":  10782
+                    },
+                    {
+                        "path":  "out/exact-image_bitmap.cc",
+                        "files":  1,
+                        "bytes":  29065
+                    },
+                    {
+                        "path":  "out/exact-image_bitmap.h",
+                        "files":  1,
+                        "bytes":  8060
+                    },
+                    {
+                        "path":  "out/exact-KeyHelpers.cpp",
+                        "files":  1,
+                        "bytes":  128084
+                    },
+                    {
+                        "path":  "out/exact-paint_filter.cc",
+                        "files":  1,
+                        "bytes":  59735
+                    },
+                    {
+                        "path":  "out/exact-shared_context_state.cc",
+                        "files":  1,
+                        "bytes":  53395
+                    },
+                    {
+                        "path":  "out/exact-SkBlurImageFilter.cpp",
+                        "files":  1,
+                        "bytes":  10252
+                    },
+                    {
+                        "path":  "out/exact-SkDropShadowImageFilter.cpp",
+                        "files":  1,
+                        "bytes":  5506
+                    },
+                    {
+                        "path":  "out/exact-skia_utils.cc",
+                        "files":  1,
+                        "bytes":  23798
+                    },
+                    {
+                        "path":  "out/exact-SkImageFilterTypes.cpp",
+                        "files":  1,
+                        "bytes":  113062
+                    },
+                    {
+                        "path":  "out/exact-SkPathBuilder.cpp",
+                        "files":  1,
+                        "bytes":  40165
+                    },
+                    {
+                        "path":  "out/exact-sksl_graphite_frag.sksl",
+                        "files":  1,
+                        "bytes":  85429
+                    },
+                    {
+                        "path":  "out/extend13.py",
+                        "files":  1,
+                        "bytes":  1196
+                    },
+                    {
+                        "path":  "out/fifteenth-debug-local.json",
+                        "files":  1,
+                        "bytes":  4273162
+                    },
+                    {
+                        "path":  "out/fifteenth-initial-diff.json",
+                        "files":  1,
+                        "bytes":  437321
+                    },
+                    {
+                        "path":  "out/finalize-bundled-release.js",
+                        "files":  1,
+                        "bytes":  3621
+                    },
+                    {
+                        "path":  "out/finalize-native-release.js",
+                        "files":  1,
+                        "bytes":  2492
+                    },
+                    {
+                        "path":  "out/finalize12.py",
+                        "files":  1,
+                        "bytes":  9989
+                    },
+                    {
+                        "path":  "out/fix12-boundaries.py",
+                        "files":  1,
+                        "bytes":  768
+                    },
+                    {
+                        "path":  "out/fix12-cache-lifetime.py",
+                        "files":  1,
+                        "bytes":  3115
+                    },
+                    {
+                        "path":  "out/fix12-cache-tests.py",
+                        "files":  1,
+                        "bytes":  1448
+                    },
+                    {
+                        "path":  "out/fix12-layout.py",
+                        "files":  1,
+                        "bytes":  1500
+                    },
+                    {
+                        "path":  "out/fix12-refine.py",
+                        "files":  1,
+                        "bytes":  541
+                    },
+                    {
+                        "path":  "out/fix12-space-cache.py",
+                        "files":  1,
+                        "bytes":  4817
+                    },
+                    {
+                        "path":  "out/fix12-space-probe.py",
+                        "files":  1,
+                        "bytes":  624
+                    },
+                    {
+                        "path":  "out/fix12-spacing.py",
+                        "files":  1,
+                        "bytes":  3666
+                    },
+                    {
+                        "path":  "out/fix12-tests.py",
+                        "files":  1,
+                        "bytes":  3605
+                    },
+                    {
+                        "path":  "out/fix12.py",
+                        "files":  1,
+                        "bytes":  9688
+                    },
+                    {
+                        "path":  "out/fix13-bidi.py",
+                        "files":  1,
+                        "bytes":  2229
+                    },
+                    {
+                        "path":  "out/fix13-tests.py",
+                        "files":  1,
+                        "bytes":  3654
+                    },
+                    {
+                        "path":  "out/fix13.py",
+                        "files":  1,
+                        "bytes":  12085
+                    },
+                    {
+                        "path":  "out/fourteenth-initial-diff.json",
+                        "files":  1,
+                        "bytes":  653073
+                    },
+                    {
+                        "path":  "out/fourth-round-local-preliminary.json",
+                        "files":  1,
+                        "bytes":  4803
+                    },
+                    {
+                        "path":  "out/github-private.ps1",
+                        "files":  1,
+                        "bytes":  2067
+                    },
+                    {
+                        "path":  "out/italic-browser.png",
+                        "files":  1,
+                        "bytes":  733
+                    },
+                    {
+                        "path":  "out/italic-local.png",
+                        "files":  1,
+                        "bytes":  802
+                    },
+                    {
+                        "path":  "out/italic-pair.png",
+                        "files":  1,
+                        "bytes":  7491
+                    },
+                    {
+                        "path":  "out/linux-adapter-preview",
+                        "files":  2,
+                        "bytes":  35490
+                    },
+                    {
+                        "path":  "out/linux-backend-tools",
+                        "files":  18,
+                        "bytes":  39959705
+                    },
+                    {
+                        "path":  "out/linux-ci",
+                        "files":  25,
+                        "bytes":  180853
+                    },
+                    {
+                        "path":  "out/linux-test-vm",
+                        "files":  11,
+                        "bytes":  311697124
+                    },
+                    {
+                        "path":  "out/local-cases.json",
+                        "files":  1,
+                        "bytes":  42055
+                    },
+                    {
+                        "path":  "out/new-cases-reference-browser.json",
+                        "files":  1,
+                        "bytes":  42276
+                    },
+                    {
+                        "path":  "out/new-cases-reference-f12.png",
+                        "files":  1,
+                        "bytes":  101132
+                    },
+                    {
+                        "path":  "out/nineteenth-build.txt",
+                        "files":  1,
+                        "bytes":  9454
+                    },
+                    {
+                        "path":  "out/nineteenth-local.json",
+                        "files":  1,
+                        "bytes":  288543
+                    },
+                    {
+                        "path":  "out/nineteenth-regression-final.txt",
+                        "files":  1,
+                        "bytes":  4802
+                    },
+                    {
+                        "path":  "out/nineteenth-regression-first.txt",
+                        "files":  1,
+                        "bytes":  4444
+                    },
+                    {
+                        "path":  "out/npm-registry-0.2.0",
+                        "files":  26,
+                        "bytes":  54802122
+                    },
+                    {
+                        "path":  "out/npm-registry-lucky65-20261111",
+                        "files":  0,
+                        "bytes":  0
+                    },
+                    {
+                        "path":  "out/npm-release-bC8vVz",
+                        "files":  17,
+                        "bytes":  29608950
+                    },
+                    {
+                        "path":  "out/npm-release-i4Xxdj",
+                        "files":  73,
+                        "bytes":  132947021
+                    },
+                    {
+                        "path":  "out/npm-release-I8NOgu",
+                        "files":  72,
+                        "bytes":  131699874
+                    },
+                    {
+                        "path":  "out/npm-release-k1l5Om",
+                        "files":  16,
+                        "bytes":  29608315
+                    },
+                    {
+                        "path":  "out/npm-release-lVgpuV",
+                        "files":  36,
+                        "bytes":  69646146
+                    },
+                    {
+                        "path":  "out/npm-release-Nx3idF",
+                        "files":  16,
+                        "bytes":  29608315
+                    },
+                    {
+                        "path":  "out/npm-release-z7Ujaj",
+                        "files":  29,
+                        "bytes":  65404585
+                    },
+                    {
+                        "path":  "out/open_type_caps_support.cc",
+                        "files":  1,
+                        "bytes":  10737
+                    },
+                    {
+                        "path":  "out/open_type_caps_support.h",
+                        "files":  1,
+                        "bytes":  2512
+                    },
+                    {
+                        "path":  "out/paint_flags.cc",
+                        "files":  1,
+                        "bytes":  9168
+                    },
+                    {
+                        "path":  "out/paint_op.cc",
+                        "files":  1,
+                        "bytes":  96831
+                    },
+                    {
+                        "path":  "out/paint_shader.cc",
+                        "files":  1,
+                        "bytes":  27977
+                    },
+                    {
+                        "path":  "out/path-gc.json",
+                        "files":  1,
+                        "bytes":  54
+                    },
+                    {
+                        "path":  "out/pattern-gc.json",
+                        "files":  1,
+                        "bytes":  53
+                    },
+                    {
+                        "path":  "out/plain_text_node.cc",
+                        "files":  1,
+                        "bytes":  19750
+                    },
+                    {
+                        "path":  "out/plain_text_painter.cc",
+                        "files":  1,
+                        "bytes":  11235
+                    },
+                    {
+                        "path":  "out/png-removal-after.json",
+                        "files":  1,
+                        "bytes":  307904
+                    },
+                    {
+                        "path":  "out/png-removal-before.json",
+                        "files":  1,
+                        "bytes":  307899
+                    },
+                    {
+                        "path":  "out/png-removal-browser.json",
+                        "files":  1,
+                        "bytes":  95805
+                    },
+                    {
+                        "path":  "out/port-linux.py",
+                        "files":  1,
+                        "bytes":  3009
+                    },
+                    {
+                        "path":  "out/pre-fix-cases.json",
+                        "files":  1,
+                        "bytes":  41174
+                    },
+                    {
+                        "path":  "out/pre-fix-smoke-browser.json",
+                        "files":  1,
+                        "bytes":  475
+                    },
+                    {
+                        "path":  "out/pre-fix-smoke-f12.png",
+                        "files":  1,
+                        "bytes":  50452
+                    },
+                    {
+                        "path":  "out/probe12.py",
+                        "files":  1,
+                        "bytes":  563
+                    },
+                    {
+                        "path":  "out/push-baseline.ps1",
+                        "files":  1,
+                        "bytes":  1444
+                    },
+                    {
+                        "path":  "out/readback-browser.json",
+                        "files":  1,
+                        "bytes":  1168
+                    },
+                    {
+                        "path":  "out/readback-f12.png",
+                        "files":  1,
+                        "bytes":  55592
+                    },
+                    {
+                        "path":  "out/regression-after-skia.log",
+                        "files":  1,
+                        "bytes":  975
+                    },
+                    {
+                        "path":  "out/report13.py",
+                        "files":  1,
+                        "bytes":  10285
+                    },
+                    {
+                        "path":  "out/shape_result_spacing.cc",
+                        "files":  1,
+                        "bytes":  6842
+                    },
+                    {
+                        "path":  "out/shape_result_spacing.h",
+                        "files":  1,
+                        "bytes":  4963
+                    },
+                    {
+                        "path":  "out/skia-rebuild.log",
+                        "files":  1,
+                        "bytes":  61122
+                    },
+                    {
+                        "path":  "out/skill-validation-deps",
+                        "files":  44,
+                        "bytes":  745992
+                    },
+                    {
+                        "path":  "out/smoke-browser.json",
+                        "files":  1,
+                        "bytes":  475
+                    },
+                    {
+                        "path":  "out/smoke-f12.png",
+                        "files":  1,
+                        "bytes":  50154
+                    },
+                    {
+                        "path":  "out/tenth-round-embedded-bitmap-probe.json",
+                        "files":  1,
+                        "bytes":  223799
+                    },
+                    {
+                        "path":  "out/twelfth-cached-verification.json",
+                        "files":  1,
+                        "bytes":  557550
+                    },
+                    {
+                        "path":  "out/twentieth-allocation-crash.json",
+                        "files":  1,
+                        "bytes":  557
+                    },
+                    {
+                        "path":  "out/twentieth-clean-batch-a.json",
+                        "files":  1,
+                        "bytes":  541
+                    },
+                    {
+                        "path":  "out/twentieth-final-clean-a.json",
+                        "files":  1,
+                        "bytes":  818
+                    },
+                    {
+                        "path":  "out/twentieth-final-regression.txt",
+                        "files":  1,
+                        "bytes":  6312
+                    },
+                    {
+                        "path":  "out/twentieth-initial-full.txt",
+                        "files":  1,
+                        "bytes":  4802
+                    },
+                    {
+                        "path":  "out/twentieth-local.json",
+                        "files":  1,
+                        "bytes":  522909
+                    },
+                    {
+                        "path":  "out/twentieth-precision-boundary.json",
+                        "files":  1,
+                        "bytes":  2
+                    },
+                    {
+                        "path":  "out/twentieth-review-diff.json",
+                        "files":  1,
+                        "bytes":  1849
+                    },
+                    {
+                        "path":  "out/unicode-color-local.json",
+                        "files":  1,
+                        "bytes":  306
+                    },
+                    {
+                        "path":  "out/update-ci.py",
+                        "files":  1,
+                        "bytes":  1668
+                    },
+                    {
+                        "path":  "out/update-native-docs.py",
+                        "files":  1,
+                        "bytes":  5377
+                    },
+                    {
+                        "path":  "out/verification-result.json",
+                        "files":  1,
+                        "bytes":  314
+                    },
+                    {
+                        "path":  "out/verify-debian11-release.js",
+                        "files":  1,
+                        "bytes":  4220
+                    },
+                    {
+                        "path":  "out/verify12-cached.cjs",
+                        "files":  1,
+                        "bytes":  3271
+                    },
+                    {
+                        "path":  "out/window-263844.png",
+                        "files":  1,
+                        "bytes":  115413
+                    },
+                    {
+                        "path":  "out/window-329410.png",
+                        "files":  1,
+                        "bytes":  218
+                    },
+                    {
+                        "path":  "out/window-396328.png",
+                        "files":  1,
+                        "bytes":  141666
+                    },
+                    {
+                        "path":  "out/windows-port-check",
+                        "files":  39,
+                        "bytes":  97115695
+                    },
+                    {
+                        "path":  "target",
+                        "files":  155,
+                        "bytes":  96132826
+                    },
+                    {
+                        "path":  "dist/canvas-0.1.0-local.20260922054335927.tgz",
+                        "files":  1,
+                        "bytes":  6082976
+                    },
+                    {
+                        "path":  "dist/lucky65_canvas-0.1.0.tgz",
+                        "files":  1,
+                        "bytes":  6055489
+                    },
+                    {
+                        "path":  "dist/lucky65_canvas-0.2.0.tgz",
+                        "files":  1,
+                        "bytes":  6068089
+                    },
+                    {
+                        "path":  "dist/lucky65_canvas-0.3.0.tgz",
+                        "files":  1,
+                        "bytes":  9187993
+                    },
+                    {
+                        "path":  "dist/lucky65_canvas-0.3.1.tgz",
+                        "files":  1,
+                        "bytes":  25480707
+                    },
+                    {
+                        "path":  "dist/lucky_canvas-0.1.0.tgz",
+                        "files":  1,
+                        "bytes":  6055476
+                    }
+                ],
+    "deletedFiles":  862,
+    "deletedBytes":  2156452370,
+    "preservedLocalEnvironment":  [
+                                      "third_party/",
+                                      "node_modules/",
+                                      ".idea/",
+                                      ".claude/",
+                                      ".codex/ (if present)",
+                                      ".agents/ (if present)"
+                                  ],
+    "preservedVersionedOutputs":  [
+                                      "webgl.node",
+                                      "dist/canvas/",
+                                      "dist/canvas-linux/",
+                                      "dist/lucky65_canvas-0.3.2.tgz",
+                                      "docs/releases/",
+                                      "docs/archive/"
+                                  ]
+}

@@ -1,0 +1,205 @@
+{
+  "package": "lucky65_canvas",
+  "version": "0.3.2",
+  "tarball": "D:\\python\\getImageData\\dist\\lucky65_canvas-0.3.2.tgz",
+  "tarballSHA256": "51736401374562d28f860ce859386a425a5205b366d7a237a360abe8295839df",
+  "integrity": "sha512-3prtv3rBBgw5tILVnDgELwC4/2n9xKODlpM5lro9lvU2IDiiJ/QVy99mJzI6KqG1PwTXUffrSNegaEspDEYALg==",
+  "packedBytes": 25286968,
+  "files": [
+    {
+      "path": "README.md",
+      "size": 15407,
+      "mode": 420
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.txt",
+      "size": 471166,
+      "mode": 420
+    },
+    {
+      "path": "build-info.json",
+      "size": 4597,
+      "mode": 420
+    },
+    {
+      "path": "canvas-linux-x64-gnu.node",
+      "size": 6984784,
+      "mode": 420
+    },
+    {
+      "path": "canvas-win32-x64.node",
+      "size": 14701568,
+      "mode": 420
+    },
+    {
+      "path": "fonts/DejaVuSans.ttf",
+      "size": 757076,
+      "mode": 420
+    },
+    {
+      "path": "fonts/DejaVuSansMono.ttf",
+      "size": 340712,
+      "mode": 420
+    },
+    {
+      "path": "fonts/DejaVuSerif.ttf",
+      "size": 380132,
+      "mode": 420
+    },
+    {
+      "path": "fonts/NotoSansCJKsc-Regular.otf",
+      "size": 16437364,
+      "mode": 420
+    },
+    {
+      "path": "index.js",
+      "size": 1063,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libbrotlicommon.so.1",
+      "size": 137400,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libbrotlidec.so.1",
+      "size": 51384,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libexpat.so.1",
+      "size": 186504,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libfontconfig.so.1",
+      "size": 281600,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libfreetype.so.6",
+      "size": 792488,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libgcc_s.so.1",
+      "size": 100736,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libpng16.so.16",
+      "size": 231344,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libstdc++.so.6",
+      "size": 1870824,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libuuid.so.1",
+      "size": 30776,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libz.so.1",
+      "size": 113088,
+      "mode": 420
+    },
+    {
+      "path": "package.json",
+      "size": 900,
+      "mode": 420
+    }
+  ],
+  "smoke": {
+    "passed": true,
+    "exports": 41,
+    "demoRGBAValues": 9216,
+    "demoMismatches": 0,
+    "codecs": [
+      "png",
+      "jpeg",
+      "webp"
+    ],
+    "worker": true,
+    "esmDefaultImport": true
+  },
+  "nativeSmoke": {
+    "exports": 41,
+    "shapeParity": true,
+    "contextMethodsExercised": 44,
+    "codecs": [
+      "png",
+      "jpeg",
+      "webp"
+    ],
+    "bitmaprenderer": true,
+    "htmlTransfer": true,
+    "float16": true,
+    "displayP3": true,
+    "webglCompatibility": true,
+    "lifecycleIterations": 30,
+    "demoRGBAValues": 9216,
+    "demoSHA256": "13e5a02ac5a22db0361f7e10b4278ecab36e8776bcd61d5451c5f1f56c740348",
+    "esmDefaultImport": true,
+    "platform": "win32",
+    "workers": 4,
+    "passed": true
+  },
+  "linuxTest": {
+    "exports": 41,
+    "shapeParity": true,
+    "contextMethodsExercised": 44,
+    "codecs": [
+      "png",
+      "jpeg",
+      "webp"
+    ],
+    "bitmaprenderer": true,
+    "htmlTransfer": true,
+    "float16": true,
+    "displayP3": true,
+    "webglCompatibility": true,
+    "lifecycleIterations": 30,
+    "demoRGBAValues": 9216,
+    "demoSHA256": "848dab3bcaa919e27fcf4ac9bed84a72db26698c6f63b930fd791a91072cb881",
+    "esmDefaultImport": false,
+    "platform": "linux",
+    "workers": 4,
+    "passed": true,
+    "bundledRuntime": {
+      "fontconfigFromPackage": true,
+      "textRendered": true,
+      "cjkFontUsed": true,
+      "nodeVersion": "22.13.1",
+      "glibcVersion": "2.31",
+      "osRelease": "PRETTY_NAME=\"Debian GNU/Linux 11 (bullseye)\"\nNAME=\"Debian GNU/Linux\"\nVERSION_ID=\"11\"\nVERSION=\"11 (bullseye)\"\nVERSION_CODENAME=bullseye\nID=debian\nHOME_URL=\"https://www.debian.org/\"\nSUPPORT_URL=\"https://www.debian.org/support\"\nBUG_REPORT_URL=\"https://bugs.debian.org/\"\n",
+      "availableFamilies": [
+        "DejaVu Sans",
+        "DejaVu Sans Mono",
+        "DejaVu Serif",
+        "Noto Sans CJK SC"
+      ],
+      "usedFonts": [
+        {
+          "family": "DejaVu Sans",
+          "postScriptName": "DejaVuSans",
+          "version": "Version 2.37",
+          "weight": 400,
+          "width": 5,
+          "slant": 0
+        },
+        {
+          "family": "Noto Sans CJK SC",
+          "postScriptName": "NotoSansCJKsc-Regular",
+          "version": "Version 2.004;hotconv 1.0.118;makeotfexe 2.5.65603",
+          "weight": 400,
+          "width": 5,
+          "slant": 0
+        }
+      ]
+    }
+  },
+  "published": false
+}

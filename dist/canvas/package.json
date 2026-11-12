@@ -1,0 +1,25 @@
+{
+  "name": "canvas",
+  "version": "0.1.0-local.20260922054335927",
+  "description": "Canvas built and verified against this Windows machine Chrome",
+  "main": "canvas.node",
+  "os": [
+    "win32"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "files": [
+    "canvas.node",
+    "environment.json",
+    "THIRD_PARTY_NOTICES.txt"
+  ],
+  "canvasBuild": {
+    "generator": "native-offscreen-canvas",
+    "stamp": "20260922054335927"
+  },
+  "private": true
+}

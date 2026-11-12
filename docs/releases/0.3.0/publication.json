@@ -1,0 +1,119 @@
+{
+  "package": "lucky65_canvas",
+  "version": "0.3.0",
+  "published": true,
+  "verifiedAt": "2026-11-11T17:50:39.183Z",
+  "observedLatest": "0.3.0",
+  "registry": "https://registry.npmjs.org",
+  "integrity": "sha512-9Xh1DzpGYgKTYiXddF+hnwZYOUz1RASjNwf1FVO4tOhLrdGEd+jxm6lnArRz6j9iyrQODYXsHc4WfwGLYcvV2A==",
+  "tarballSHA256": "2de0c77c6412be99b92685ca486835e2b1f50df2bdebb3f5d3056b748ff8d5f8",
+  "binaryHashes": {
+    "canvas-win32-x64.node": "5401944658ffc9fcc400d37c52b137c124117cab4d31ae722d0eff9999dc5201",
+    "canvas-linux-x64-gnu.node": "c3fa532dd834128a3041cb244e24a978c7aafd4b747e080d2427f53d4aa6c481"
+  },
+  "linuxValidationURL": "https://github.com/LuckyUniverse65/getImageData/actions/runs/43066505417",
+  "linux": {
+    "linux-package-ubuntu-22.04-22.13.1.json": {
+      "exports": 41,
+      "shapeParity": true,
+      "contextMethodsExercised": 44,
+      "codecs": [
+        "png",
+        "jpeg",
+        "webp"
+      ],
+      "bitmaprenderer": true,
+      "htmlTransfer": true,
+      "float16": true,
+      "displayP3": true,
+      "webglCompatibility": true,
+      "lifecycleIterations": 30,
+      "demoRGBAValues": 9216,
+      "demoSHA256": "848dab3bcaa919e27fcf4ac9bed84a72db26698c6f63b930fd791a91072cb881",
+      "esmDefaultImport": true,
+      "platform": "linux",
+      "workers": 4,
+      "passed": true
+    },
+    "linux-package-ubuntu-22.04-24.json": {
+      "exports": 41,
+      "shapeParity": true,
+      "contextMethodsExercised": 44,
+      "codecs": [
+        "png",
+        "jpeg",
+        "webp"
+      ],
+      "bitmaprenderer": true,
+      "htmlTransfer": true,
+      "float16": true,
+      "displayP3": true,
+      "webglCompatibility": true,
+      "lifecycleIterations": 30,
+      "demoRGBAValues": 9216,
+      "demoSHA256": "848dab3bcaa919e27fcf4ac9bed84a72db26698c6f63b930fd791a91072cb881",
+      "esmDefaultImport": true,
+      "platform": "linux",
+      "workers": 4,
+      "passed": true
+    },
+    "linux-package-ubuntu-24.04-22.13.1.json": {
+      "exports": 41,
+      "shapeParity": true,
+      "contextMethodsExercised": 44,
+      "codecs": [
+        "png",
+        "jpeg",
+        "webp"
+      ],
+      "bitmaprenderer": true,
+      "htmlTransfer": true,
+      "float16": true,
+      "displayP3": true,
+      "webglCompatibility": true,
+      "lifecycleIterations": 30,
+      "demoRGBAValues": 9216,
+      "demoSHA256": "848dab3bcaa919e27fcf4ac9bed84a72db26698c6f63b930fd791a91072cb881",
+      "esmDefaultImport": true,
+      "platform": "linux",
+      "workers": 4,
+      "passed": true
+    },
+    "linux-package-ubuntu-24.04-24.json": {
+      "exports": 41,
+      "shapeParity": true,
+      "contextMethodsExercised": 44,
+      "codecs": [
+        "png",
+        "jpeg",
+        "webp"
+      ],
+      "bitmaprenderer": true,
+      "htmlTransfer": true,
+      "float16": true,
+      "displayP3": true,
+      "webglCompatibility": true,
+      "lifecycleIterations": 30,
+      "demoRGBAValues": 9216,
+      "demoSHA256": "848dab3bcaa919e27fcf4ac9bed84a72db26698c6f63b930fd791a91072cb881",
+      "esmDefaultImport": true,
+      "platform": "linux",
+      "workers": 4,
+      "passed": true
+    }
+  },
+  "registryInstallVerified": true,
+  "windowsSmoke": {
+    "passed": true,
+    "exports": 41,
+    "demoRGBAValues": 9216,
+    "demoMismatches": 0,
+    "codecs": [
+      "png",
+      "jpeg",
+      "webp"
+    ],
+    "worker": true,
+    "esmDefaultImport": true
+  }
+}

@@ -3,6 +3,8 @@ let b;
 let gl, gr, xx, data;
 const {OffscreenCanvas} = require("canvas");
 b = new OffscreenCanvas(48, 48);
+console.log(b + '')
+console.log(OffscreenCanvas + '')
 gl = b.getContext('2d')
 gl.scale(0.384, 0.384)
 gr = gl.createRadialGradient(33, 18, 8, 42, 10, 226)

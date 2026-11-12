@@ -1,0 +1,103 @@
+{
+  "package": "lucky65_canvas",
+  "version": "0.3.0",
+  "tarball": "D:\\python\\getImageData\\dist\\lucky65_canvas-0.3.0.tgz",
+  "tarballSHA256": "2de0c77c6412be99b92685ca486835e2b1f50df2bdebb3f5d3056b748ff8d5f8",
+  "integrity": "sha512-9Xh1DzpGYgKTYiXddF+hnwZYOUz1RASjNwf1FVO4tOhLrdGEd+jxm6lnArRz6j9iyrQODYXsHc4WfwGLYcvV2A==",
+  "packedBytes": 9187993,
+  "files": [
+    {
+      "path": "README.md",
+      "size": 14846,
+      "mode": 420
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.txt",
+      "size": 133704,
+      "mode": 420
+    },
+    {
+      "path": "build-info.json",
+      "size": 1529,
+      "mode": 420
+    },
+    {
+      "path": "canvas-linux-x64-gnu.node",
+      "size": 6945120,
+      "mode": 420
+    },
+    {
+      "path": "canvas-win32-x64.node",
+      "size": 14701568,
+      "mode": 420
+    },
+    {
+      "path": "index.js",
+      "size": 1063,
+      "mode": 420
+    },
+    {
+      "path": "package.json",
+      "size": 877,
+      "mode": 420
+    }
+  ],
+  "smoke": {
+    "passed": true,
+    "exports": 41,
+    "demoRGBAValues": 9216,
+    "demoMismatches": 0,
+    "codecs": [
+      "png",
+      "jpeg",
+      "webp"
+    ],
+    "worker": true,
+    "esmDefaultImport": true
+  },
+  "nativeSmoke": {
+    "exports": 41,
+    "shapeParity": true,
+    "contextMethodsExercised": 44,
+    "codecs": [
+      "png",
+      "jpeg",
+      "webp"
+    ],
+    "bitmaprenderer": true,
+    "htmlTransfer": true,
+    "float16": true,
+    "displayP3": true,
+    "webglCompatibility": true,
+    "lifecycleIterations": 30,
+    "demoRGBAValues": 9216,
+    "demoSHA256": "13e5a02ac5a22db0361f7e10b4278ecab36e8776bcd61d5451c5f1f56c740348",
+    "esmDefaultImport": true,
+    "platform": "win32",
+    "workers": 4,
+    "passed": true
+  },
+  "linuxTest": {
+    "exports": 41,
+    "shapeParity": true,
+    "contextMethodsExercised": 44,
+    "codecs": [
+      "png",
+      "jpeg",
+      "webp"
+    ],
+    "bitmaprenderer": true,
+    "htmlTransfer": true,
+    "float16": true,
+    "displayP3": true,
+    "webglCompatibility": true,
+    "lifecycleIterations": 30,
+    "demoRGBAValues": 9216,
+    "demoSHA256": "848dab3bcaa919e27fcf4ac9bed84a72db26698c6f63b930fd791a91072cb881",
+    "esmDefaultImport": false,
+    "platform": "linux",
+    "workers": 4,
+    "passed": true
+  },
+  "published": false
+}

@@ -4,8 +4,12 @@
 /.idea/
 /.agents/
 /.codex/
+/.claude/
 /node_modules/
-/dist/
+/dist/*
+!/dist/canvas/
+!/dist/canvas-linux/
+!/dist/lucky65_canvas-0.3.2.tgz
 
 # Large upstream checkouts and toolchains are recorded under snapshot/.
 /third_party/
@@ -16,5 +20,6 @@
 !.env.example
 *.log
 *.tmp
+__pycache__/
 
 # Root runtime binaries are intentionally versioned in this baseline.

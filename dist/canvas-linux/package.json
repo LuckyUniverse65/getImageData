@@ -1,0 +1,12 @@
+{
+  "name": "canvas",
+  "version": "0.3.2",
+  "private": true,
+  "main": "canvas.node",
+  "os": [
+    "linux"
+  ],
+  "cpu": [
+    "x64"
+  ]
+}
