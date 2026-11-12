@@ -21,6 +21,8 @@ for (const [font, text] of [['DejaVu Sans', 'Canvas العربية'], ['Noto San
 const diagnostics = JSON.parse(api.getRenderDiagnostics());
 assert.ok(diagnostics.usedFonts.some(f => f.family === 'Noto Sans CJK SC'), 'Chinese text must use the real CJK font');
 const result = {fontconfigFromPackage:true, textRendered:true, cjkFontUsed:true,
+    nodeVersion:process.versions.node, glibcVersion:process.report.getReport().header.glibcVersionRuntime,
+    osRelease:fs.readFileSync('/etc/os-release', 'utf8'),
     availableFamilies:diagnostics.availableFontFamilies, usedFonts:diagnostics.usedFonts};
 if (process.argv[3]) {
     const previous = JSON.parse(fs.readFileSync(process.argv[3], 'utf8'));

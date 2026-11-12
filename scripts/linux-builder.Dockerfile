@@ -2,7 +2,7 @@ FROM node:22.13.1-bullseye
 
 RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g; s|http://security.debian.org|https://security.debian.org|g' /etc/apt/sources.list \
     && apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates curl gnupg ninja-build python3 libfontconfig1 fonts-dejavu-core \
+    && apt-get install -y --no-upgrade --no-install-recommends ca-certificates curl gnupg ninja-build python3 libfontconfig1 fonts-dejavu-core \
     && curl -fsSL --retry 3 https://apt.llvm.org/llvm-snapshot.gpg.key -o /tmp/llvm.asc \
     && gpg --dearmor -o /usr/share/keyrings/llvm.gpg /tmp/llvm.asc \
     && echo 'deb [signed-by=/usr/share/keyrings/llvm.gpg] https://apt.llvm.org/bullseye/ llvm-toolchain-bullseye-14 main' > /etc/apt/sources.list.d/llvm.list \
