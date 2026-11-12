@@ -20,12 +20,14 @@ def run(*args, cwd=ROOT):
 
 def checkout(destination, url, revision):
     destination.mkdir(parents=True, exist_ok=True)
+    # CI cache files may belong to the host UID rather than the container UID.
+    git = ['git', '-c', 'safe.directory=' + str(destination)]
     if not (destination / '.git').exists():
-        run('git', 'init', str(destination))
-    current = subprocess.run(['git', 'rev-parse', 'HEAD'], cwd=destination, capture_output=True, text=True)
+        run(*git, 'init', str(destination))
+    current = subprocess.run(git + ['rev-parse', 'HEAD'], cwd=destination, capture_output=True, text=True)
     if current.stdout.strip() != revision:
-        run('git', 'fetch', '--depth=1', url, revision, cwd=destination)
-        run('git', 'checkout', '--detach', 'FETCH_HEAD', cwd=destination)
+        run(*git, 'fetch', '--depth=1', url, revision, cwd=destination)
+        run(*git, 'checkout', '--detach', 'FETCH_HEAD', cwd=destination)
 
 def main():
     if platform.system() != 'Linux' or platform.machine() != 'x86_64':
