@@ -63,7 +63,8 @@ def main():
     (output / 'package.json').write_text(json.dumps({'name': 'canvas', 'version': version, 'private': True, 'main': 'canvas.node', 'os': ['darwin'], 'cpu': [arch]}, indent=2) + '\n')
     notices = []
     for relative in ['LICENSE', 'third_party/externals/harfbuzz/COPYING', 'third_party/externals/highway/LICENSE',
-                     'third_party/externals/libjpeg-turbo/LICENSE.md', 'third_party/externals/libpng/LICENSE',
+                     'third_party/externals/libjpeg-turbo/LICENSE.md', 'third_party/externals/libjpeg-turbo/README.ijg',
+                     'third_party/externals/libpng/LICENSE',
                      'third_party/externals/libwebp/COPYING', 'third_party/externals/wuffs/LICENSE',
                      'third_party/externals/zlib/LICENSE', 'third_party/externals/icu/LICENSE']:
         notices.append(relative + '\n\n' + (SKIA / relative).read_text())
