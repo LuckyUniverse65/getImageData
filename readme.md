@@ -14,17 +14,17 @@ const { OffscreenCanvas } = require('canvas');
 
 ## npm 分发：lucky65_canvas
 
-`0.4.0` 安装包已构建，Windows、八组 Linux 和四组 macOS 安装验收均通过。当前 npm 登录已过期，0.4.0 尚未公开发布；此前公开版本为 `0.3.2`，不包含 macOS。当前可从本仓库安装已验收的完整包：
+[`lucky65_canvas@0.4.0`](https://www.npmjs.com/package/lucky65_canvas) 已公开，npm 的 `latest` 已更新为 `0.4.0`。Windows、八组 Linux 和四组 macOS 安装验收均通过；已从官方仓库重新安装，核对全部 23 个文件与已验收安装包一致，并通过绘图、完整 API、编解码、Worker 和 ESM 回归。发布证据见 [publication.json](docs/releases/0.4.0/publication.json)。直接安装：
 
 ```powershell
-npm install ./dist/lucky65_canvas-0.4.0.tgz
+npm install lucky65_canvas
 ```
 
 ```js
 const { OffscreenCanvas } = require('lucky65_canvas');
 ```
 
-无需编译工具或 Chrome。需要保留 `require('canvas')` 的项目，可用 `npm install canvas@file:./dist/lucky65_canvas-0.4.0.tgz` 安装本地别名；正式发布后可用 `npm install canvas@npm:lucky65_canvas@0.4.0`。普通 `npm install canvas` 仍然安装 npm 上另一个同名项目。Windows/Linux x64、macOS x64/arm64 四个原生文件直接内置于包中，无 npm 运行时依赖。Linux 自带 Fontconfig 依赖库及中西文兜底字体，无需 apt 安装；请保留整个 npm 包。详见 [运行库打包说明](docs/2026-11-12_linux-bundled-runtime.md)。
+无需编译工具或 Chrome。需要保留 `require('canvas')` 的项目，可用 `npm install canvas@npm:lucky65_canvas@0.4.0`；也可用 `npm install canvas@file:./dist/lucky65_canvas-0.4.0.tgz` 安装仓库中的本地包。普通 `npm install canvas` 仍然安装 npm 上另一个同名项目。Windows/Linux x64、macOS x64/arm64 四个原生文件直接内置于包中，无 npm 运行时依赖。Linux 自带 Fontconfig 依赖库及中西文兜底字体，无需 apt 安装；请保留整个 npm 包。详见 [运行库打包说明](docs/2026-11-12_linux-bundled-runtime.md)。
 
 预编译版使用运行电脑的可用字体和图形环境，但保留构建时的配置，不会在安装时自动校准到该电脑的 Chrome。严格像素对齐仍需本机构建校验。
 

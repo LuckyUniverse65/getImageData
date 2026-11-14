@@ -1,0 +1,11 @@
+{
+  "package": "lucky65_canvas",
+  "version": "0.4.0",
+  "tarballSHA256": "f09df302b58210469e98db57e035a260357cfb889088d725ba5ccc596404faca",
+  "integrity": "sha512-0GuqJFybBcD9Kpo5fF0p233dR253CqH/yEthuE+V5ZgGrNz+a84VAX6RT2xtd/R43/3wtdxR+kQQ+vyFPBlIyw==",
+  "accepted": true,
+  "acceptedAt": "2026-11-14T15:04:31.424350+00:00",
+  "cliResult": "+ lucky65_canvas@0.4.0",
+  "registry": "https://registry.npmjs.org",
+  "message": "Package accepted; registry processing may take a few minutes."
+}

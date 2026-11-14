@@ -2,17 +2,17 @@
 
 `0.4.0` 为 macOS 增加原项目的完整原生实现，包含 Intel x64 和 Apple Silicon arm64。使用 Skia CPU 光栅化、CoreText 系统字体，不要求 Chrome、GPU、Fontconfig 或 Homebrew 运行库。不以另一套 Canvas 库替换接口，也不承诺与 Chrome 逐像素一致。
 
-当前状态：原生构建和 Windows/Linux/macOS 安装验收全部通过；npm 登录返回 401，正在等待维护者恢复登录，0.4.0 尚未公开。可使用仓库内已经验收的 tgz；发布状态见 `docs/releases/0.4.0/release-status.json`。
+当前状态：`lucky65_canvas@0.4.0` 已公开，npm 的 `latest` 为 `0.4.0`。原生构建和 Windows/Linux/macOS 安装验收全部通过；已从官方 registry 重新安装，核对全部 23 个文件的 SHA-256 与验收包一致，并通过 Windows 安装回归。发布状态和证据见 `docs/releases/0.4.0/release-status.json`、`publication.json`。
 
 ## 安装和使用
 
-源码仓库内已有构建产物时，可先用本地包安装，无需等待 npm 公开发布：
+源码仓库内已有构建产物时，也可用本地包安装：
 
 ```bash
 npm install ./dist/lucky65_canvas-0.4.0.tgz
 ```
 
-公开发布后安装：
+从官方 npm 仓库安装：
 
 ```bash
 npm install lucky65_canvas@0.4.0
