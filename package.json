@@ -7,7 +7,8 @@
     "test": "node test.js",
     "build:canvas": "node scripts/build-canvas.cjs",
     "pack:npm": "node scripts/pack-npm.js",
-    "build:linux": "node scripts/build-canvas.cjs"
+    "build:linux": "node scripts/build-canvas.cjs",
+    "build:macos": "node scripts/build-canvas.cjs"
   },
   "dependencies": { "@petamoriken/float16": "3.9.3" }
 }

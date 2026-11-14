@@ -43,6 +43,8 @@
 #endif
 #ifdef _WIN32
 #include "include/ports/SkTypeface_win.h"
+#elif defined(__APPLE__)
+#include "include/ports/SkFontMgr_mac_ct.h"
 #else
 #include "include/ports/SkFontMgr_fontconfig.h"
 #include "include/ports/SkFontScanner_FreeType.h"
@@ -89,12 +91,14 @@ extern "C" uint32_t canvas_lowercase(uint32_t codepoint, uint32_t* output);
 #include <vector>
 
 #include "canvas_machine_config.h"
-#ifndef _WIN32
+#if defined(__linux__)
 #include "linux_fontconfig.h"
 #endif
 static sk_sp<SkFontMgr> canvas_font_manager() {
 #ifdef _WIN32
     return SkFontMgr_New_DirectWrite();
+#elif defined(__APPLE__)
+    return SkFontMgr_New_CoreText(nullptr);
 #else
     return canvas_linux_font_manager();
 #endif
