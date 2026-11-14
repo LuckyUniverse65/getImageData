@@ -6,7 +6,7 @@ on:
 permissions:
   contents: read
 env:
-  RELEASE_TARBALL: lucky65_canvas-0.3.2.tgz
+  RELEASE_TARBALL: lucky65_canvas-0.4.0.tgz
 jobs:
   package:
     strategy:
