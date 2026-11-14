@@ -1,0 +1,57 @@
+name: Native macOS Canvas validation
+on:
+  push:
+    branches: ['codex/macos-canvas-validation-*']
+    paths: ['src/**', 'index.js', 'build.rs', 'Cargo*', 'package*.json', 'npm/package.json', 'snapshot/**', 'scripts/**', '.github/workflows/macos-canvas-validation.yml']
+permissions:
+  contents: read
+jobs:
+  native:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-14
+            arch: arm64
+          - os: macos-15-intel
+            arch: x64
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    env:
+      MACOSX_DEPLOYMENT_TARGET: '14.0'
+      CANVAS_DIAGNOSTICS: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.1'
+      - name: Install build tools
+        run: |
+          rustup toolchain install 1.99.1 --profile minimal
+          rustup default 1.99.1
+          brew list ninja >/dev/null 2>&1 || brew install ninja
+          node -p 'process.arch'
+          xcrun --show-sdk-path
+      - uses: actions/cache/restore@v4
+        id: skia-cache
+        with:
+          path: third_party/skia
+          key: skia-macos-${{ matrix.os }}-${{ matrix.arch }}-v1-${{ hashFiles('snapshot/macos-skia-args.gn', 'scripts/build-macos.py') }}
+          restore-keys: skia-macos-${{ matrix.os }}-${{ matrix.arch }}-v1-
+      - name: Build complete native Canvas
+        run: python3 scripts/build-macos.py
+      - name: Test original API and system fonts
+        run: |
+          node --expose-gc scripts/test-native-api.js ./dist/canvas-darwin-${{ matrix.arch }}/canvas.node | tee dist/canvas-darwin-${{ matrix.arch }}/test-result.json
+          node scripts/test-macos.js ./dist/canvas-darwin-${{ matrix.arch }}/canvas.node dist/canvas-darwin-${{ matrix.arch }}/test-result.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-canvas-${{ matrix.arch }}
+          path: dist/canvas-darwin-${{ matrix.arch }}/
+      - uses: actions/cache/save@v4
+        if: always() && steps.skia-cache.outputs.cache-hit != 'true'
+        with:
+          path: third_party/skia
+          key: ${{ steps.skia-cache.outputs.cache-primary-key }}

@@ -2,11 +2,12 @@ use std::{env, fs, path::PathBuf, process::Command};
 
 fn main() {
     let platform = env::var("CARGO_CFG_TARGET_OS").unwrap();
-    assert!(platform == "windows" || platform == "linux", "Only Windows and Linux are supported");
-    assert_eq!(env::var("CARGO_CFG_TARGET_ARCH").unwrap(), "x86_64", "Only x64 is supported");
+    assert!(platform == "windows" || platform == "linux" || platform == "macos", "Unsupported operating system");
+    let arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap();
+    assert!(arch == "x86_64" || (platform == "macos" && arch == "aarch64"), "Supported architectures: x64, and macOS arm64");
     let root = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
     let out = PathBuf::from(env::var("OUT_DIR").unwrap());
-    for key in ["CANVAS_VCVARS", "CANVAS_CLANG_ROOT", "CANVAS_SKIA_ROOT", "CANVAS_SKIA_OUT", "CANVAS_MACHINE_CONFIG", "CANVAS_NODE"] {
+    for key in ["CANVAS_VCVARS", "CANVAS_CLANG_ROOT", "CANVAS_SKIA_ROOT", "CANVAS_SKIA_OUT", "CANVAS_MACHINE_CONFIG", "CANVAS_NODE", "MACOSX_DEPLOYMENT_TARGET"] {
         println!("cargo:rerun-if-env-changed={key}");
     }
     for file in ["index.js", "src/dommatrix.js", "src/skia_backend.cpp", "src/linux_fontconfig.h", "src/render_diagnostics.h", "scripts/bundle-canvas.cjs", "scripts/prepare-native.cjs", "node_modules/@petamoriken/float16/browser/float16.js"] {
@@ -19,6 +20,10 @@ fn main() {
 
     if platform == "linux" {
         build_linux(&root, &out);
+        return;
+    }
+    if platform == "macos" {
+        build_macos(&root, &out, &arch);
         return;
     }
 
@@ -57,6 +62,37 @@ fn main() {
     for lib in ["dwrite", "ole32", "uuid", "user32", "gdi32", "winmm", "windowscodecs", "usp10", "advapi32", "onecore", "delayimp", "dxguid", "d3d11", "dxgi"] {
         println!("cargo:rustc-link-lib={lib}");
     }
+}
+
+fn build_macos(root: &std::path::Path, out: &std::path::Path, arch: &str) {
+    let skia = env::var_os("CANVAS_SKIA_ROOT").map(PathBuf::from).unwrap_or(root.join("third_party/skia"));
+    let node_arch = if arch == "aarch64" { "arm64" } else { "x64" };
+    let apple_arch = if arch == "aarch64" { "arm64" } else { "x86_64" };
+    let libs = env::var_os("CANVAS_SKIA_OUT").map(PathBuf::from).unwrap_or(skia.join(format!("out/canvas-darwin-{node_arch}")));
+    let minimum = env::var("MACOSX_DEPLOYMENT_TARGET").unwrap_or_else(|_| "14.0".into());
+    let object = out.join("skia_backend.o");
+    let status = Command::new("xcrun").args(["clang++", "-std=c++20", "-O2", "-fPIC", "-DNDEBUG", "-DCANVAS_CPU_ONLY", "-DSK_R32_SHIFT=16", "-DSK_GAMMA_SRGB", "-DSK_GAMMA_CONTRAST=1.0", "-arch", apple_arch])
+        .arg(format!("-mmacosx-version-min={minimum}"))
+        .arg("-I").arg(&skia).arg("-I").arg(out)
+        .arg("-c").arg(root.join("src/skia_backend.cpp")).arg("-o").arg(&object)
+        .status().expect("start Apple clang++");
+    assert!(status.success(), "macOS C++ compilation failed");
+    assert!(Command::new("ar").arg("crs").arg(out.join("libskia_backend.a")).arg(object).status().unwrap().success());
+    println!("cargo:rustc-link-search=native={}", out.display());
+    println!("cargo:rustc-link-lib=static=skia_backend");
+    // Apple ld rescans archives; GNU --start-group/--end-group are unsupported.
+    let mut archives: Vec<_> = fs::read_dir(&libs).expect("build Skia first").map(|e| e.unwrap().path())
+        .filter(|p| p.extension().is_some_and(|e| e == "a")).collect();
+    archives.sort();
+    assert!(!archives.is_empty(), "No Skia static archives found");
+    for archive in archives {
+        println!("cargo:rerun-if-changed={}", archive.display());
+        println!("cargo:rustc-link-arg={}", archive.display());
+    }
+    for framework in ["CoreFoundation", "CoreGraphics", "CoreText", "ApplicationServices", "AppKit"] {
+        println!("cargo:rustc-link-lib=framework={framework}");
+    }
+    println!("cargo:rustc-link-lib=c++");
 }
 
 fn build_linux(root: &std::path::Path, out: &std::path::Path) {

@@ -54,7 +54,7 @@ def main():
     output = ROOT / 'dist/canvas-linux'
     output.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(ROOT / 'target/release/libwebgl.so', output / 'canvas.node')
-    (output / 'package.json').write_text(json.dumps({'name': 'canvas', 'version': '0.3.2',
+    (output / 'package.json').write_text(json.dumps({'name': 'canvas', 'version': json.loads((ROOT / 'npm/package.json').read_text())['version'],
         'private': True, 'main': 'canvas.node', 'os': ['linux'], 'cpu': ['x64']}, indent=2) + '\n')
     binary = output / 'canvas.node'
     notices = ['Portions of this software are copyright (c) 2026 The FreeType Project (www.freetype.org). All rights reserved.\nFreeType is used under the FreeType License (FTL).\n']
