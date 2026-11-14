@@ -55,6 +55,30 @@ function main() {
     }
     const manifest = JSON.parse(fs.readFileSync(path.join(root, 'npm/package.json'), 'utf8'));
     if (manifest.name !== 'lucky65_canvas' || manifest.private) throw new Error('Unexpected public package metadata.');
+    const macOS = {};
+    for (const arch of ['x64', 'arm64']) {
+        const directory = path.join(root, 'dist/canvas-darwin-' + arch);
+        const build = JSON.parse(fs.readFileSync(path.join(directory, 'build-info.json')));
+        const test = JSON.parse(fs.readFileSync(path.join(directory, 'test-result.json')));
+        if (build.platform !== 'darwin' || build.arch !== arch || build.minimumMacOS !== '14.0' ||
+            hash(path.join(directory, 'canvas.node')) !== build.sha256 || !test.passed || test.platform !== 'darwin' ||
+            test.exports !== 41 || test.contextMethodsExercised !== 44 || test.macOS?.arch !== arch ||
+            !test.macOS?.textRendered || !test.macOS?.cjkFontUsed) {
+            throw new Error('Verified macOS native build and system font tests required: ' + arch);
+        }
+        if (!build.dependencies?.length || !build.dependencies.every(name => /^\/(usr\/lib|System\/Library)\//.test(name))) {
+            throw new Error('macOS binaries must use only system dynamic libraries: ' + arch);
+        }
+        if (!build.sources || !Object.keys(build.sources).length) throw new Error('Missing macOS source provenance');
+        for (const [name, expected] of Object.entries(build.sources)) {
+            if (path.isAbsolute(name) || name.includes('..') || hash(path.join(root, name)) !== expected) {
+                throw new Error('macOS binary is stale or source path invalid: ' + name);
+            }
+        }
+        macOS[arch] = {binarySHA256: build.sha256, minimumMacOS: build.minimumMacOS, skiaRevision: build.skiaRevision,
+            backend: build.backend, fontBackend: build.fontBackend, compiler: build.compiler,
+            dependencies: build.dependencies, verification: test};
+    }
 
     fs.mkdirSync(path.join(root, 'out'), { recursive: true });
     const output = fs.mkdtempSync(path.join(root, 'out/npm-release-'));
@@ -65,6 +89,9 @@ function main() {
     }
     fs.copyFileSync(binary, path.join(stage, 'canvas-win32-x64.node'));
     fs.copyFileSync(linuxBinary, path.join(stage, 'canvas-linux-x64-gnu.node'));
+    for (const arch of ['x64', 'arm64']) {
+        fs.copyFileSync(path.join(root, 'dist/canvas-darwin-' + arch, 'canvas.node'), path.join(stage, 'canvas-darwin-' + arch + '.node'));
+    }
     const bundledFiles = linuxBuild.bundledFiles;
     if (!bundledFiles?.['linux-libs/libfontconfig.so.1'] || !bundledFiles?.['fonts/NotoSansCJKsc-Regular.otf']) {
         throw new Error('Linux runtime libraries and fallback fonts must be bundled.');
@@ -78,10 +105,12 @@ function main() {
     }
     fs.copyFileSync(path.join(input, 'THIRD_PARTY_NOTICES.txt'), path.join(stage, 'THIRD_PARTY_NOTICES.txt'));
     fs.appendFileSync(path.join(stage, 'THIRD_PARTY_NOTICES.txt'), '\n\n' + fs.readFileSync(path.join(linuxDir, 'LINUX_NOTICES.txt'), 'utf8'));
+    fs.appendFileSync(path.join(stage, 'THIRD_PARTY_NOTICES.txt'), '\n\n' + fs.readFileSync(path.join(root, 'dist/canvas-darwin-arm64/MACOS_NOTICES.txt'), 'utf8'));
     // Only publish a small build summary. The complete report includes local
     // paths, machine inventories and CDP session identifiers and stays local.
     writeJSON(path.join(stage, 'build-info.json'), {
         binarySHA256, builtAt: report.finishedAt, profile: report.profile,
+        macOS,
         linux: {binarySHA256: linuxBuild.sha256, skiaRevision: linuxBuild.skiaRevision,
             backend: linuxBuild.backend, libc: linuxBuild.libc, compiler: linuxBuild.compiler,
             bundledFiles, minimumGlibc:linuxBuild.minimumGlibc, glibcRequirements:linuxBuild.glibcRequirements,
@@ -98,7 +127,7 @@ function main() {
     fs.mkdirSync(dist, { recursive: true });
     const [packed] = JSON.parse(run(process.execPath,
         [npmCLI, 'pack', stage, '--ignore-scripts', '--json', '--pack-destination', dist], root));
-    const expectedFiles = ['README.md', 'THIRD_PARTY_NOTICES.txt', 'build-info.json', 'canvas-win32-x64.node', 'canvas-linux-x64-gnu.node', 'index.js', 'package.json', ...Object.keys(bundledFiles)];
+    const expectedFiles = ['README.md', 'THIRD_PARTY_NOTICES.txt', 'build-info.json', 'canvas-win32-x64.node', 'canvas-linux-x64-gnu.node', 'canvas-darwin-x64.node', 'canvas-darwin-arm64.node', 'index.js', 'package.json', ...Object.keys(bundledFiles)];
     if (JSON.stringify(packed.files.map(file => file.path).sort()) !== JSON.stringify(expectedFiles.sort())) {
         throw new Error('Unexpected files in the public tarball: ' + packed.files.map(file => file.path).join(', '));
     }
@@ -113,7 +142,7 @@ function main() {
     const nativeSmoke = JSON.parse(run(process.execPath, ['--expose-gc', path.join(__dirname, 'test-native-api.js'),
         path.join(consumer, 'node_modules/lucky65_canvas/index.js')], consumer));
     const evidence = { package: packed.name, version: packed.version, tarball, tarballSHA256: hash(tarball),
-        integrity: packed.integrity, packedBytes: packed.size, files: packed.files, smoke, nativeSmoke, linuxTest, published: false };
+        integrity: packed.integrity, packedBytes: packed.size, files: packed.files, smoke, nativeSmoke, linuxTest, macOS, published: false };
     writeJSON(path.join(output, 'verification.json'), evidence);
     console.log(JSON.stringify({ tarball, packedBytes: packed.size, smoke, nativeSmoke, linuxTest, evidence: path.join(output, 'verification.json'), published: false }, null, 2));
 }

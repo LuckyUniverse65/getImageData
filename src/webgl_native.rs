@@ -33,8 +33,8 @@ extern "system" {
     fn GetProcAddress(module: *mut c_void, name: *const c_char) -> *mut c_void;
 }
 
-#[cfg(target_os = "linux")]
-#[link(name = "dl")]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+#[cfg_attr(target_os = "linux", link(name = "dl"))]
 extern "C" {
     fn dlopen(name: *const c_char, flags: i32) -> *mut c_void;
     fn dlsym(module: *mut c_void, name: *const c_char) -> *mut c_void;
@@ -175,7 +175,7 @@ static NAPI: OnceLock<Napi> = OnceLock::new();
 unsafe fn symbol<T>(module: *mut c_void, name: &'static [u8]) -> T {
     #[cfg(target_os = "windows")]
     let address = GetProcAddress(module, name.as_ptr() as *const c_char);
-    #[cfg(target_os = "linux")]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
     let address = dlsym(module, name.as_ptr() as *const c_char);
     assert!(!address.is_null(), "Node-API symbol is unavailable");
     std::mem::transmute_copy(&address)
@@ -186,7 +186,7 @@ unsafe fn load_napi() {
         #[cfg(target_os = "windows")]
         let module = GetModuleHandleW(ptr::null());
         // Keep the process handle for the lifetime of this Node-API table.
-        #[cfg(target_os = "linux")]
+        #[cfg(any(target_os = "linux", target_os = "macos"))]
         let module = dlopen(ptr::null(), 1);
         assert!(!module.is_null(), "cannot find the Node executable");
         Napi {

@@ -2,7 +2,7 @@
 
 公开包名 `lucky65_canvas`，维护者账号 `lucky65`。`0.3.0` 使用本项目完整原生 Linux 实现；不再通过 `@napi-rs/canvas` 提供 Linux 功能。
 
-`0.3.0` 历史发布证据位于 `out/npm-release-z7Ujaj/publication.json`。以下流程面向兼容 glibc 2.31、自带 Linux 运行库与兜底字体的 `0.3.2`，版本状态及验收见 [Debian 11 兼容说明](2026-11-12_debian11-compatibility.md)。
+`0.3.0` 历史发布证据已归档至 `docs/releases/0.3.0/`。下面原始流程记录 `0.3.2`；`0.4.0` 需要同时准备 macOS x64/arm64 原生模块并运行两架构安装测试，见 [macOS 适配说明](2026-11-14_macos-support.md)。发布时以 `npm/package.json` 的实际版本为准，不能照搬历史版本号。
 
 ## 构建和验收
 

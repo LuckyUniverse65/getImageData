@@ -1,0 +1,15 @@
+{
+  "package": "lucky65_canvas",
+  "version": "0.4.0",
+  "verifiedAt": "2026-11-14T12:56:07.489559+00:00",
+  "readyToPublish": true,
+  "published": false,
+  "blocker": "npm whoami returned E401; waiting for maintainer web login",
+  "tarballSHA256": "f09df302b58210469e98db57e035a260357cfb889088d725ba5ccc596404faca",
+  "integrity": "sha512-0GuqJFybBcD9Kpo5fF0p233dR253CqH/yEthuE+V5ZgGrNz+a84VAX6RT2xtd/R43/3wtdxR+kQQ+vyFPBlIyw==",
+  "windowsInstallPassed": true,
+  "linuxPackageJobs": 8,
+  "macOSPackageJobs": 4,
+  "linuxValidationURL": "https://github.com/LuckyUniverse65/getImageData/actions/runs/43596955653",
+  "macOSValidationURL": "https://github.com/LuckyUniverse65/getImageData/actions/runs/43597001618"
+}

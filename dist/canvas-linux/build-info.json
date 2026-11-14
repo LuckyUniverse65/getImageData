@@ -9,7 +9,7 @@
     "glibc",
     "2.31"
   ],
-  "dependencies": "\tlinux-vdso.so.1 (0x00007ffce6fb9000)\n\tlibdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007f2da8158000)\n\tlibgcc_s.so.1 => /workspace/dist/canvas-linux/linux-libs/libgcc_s.so.1 (0x00007f2da813e000)\n\tlibpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f2da811c000)\n\tlibm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f2da78bc000)\n\tlibc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f2da76e8000)\n\t/lib64/ld-linux-x86-64.so.2 (0x00007f2da8168000)\n\tlibfontconfig.so.1 => /workspace/dist/canvas-linux/linux-libs/libfontconfig.so.1 (0x00007f2da80d6000)\n\tlibstdc++.so.6 => /workspace/dist/canvas-linux/linux-libs/libstdc++.so.6 (0x00007f2da751b000)\n\tlibfreetype.so.6 => /workspace/dist/canvas-linux/linux-libs/libfreetype.so.6 (0x00007f2da7458000)\n\tlibexpat.so.1 => /workspace/dist/canvas-linux/linux-libs/libexpat.so.1 (0x00007f2da7429000)\n\tlibuuid.so.1 => /workspace/dist/canvas-linux/linux-libs/libuuid.so.1 (0x00007f2da80cb000)\n\tlibpng16.so.16 => /workspace/dist/canvas-linux/linux-libs/libpng16.so.16 (0x00007f2da73ef000)\n\tlibz.so.1 => /workspace/dist/canvas-linux/linux-libs/libz.so.1 (0x00007f2da73d2000)\n\tlibbrotlidec.so.1 => /workspace/dist/canvas-linux/linux-libs/libbrotlidec.so.1 (0x00007f2da80bb000)\n\tlibbrotlicommon.so.1 => /workspace/dist/canvas-linux/linux-libs/libbrotlicommon.so.1 (0x00007f2da73af000)\n",
+  "dependencies": "\tlinux-vdso.so.1 (0x00007ffc31dfa000)\n\tlibdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007f0e24038000)\n\tlibgcc_s.so.1 => /workspace/dist/canvas-linux/linux-libs/libgcc_s.so.1 (0x00007f0e2401e000)\n\tlibpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f0e23ffc000)\n\tlibm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f0e23eb8000)\n\tlibc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f0e2362c000)\n\t/lib64/ld-linux-x86-64.so.2 (0x00007f0e24048000)\n\tlibfontconfig.so.1 => /workspace/dist/canvas-linux/linux-libs/libfontconfig.so.1 (0x00007f0e235e6000)\n\tlibstdc++.so.6 => /workspace/dist/canvas-linux/linux-libs/libstdc++.so.6 (0x00007f0e23419000)\n\tlibfreetype.so.6 => /workspace/dist/canvas-linux/linux-libs/libfreetype.so.6 (0x00007f0e23356000)\n\tlibexpat.so.1 => /workspace/dist/canvas-linux/linux-libs/libexpat.so.1 (0x00007f0e23327000)\n\tlibuuid.so.1 => /workspace/dist/canvas-linux/linux-libs/libuuid.so.1 (0x00007f0e2331e000)\n\tlibpng16.so.16 => /workspace/dist/canvas-linux/linux-libs/libpng16.so.16 (0x00007f0e232e4000)\n\tlibz.so.1 => /workspace/dist/canvas-linux/linux-libs/libz.so.1 (0x00007f0e232c7000)\n\tlibbrotlidec.so.1 => /workspace/dist/canvas-linux/linux-libs/libbrotlidec.so.1 (0x00007f0e232b9000)\n\tlibbrotlicommon.so.1 => /workspace/dist/canvas-linux/linux-libs/libbrotlicommon.so.1 (0x00007f0e23296000)\n",
   "bundledFiles": {
     "linux-libs/libgcc_s.so.1": "2d771c2e232fce107c7ec7f9a64b9a804e6d6737063088a2d8096b149a0af8cd",
     "linux-libs/libfontconfig.so.1": "7fc1c631e3eb54611b9fa52b72bf94e06623503d921517418f94b00cdeedf73c",
@@ -43,17 +43,17 @@
   "compiler": "Debian clang version 14.0.6",
   "rust": "rustc 1.99.1 (58cf8f9c3 2026-10-13)",
   "sources": {
-    "build.rs": "3f470b6361bb46f721fb4aaa3a6e9bf6294ac8b133aa20bc89a632a58fa4b206",
+    "build.rs": "174e5a6c35e843c91748be31a05da03eace745908ef9b2003ac2e5c21e803157",
     "index.js": "415696f44d7c7951f7a73803a484d2f1aa77270ba1341ae45016710af230fd70",
-    "src/webgl_native.rs": "4656393b01946133f84e77c8ac15bcba6692ad880e120e40facadc4ef0ba3806",
+    "src/webgl_native.rs": "4c11bbb566617092c0cf9feebbb375e0969a64b1ff658cc8f975406d56348fef",
     "src/canvas_css.rs": "70b929982e50ec98f35b05b0d9e2b6fb1870419c9223edb698fae03c9548eb1e",
-    "src/skia_backend.cpp": "9ab35c6551e2ab8524407e2b3cd068d17b852de08963ff9a513d6f0040221b41",
+    "src/skia_backend.cpp": "bc84278ba08ef1ba04ac4480dea04ff411982a2efa39d6da14ebd35df513b3e7",
     "src/render_diagnostics.h": "962fde190062708a54403106932b0887906b5f2857246e33b1004f2a155b0683",
     "src/linux_fontconfig.h": "e96608ca3cfb78cc475d6a3f101aca8adc252d1a68801ced5eb531935666d2b4",
     "src/dommatrix.js": "64848b17ee5395e4afc313591b37ec50899f4363ab8173407852e2cf3ecf0601",
-    "scripts/prepare-native.cjs": "b31ad875076f1aa183072bb0289e23c6faa82bb10690a0a4710215c915dec75e",
+    "scripts/prepare-native.cjs": "4b867573ad6cf6c656f55501701267424ac71fde95f60ead21c35daca5375827",
     "scripts/bundle-canvas.cjs": "0f691b5ec3ed73aad3dadf4b3f3e91ab6dc6ef3444975456202763d6d341811e",
-    "scripts/build-linux.py": "aa2c0b0346823e535aeb56be7a146fa0aa44d3e2bb988b6bc95819201617b211",
+    "scripts/build-linux.py": "faf85a58234a3a0f71ae7816a29de339bf349d8952fb05d53e3ee2f11220ee68",
     "scripts/bundle-linux-runtime.py": "57cd28d12ae247c250ad79bfd2080dfcdf7ba8e97cd694d4f38485ca1eb76812",
     "snapshot/linux-skia-args.gn": "7e50a9d50d11124250fdfa0259da38882edef5df497a769685ff5f0d8b06e3d8"
   }

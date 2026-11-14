@@ -69,6 +69,18 @@ def main():
         require(name in requirements, 'Missing ABI check: ' + name)
         if requirements[name]:
             require(tuple(map(int, requirements[name].split('.'))) <= minimum, 'ABI exceeds minimum: ' + name)
+    for arch, recorded in verified.get('macOS', {}).items():
+        require(arch in ('x64', 'arm64'), 'Unexpected macOS architecture')
+        directory = root / ('dist/canvas-darwin-' + arch)
+        mac_build = read_json(directory / 'build-info.json')
+        mac_test = read_json(directory / 'test-result.json')
+        require(sha256(directory / 'canvas.node') == mac_build['sha256'] == recorded['binarySHA256'], 'macOS binary mismatch: ' + arch)
+        require(mac_build['arch'] == arch and mac_build['platform'] == 'darwin', 'macOS architecture mismatch')
+        require(mac_test['passed'] and mac_test['macOS']['arch'] == arch and mac_test['macOS']['cjkFontUsed'], 'macOS native tests missing')
+        for name, expected in mac_build['sources'].items():
+            require(sha256(child(root, name)) == expected, 'macOS source changed: ' + name)
+    if 'darwin' in manifest.get('os', []):
+        require(set(verified.get('macOS', {})) == {'x64', 'arm64'}, 'Both macOS builds must be verified')
     if args.publication:
         published = read_json(args.publication)
         require(published.get('published') and published.get('registryInstallVerified'), 'Publication was not verified')

@@ -1,0 +1,349 @@
+{
+  "package": "lucky65_canvas",
+  "version": "0.4.0",
+  "tarball": "D:\\python\\getImageData\\dist\\lucky65_canvas-0.4.0.tgz",
+  "tarballSHA256": "f09df302b58210469e98db57e035a260357cfb889088d725ba5ccc596404faca",
+  "integrity": "sha512-0GuqJFybBcD9Kpo5fF0p233dR253CqH/yEthuE+V5ZgGrNz+a84VAX6RT2xtd/R43/3wtdxR+kQQ+vyFPBlIyw==",
+  "packedBytes": 30227335,
+  "files": [
+    {
+      "path": "README.md",
+      "size": 15952,
+      "mode": 420
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.txt",
+      "size": 551635,
+      "mode": 420
+    },
+    {
+      "path": "build-info.json",
+      "size": 9106,
+      "mode": 420
+    },
+    {
+      "path": "canvas-darwin-arm64.node",
+      "size": 4782080,
+      "mode": 420
+    },
+    {
+      "path": "canvas-darwin-x64.node",
+      "size": 5537728,
+      "mode": 420
+    },
+    {
+      "path": "canvas-linux-x64-gnu.node",
+      "size": 6984784,
+      "mode": 420
+    },
+    {
+      "path": "canvas-win32-x64.node",
+      "size": 14701568,
+      "mode": 420
+    },
+    {
+      "path": "fonts/DejaVuSans.ttf",
+      "size": 757076,
+      "mode": 420
+    },
+    {
+      "path": "fonts/DejaVuSansMono.ttf",
+      "size": 340712,
+      "mode": 420
+    },
+    {
+      "path": "fonts/DejaVuSerif.ttf",
+      "size": 380132,
+      "mode": 420
+    },
+    {
+      "path": "fonts/NotoSansCJKsc-Regular.otf",
+      "size": 16437364,
+      "mode": 420
+    },
+    {
+      "path": "index.js",
+      "size": 1568,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libbrotlicommon.so.1",
+      "size": 137400,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libbrotlidec.so.1",
+      "size": 51384,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libexpat.so.1",
+      "size": 186504,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libfontconfig.so.1",
+      "size": 281600,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libfreetype.so.6",
+      "size": 792488,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libgcc_s.so.1",
+      "size": 100736,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libpng16.so.16",
+      "size": 231344,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libstdc++.so.6",
+      "size": 1870824,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libuuid.so.1",
+      "size": 30776,
+      "mode": 420
+    },
+    {
+      "path": "linux-libs/libz.so.1",
+      "size": 113088,
+      "mode": 420
+    },
+    {
+      "path": "package.json",
+      "size": 985,
+      "mode": 420
+    }
+  ],
+  "smoke": {
+    "passed": true,
+    "exports": 41,
+    "demoRGBAValues": 9216,
+    "demoMismatches": 0,
+    "codecs": [
+      "png",
+      "jpeg",
+      "webp"
+    ],
+    "worker": true,
+    "esmDefaultImport": true
+  },
+  "nativeSmoke": {
+    "exports": 41,
+    "shapeParity": true,
+    "contextMethodsExercised": 44,
+    "codecs": [
+      "png",
+      "jpeg",
+      "webp"
+    ],
+    "bitmaprenderer": true,
+    "htmlTransfer": true,
+    "float16": true,
+    "displayP3": true,
+    "webglCompatibility": true,
+    "lifecycleIterations": 30,
+    "demoRGBAValues": 9216,
+    "demoSHA256": "13e5a02ac5a22db0361f7e10b4278ecab36e8776bcd61d5451c5f1f56c740348",
+    "esmDefaultImport": true,
+    "platform": "win32",
+    "workers": 4,
+    "passed": true
+  },
+  "linuxTest": {
+    "exports": 41,
+    "shapeParity": true,
+    "contextMethodsExercised": 44,
+    "codecs": [
+      "png",
+      "jpeg",
+      "webp"
+    ],
+    "bitmaprenderer": true,
+    "htmlTransfer": true,
+    "float16": true,
+    "displayP3": true,
+    "webglCompatibility": true,
+    "lifecycleIterations": 30,
+    "demoRGBAValues": 9216,
+    "demoSHA256": "848dab3bcaa919e27fcf4ac9bed84a72db26698c6f63b930fd791a91072cb881",
+    "esmDefaultImport": false,
+    "platform": "linux",
+    "workers": 4,
+    "passed": true,
+    "bundledRuntime": {
+      "fontconfigFromPackage": true,
+      "textRendered": true,
+      "cjkFontUsed": true,
+      "nodeVersion": "22.13.1",
+      "glibcVersion": "2.31",
+      "osRelease": "PRETTY_NAME=\"Debian GNU/Linux 11 (bullseye)\"\nNAME=\"Debian GNU/Linux\"\nVERSION_ID=\"11\"\nVERSION=\"11 (bullseye)\"\nVERSION_CODENAME=bullseye\nID=debian\nHOME_URL=\"https://www.debian.org/\"\nSUPPORT_URL=\"https://www.debian.org/support\"\nBUG_REPORT_URL=\"https://bugs.debian.org/\"\n",
+      "availableFamilies": [
+        "DejaVu Sans",
+        "DejaVu Sans Mono",
+        "DejaVu Serif",
+        "Noto Sans CJK SC"
+      ],
+      "usedFonts": [
+        {
+          "family": "DejaVu Sans",
+          "postScriptName": "DejaVuSans",
+          "version": "Version 2.37",
+          "weight": 400,
+          "width": 5,
+          "slant": 0
+        },
+        {
+          "family": "Noto Sans CJK SC",
+          "postScriptName": "NotoSansCJKsc-Regular",
+          "version": "Version 2.004;hotconv 1.0.118;makeotfexe 2.5.65603",
+          "weight": 400,
+          "width": 5,
+          "slant": 0
+        }
+      ]
+    }
+  },
+  "macOS": {
+    "x64": {
+      "binarySHA256": "f101a95b15519ffea39d7d8c5a5a2300da1ceb15803209e69435e394b390fb05",
+      "minimumMacOS": "14.0",
+      "skiaRevision": "4f574af2444846ceca4d277a8095c5d4229d175f",
+      "backend": "skia-raster",
+      "fontBackend": "CoreText",
+      "compiler": "Apple clang version 17.0.0 (clang-1700.0.13.5)",
+      "dependencies": [
+        "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+        "/System/Library/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics",
+        "/System/Library/Frameworks/CoreText.framework/Versions/A/CoreText",
+        "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/ApplicationServices",
+        "/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit",
+        "/usr/lib/libc++.1.dylib",
+        "/usr/lib/libSystem.B.dylib"
+      ],
+      "verification": {
+        "exports": 41,
+        "shapeParity": true,
+        "contextMethodsExercised": 44,
+        "codecs": [
+          "png",
+          "jpeg",
+          "webp"
+        ],
+        "bitmaprenderer": true,
+        "htmlTransfer": true,
+        "float16": true,
+        "displayP3": true,
+        "webglCompatibility": true,
+        "lifecycleIterations": 30,
+        "demoRGBAValues": 9216,
+        "demoSHA256": "1044aa6fc717425f861625374efbbbdd511a89bd29a5e502cf2ba5317457d6ca",
+        "esmDefaultImport": false,
+        "platform": "darwin",
+        "workers": 4,
+        "passed": true,
+        "macOS": {
+          "arch": "x64",
+          "version": "15.7.9",
+          "nodeVersion": "22.13.1",
+          "backend": "skia-raster",
+          "fontBackend": "CoreText",
+          "textRendered": true,
+          "cjkFontUsed": true,
+          "usedFonts": [
+            {
+              "family": "Helvetica",
+              "postScriptName": "Helvetica",
+              "version": "",
+              "weight": 400,
+              "width": 5,
+              "slant": 0
+            },
+            {
+              "family": "PingFang SC",
+              "postScriptName": "PingFangSC-Regular",
+              "version": "20.0d21e3",
+              "weight": 400,
+              "width": 5,
+              "slant": 0
+            }
+          ]
+        }
+      }
+    },
+    "arm64": {
+      "binarySHA256": "c9e8bf6c682121c0cc2b3f0990a8e969050e389802dd18966c3cdeabdbcde252",
+      "minimumMacOS": "14.0",
+      "skiaRevision": "4f574af2444846ceca4d277a8095c5d4229d175f",
+      "backend": "skia-raster",
+      "fontBackend": "CoreText",
+      "compiler": "Apple clang version 17.0.0 (clang-1700.0.13.5)",
+      "dependencies": [
+        "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+        "/System/Library/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics",
+        "/System/Library/Frameworks/CoreText.framework/Versions/A/CoreText",
+        "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/ApplicationServices",
+        "/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit",
+        "/usr/lib/libc++.1.dylib",
+        "/usr/lib/libSystem.B.dylib"
+      ],
+      "verification": {
+        "exports": 41,
+        "shapeParity": true,
+        "contextMethodsExercised": 44,
+        "codecs": [
+          "png",
+          "jpeg",
+          "webp"
+        ],
+        "bitmaprenderer": true,
+        "htmlTransfer": true,
+        "float16": true,
+        "displayP3": true,
+        "webglCompatibility": true,
+        "lifecycleIterations": 30,
+        "demoRGBAValues": 9216,
+        "demoSHA256": "1044aa6fc717425f861625374efbbbdd511a89bd29a5e502cf2ba5317457d6ca",
+        "esmDefaultImport": false,
+        "platform": "darwin",
+        "workers": 4,
+        "passed": true,
+        "macOS": {
+          "arch": "arm64",
+          "version": "15.8.2",
+          "nodeVersion": "22.13.1",
+          "backend": "skia-raster",
+          "fontBackend": "CoreText",
+          "textRendered": true,
+          "cjkFontUsed": true,
+          "usedFonts": [
+            {
+              "family": "Helvetica",
+              "postScriptName": "Helvetica",
+              "version": "",
+              "weight": 400,
+              "width": 5,
+              "slant": 0
+            },
+            {
+              "family": "PingFang SC",
+              "postScriptName": "PingFangSC-Regular",
+              "version": "20.0d21e3",
+              "weight": 400,
+              "width": 5,
+              "slant": 0
+            }
+          ]
+        }
+      }
+    }
+  },
+  "published": false
+}

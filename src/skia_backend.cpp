@@ -43,6 +43,8 @@
 #endif
 #ifdef _WIN32
 #include "include/ports/SkTypeface_win.h"
+#elif defined(__APPLE__)
+#include "include/ports/SkFontMgr_mac_ct.h"
 #else
 #include "include/ports/SkFontMgr_fontconfig.h"
 #include "include/ports/SkFontScanner_FreeType.h"
@@ -89,12 +91,14 @@ extern "C" uint32_t canvas_lowercase(uint32_t codepoint, uint32_t* output);
 #include <vector>
 
 #include "canvas_machine_config.h"
-#ifndef _WIN32
+#if defined(__linux__)
 #include "linux_fontconfig.h"
 #endif
 static sk_sp<SkFontMgr> canvas_font_manager() {
 #ifdef _WIN32
     return SkFontMgr_New_DirectWrite();
+#elif defined(__APPLE__)
+    return SkFontMgr_New_CoreText(nullptr);
 #else
     return canvas_linux_font_manager();
 #endif
@@ -287,7 +291,7 @@ struct Gradient {
     std::vector<SkColor4f> colors;
 };
 
-struct Style {
+struct CanvasPaintStyle {
     bool float_color = false;
     SkColor4f color = {0, 0, 0, 1};
     std::unique_ptr<Gradient> gradient;
@@ -341,8 +345,8 @@ struct Canvas {
     bool line_path_cached = false;
     SkRect arc_oval;
     float arc_start = 0, arc_sweep = 0;
-    Style fill;
-    Style stroke;
+    CanvasPaintStyle fill;
+    CanvasPaintStyle stroke;
     sk_sp<SkImageFilter> filter;  // ctx.filter, already parsed from CSS
     SkColor4f shadow = {0, 0, 0, 0};
     float shadow_blur = 0;
@@ -468,7 +472,7 @@ static float radians_to_degrees(float radians) {
     return radians * (180.0f / SK_ScalarPI);
 }
 
-static SkPaint make_paint(const Canvas* canvas, const Style& style, bool stroke) {
+static SkPaint make_paint(const Canvas* canvas, const CanvasPaintStyle& style, bool stroke) {
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setBlendMode(canvas->blend_mode);
@@ -591,7 +595,7 @@ static void draw_with_filtered_shadow(Canvas* canvas,const SkPaint& source,DrawP
 }
 
 template <typename DrawProc>
-static void draw_with_shadow(Canvas* canvas, const Style& style,
+static void draw_with_shadow(Canvas* canvas, const CanvasPaintStyle& style,
                              const SkPaint& source, DrawProc draw,
                              const SkPaint* shadow_source = nullptr, const SkRect* alpha_bounds = nullptr, bool filtered_shadow = false) {
     SkCanvas* target = canvas->surface->getCanvas();
@@ -725,7 +729,7 @@ static void draw_path(Canvas* canvas, bool stroke, bool evenodd = false) {
     const bool simple_line = canvas->line_builder_state == 2 && path.isLine(line);
     if (!stroke && simple_line) return;
     if (!stroke && evenodd) path.setFillType(SkPathFillType::kEvenOdd);
-    const Style& source_style = stroke ? canvas->stroke : canvas->fill;
+    const CanvasPaintStyle& source_style = stroke ? canvas->stroke : canvas->fill;
     SkPaint source = make_paint(canvas, source_style, stroke);
     const SkRect alpha_bounds = stroke ? stroke_bounds(canvas, bounds) : bounds;
     draw_with_shadow(canvas, source_style, source,
@@ -745,7 +749,7 @@ static void draw_explicit_path(Canvas* canvas, const SkPath& source, bool stroke
     const SkRect bounds = path.getBounds();
     if (stroke && bounds.width() == 0 && bounds.height() == 0) return;
     if (!stroke) path.setFillType(evenodd ? SkPathFillType::kEvenOdd : SkPathFillType::kWinding);
-    const Style& source_style = stroke ? canvas->stroke : canvas->fill;
+    const CanvasPaintStyle& source_style = stroke ? canvas->stroke : canvas->fill;
     SkPaint paint = make_paint(canvas, source_style, stroke);
     const SkRect alpha_bounds = stroke ? stroke_bounds(canvas, bounds) : bounds;
     draw_with_shadow(canvas, source_style, paint,
@@ -753,7 +757,7 @@ static void draw_explicit_path(Canvas* canvas, const SkPath& source, bool stroke
                      nullptr, &alpha_bounds);
 }
 
-static Style& selected_style(Canvas* canvas, int stroke) { return stroke ? canvas->stroke : canvas->fill; }
+static CanvasPaintStyle& selected_style(Canvas* canvas, int stroke) { return stroke ? canvas->stroke : canvas->fill; }
 
 // Blink blocks embedded Latin bitmaps only for these two families.
 static bool use_embedded_bitmaps(const SkTypeface* face) {
@@ -1742,11 +1746,11 @@ int skia_canvas_point_in_path(void* value, float x, float y, int stroke, int eve
 
 void skia_canvas_set_color(void* value, int stroke, uint8_t r, uint8_t g, uint8_t b, uint8_t a) { CANVAS_GPU_GUARD;
     auto* c = static_cast<Canvas*>(value); if (!c) return;
-    Style& style = selected_style(c, stroke); style.gradient.reset(); style.pattern.reset(); style.float_color=false; style.color = {r / 255.f, g / 255.f, b / 255.f, a / 255.f};
+    CanvasPaintStyle& style = selected_style(c, stroke); style.gradient.reset(); style.pattern.reset(); style.float_color=false; style.color = {r / 255.f, g / 255.f, b / 255.f, a / 255.f};
 }
 void skia_canvas_set_color_float(void* value, int stroke, float r, float g, float b, float a) { CANVAS_GPU_GUARD;
     auto* c = static_cast<Canvas*>(value); if (!c) return;
-    Style& style = selected_style(c, stroke); style.gradient.reset(); style.pattern.reset(); style.float_color=true; style.color = {r,g,b,a};
+    CanvasPaintStyle& style = selected_style(c, stroke); style.gradient.reset(); style.pattern.reset(); style.float_color=true; style.color = {r,g,b,a};
 }
 void skia_canvas_set_gradient(void* value, int stroke, int kind, const float* args, const float* positions, const float* colors, uint32_t count) { CANVAS_GPU_GUARD;
     auto* c = static_cast<Canvas*>(value); if (!c) return;
@@ -1839,7 +1843,7 @@ void skia_canvas_draw_text(void* value, const char* text, uint32_t length,
     // glyphs in this configuration, so resolve Canvas' sans-serif fallback
     // through the platform font manager before shaping/drawing text.
     SkFont font = resolve_font(family, size, weight, slant,static_cast<Canvas*>(value)->text_options.stretch);
-    const Style& source_style = stroke ? c->stroke : c->fill;
+    const CanvasPaintStyle& source_style = stroke ? c->stroke : c->fill;
     auto text_paint = [&]() {
         SkPaint paint = make_paint(c, source_style, stroke);
         // Kept local to text while evaluating Blink's glyph-outline stroke
@@ -2114,7 +2118,7 @@ void skia_canvas_draw_rgba_image(void* value, const uint8_t* input, uint32_t ima
         }, &source_bounds);
         return;
     }
-    Style image_style;
+    CanvasPaintStyle image_style;
     image_style.color={1,1,1,1};
     const SkRect alpha_bounds=SkRect::MakeXYWH(dx,dy,dw,dh);
     draw_with_shadow(c,image_style,paint,[&](SkCanvas* target,const SkPaint& image_paint){

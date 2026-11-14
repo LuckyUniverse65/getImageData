@@ -66,7 +66,7 @@ def start(token, package=False):
     assert branch.startswith('codex/linux-canvas-validation-')
     base = api(token, 'git/ref/heads/' + branch)['object']['sha'] if previous else api(token, 'git/ref/heads/main')['object']['sha']
     base_tree = api(token, 'git/commits/' + base)['tree']['sha']
-    names = ['Cargo.toml', 'Cargo.lock', 'build.rs', 'package.json', 'package-lock.json',
+    names = ['Cargo.toml', 'Cargo.lock', 'build.rs', 'package.json', 'package-lock.json', 'npm/package.json',
              'index.js', 'src/webgl_native.rs', 'src/canvas_css.rs', 'src/skia_backend.cpp',
              'src/render_diagnostics.h', 'src/linux_fontconfig.h', 'src/dommatrix.js', 'scripts/prepare-native.cjs',
              'scripts/bundle-canvas.cjs', 'scripts/build-canvas.cjs', 'scripts/build-linux.py', 'scripts/test-native-api.js',

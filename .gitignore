@@ -10,6 +10,9 @@
 !/dist/canvas/
 !/dist/canvas-linux/
 !/dist/lucky65_canvas-0.3.2.tgz
+!/dist/lucky65_canvas-0.4.0.tgz
+!/dist/canvas-darwin-x64/
+!/dist/canvas-darwin-arm64/
 
 # Large upstream checkouts and toolchains are recorded under snapshot/.
 /third_party/

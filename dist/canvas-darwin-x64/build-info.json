@@ -1,0 +1,35 @@
+{
+  "platform": "darwin",
+  "arch": "x64",
+  "backend": "skia-raster",
+  "fontBackend": "CoreText",
+  "minimumMacOS": "14.0",
+  "osVersion": "15.7.9",
+  "skiaRevision": "4f574af2444846ceca4d277a8095c5d4229d175f",
+  "sha256": "f101a95b15519ffea39d7d8c5a5a2300da1ceb15803209e69435e394b390fb05",
+  "dependencies": [
+    "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+    "/System/Library/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics",
+    "/System/Library/Frameworks/CoreText.framework/Versions/A/CoreText",
+    "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/ApplicationServices",
+    "/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit",
+    "/usr/lib/libc++.1.dylib",
+    "/usr/lib/libSystem.B.dylib"
+  ],
+  "compiler": "Apple clang version 17.0.0 (clang-1700.0.13.5)",
+  "rust": "rustc 1.99.1 (58cf8f9c3 2026-10-13)",
+  "sources": {
+    "build.rs": "174e5a6c35e843c91748be31a05da03eace745908ef9b2003ac2e5c21e803157",
+    "index.js": "415696f44d7c7951f7a73803a484d2f1aa77270ba1341ae45016710af230fd70",
+    "src/webgl_native.rs": "4c11bbb566617092c0cf9feebbb375e0969a64b1ff658cc8f975406d56348fef",
+    "src/canvas_css.rs": "70b929982e50ec98f35b05b0d9e2b6fb1870419c9223edb698fae03c9548eb1e",
+    "src/skia_backend.cpp": "bc84278ba08ef1ba04ac4480dea04ff411982a2efa39d6da14ebd35df513b3e7",
+    "src/render_diagnostics.h": "962fde190062708a54403106932b0887906b5f2857246e33b1004f2a155b0683",
+    "src/dommatrix.js": "64848b17ee5395e4afc313591b37ec50899f4363ab8173407852e2cf3ecf0601",
+    "scripts/prepare-native.cjs": "4b867573ad6cf6c656f55501701267424ac71fde95f60ead21c35daca5375827",
+    "scripts/bundle-canvas.cjs": "0f691b5ec3ed73aad3dadf4b3f3e91ab6dc6ef3444975456202763d6d341811e",
+    "scripts/build-macos.py": "dcc33ad44785b3ff9a696e06dbc136d2918a5c82afb59a1ddc598e927dc39eac",
+    "scripts/build-linux.py": "faf85a58234a3a0f71ae7816a29de339bf349d8952fb05d53e3ee2f11220ee68",
+    "snapshot/macos-skia-args.gn": "d4f6bb2f8e6cc03dae31b39df1b718da378c1679b258592d69425836586baaee"
+  }
+}

@@ -20,7 +20,23 @@ function run(executable, args, options = {}) {
 function json(file, value) { fs.writeFileSync(file, JSON.stringify(value, null, 2) + '\n'); }
 function progress(message) { console.log('[canvas] ' + message); }
 async function main() {
+    if (process.argv.includes('--platform=darwin') && process.platform !== 'darwin') {
+        throw new Error('build:macos must run on a Mac with native x64 or arm64 tools.');
+    }
     if (Number(process.versions.node.split('.')[0]) < 22) throw new Error('Node.js 22 or newer is required');
+    if (process.platform === 'darwin' && ['x64', 'arm64'].includes(process.arch)) {
+        progress('Building macOS Canvas with Skia CPU and CoreText system fonts');
+        const result = spawnSync('python3', [path.join(__dirname, 'build-macos.py')], {
+            cwd: root, env: process.env, stdio: 'inherit', timeout: 3600000
+        });
+        if (result.status !== 0) throw new Error(result.error?.message || 'macOS native build failed');
+        const macDir = path.join(root, 'dist/canvas-darwin-' + process.arch);
+        const testFile = path.join(macDir, 'test-result.json');
+        json(testFile, JSON.parse(run(process.execPath, ['--expose-gc', path.join(__dirname, 'test-native-api.js'), path.join(macDir, 'canvas.node')])));
+        run(process.execPath, [path.join(__dirname, 'test-macos.js'), path.join(macDir, 'canvas.node'), testFile]);
+        progress('macOS build, complete API and system fonts passed: ' + macDir);
+        return;
+    }
     if (process.platform === 'linux' && process.arch === 'x64') {
         progress('Building the complete Linux native module with Skia CPU and system fonts');
         const result = spawnSync('python3', [path.join(__dirname, 'build-linux.py')], {
@@ -34,7 +50,7 @@ async function main() {
         return;
     }
     if (process.platform !== 'win32' || process.arch !== 'x64' || Number(os.release().split('.')[0]) < 10)
-        throw new Error('Supported builds: Windows 10/11 x64 and Linux x64/glibc.');
+        throw new Error('Supported builds: Windows 10/11 x64, Linux x64/glibc and macOS 14+ x64/arm64.');
     fs.mkdirSync(candidate, {recursive:true});
     const lock = path.join(root, 'out/canvas-build.lock');
     const fd = fs.openSync(lock, 'wx');

@@ -2,7 +2,7 @@
 
 作者微信号：`LuckyUniverse65`
 
-在 Windows 和 Linux 上运行的 Node.js Canvas 项目。Windows 使用本项目原生模块及本机字体、GPU 和驱动；`0.3.0` 将相同源码完整编译为 Linux 原生模块，使用 Fontconfig/FreeType 和 Skia CPU，不要求 GPU 或桌面环境。
+在 Windows、Linux 和 macOS 上运行的 Node.js Canvas 项目。Windows 使用本项目原生模块及本机字体、GPU 和驱动；Linux 使用 Fontconfig/FreeType 和 Skia CPU；macOS 使用系统 CoreText 和 Skia CPU。各平台保留同一套原生 Canvas 接口。
 
 构建后的包支持直接调用：
 
@@ -10,25 +10,27 @@
 const { OffscreenCanvas } = require('canvas');
 ```
 
-`0.3.2` 起支持 **Windows 10/11 x64、Linux x64（glibc 2.31+）、Node.js 22 及以上**，包括 Debian 11。旧版 0.3.0/0.3.1 仍要求 glibc 2.35+。暂不支持 Windows Server、旧版 Windows、Alpine/musl、macOS、ARM64 或 x86。Windows 的历史实体机验证环境为 Windows 11、Node 22.13.1、Chrome 153.0.8010.48；Linux 保留原项目全部公开接口，不承诺与 Chrome 或 Windows 像素一致。兼容构建和验收状态见 [Debian 11 兼容说明](docs/2026-11-12_debian11-compatibility.md)。
+支持 **Windows 10/11 x64、Linux x64（glibc 2.31+）、Node.js 22 及以上**，包括 Debian 11。`0.4.0` 新增 **macOS 14+、Intel x64 和 Apple Silicon arm64**；最低编译目标为 14.0，真实 CI 验收在 macOS 15 上执行。旧版 0.3.0/0.3.1 仍要求 glibc 2.35+。暂不支持 Windows Server、旧版 Windows、Alpine/musl、Windows/Linux ARM64 或 x86。Windows 的历史实体机验证环境为 Windows 11、Node 22.13.1、Chrome 153.0.8010.48；Linux/macOS 保留原项目全部公开接口，不承诺与 Chrome 或其他平台像素一致。参见 [Debian 11 兼容说明](docs/2026-11-12_debian11-compatibility.md) 和 [macOS 构建与使用](docs/2026-11-14_macos-support.md)。
 
 ## npm 分发：lucky65_canvas
 
-[`lucky65_canvas`](https://www.npmjs.com/package/lucky65_canvas) 的 `0.3.2` 已公开，npm 的 latest 已更新。Windows 安装验收及八组 Linux 安装测试全部通过，包含 Debian 11、glibc 2.31、Node 22.13.1；已从官方仓库重新安装并核对二进制、运行库与字体哈希。新版自带 Linux 运行库与兜底字体，证据见 [Debian 11 兼容说明](docs/2026-11-12_debian11-compatibility.md)。安装命令：
+`0.4.0` 安装包已构建，Windows、八组 Linux 和四组 macOS 安装验收均通过。当前 npm 登录已过期，0.4.0 尚未公开发布；此前公开版本为 `0.3.2`，不包含 macOS。当前可从本仓库安装已验收的完整包：
 
 ```powershell
-npm install lucky65_canvas
+npm install ./dist/lucky65_canvas-0.4.0.tgz
 ```
 
 ```js
 const { OffscreenCanvas } = require('lucky65_canvas');
 ```
 
-无需编译工具或 Chrome。需要保留 `require('canvas')` 的项目，可使用 `npm install canvas@npm:lucky65_canvas` 别名安装。普通 `npm install canvas` 仍然安装 npm 上另一个同名项目。两平台原生文件直接内置于包中，无 npm 运行时依赖。`0.3.1` 自带 Linux Fontconfig 依赖库及中西文兜底字体，无需 apt 安装；请保留整个 npm 包。详见 [运行库打包说明](docs/2026-11-12_linux-bundled-runtime.md)。
+无需编译工具或 Chrome。需要保留 `require('canvas')` 的项目，可用 `npm install canvas@file:./dist/lucky65_canvas-0.4.0.tgz` 安装本地别名；正式发布后可用 `npm install canvas@npm:lucky65_canvas@0.4.0`。普通 `npm install canvas` 仍然安装 npm 上另一个同名项目。Windows/Linux x64、macOS x64/arm64 四个原生文件直接内置于包中，无 npm 运行时依赖。Linux 自带 Fontconfig 依赖库及中西文兜底字体，无需 apt 安装；请保留整个 npm 包。详见 [运行库打包说明](docs/2026-11-12_linux-bundled-runtime.md)。
 
 预编译版使用运行电脑的可用字体和图形环境，但保留构建时的配置，不会在安装时自动校准到该电脑的 Chrome。严格像素对齐仍需本机构建校验。
 
-维护者执行 `npm run pack:npm`，会从已校验的 Windows `dist/canvas` 及实际编译、验收的 `dist/canvas-linux` 生成 `dist/lucky65_canvas-0.3.2.tgz`，并实际安装、测试该包；Linux 实机测试另外执行。根目录继续作为私有开发工程；公开包清单位于 [npm/package.json](npm/package.json)，用户安装说明见 [npm/README.md](npm/README.md)，完整发布步骤见 [npm 发布说明](docs/2026-11-11_npm-publishing.md)。
+macOS 使用本机系统字体，不需要 Homebrew 或 Fontconfig 运行库。按 Node 的 `process.arch` 自动选择两个 macOS 原生文件；x64 Node 即使运行在 Rosetta 下也加载 x64 模块。准备好 Xcode Command Line Tools、Node、Python、Ninja 和 Rust 后，可用 `npm run build:macos` 一条命令构建并测试当前架构，完整流程见 [macOS 说明](docs/2026-11-14_macos-support.md)。
+
+维护者执行 `npm run pack:npm`，会从已校验的 Windows `dist/canvas`、Linux `dist/canvas-linux` 和 macOS `dist/canvas-darwin-{x64,arm64}` 生成 `dist/lucky65_canvas-0.4.0.tgz`，并实际安装、测试该包；Linux/macOS 安装验收通过独立 CI 执行。根目录继续作为私有开发工程；公开包清单位于 [npm/package.json](npm/package.json)，用户安装说明见 [npm/README.md](npm/README.md)，完整发布步骤见 [npm 发布说明](docs/2026-11-11_npm-publishing.md)。
 
 **当前目录状态：**示例已移至 `demo/`，可以运行下文的单次示例和 HTTP 服务。完整构建验收、主回归及性能脚本仍有旧路径引用：根目录的 `demo.js`、`data.js` 已不存在。重新执行这些流程前需要修复入口与浏览器采集路径；历史验收结果不代表当前目录已重新通过完整验收。
 
@@ -398,7 +400,7 @@ Copy-Item target/release/webgl.dll webgl.node -Force
 | [snapshot/](snapshot/) | 上游补丁与构建配置快照 |
 | [docs/](docs/) | 构建流程、专项报告与历史交接记录 |
 | `third_party/` | 本地上游源码、工具链和静态库，不提交到 Git |
-| [dist/](dist/) | 保留并提交当前 0.3.2 安装包及已验收的 Windows/Linux 构建产物；其他临时包忽略 |
+| [dist/](dist/) | 已归档安装包及 Windows/Linux/macOS 构建产物；临时包忽略 |
 | [skills/native-canvas-workflow/](skills/native-canvas-workflow/SKILL.md) | 本项目的构建、行为对齐、移植、集成和发布 skill |
 | [docs/releases/](docs/releases/) | 按版本归档的构建、测试和发布证据 |
 | `out/`、`target/` | 可重新生成的测试输出与编译中间产物，不提交到 Git |

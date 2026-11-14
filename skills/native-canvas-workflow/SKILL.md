@@ -1,6 +1,6 @@
 ---
 name: native-canvas-workflow
-description: "维护 getImageData / lucky65_canvas 原生 Node.js Canvas 项目：Chrome 行为对齐、Rust/C++/Skia 构建、Windows 本机校准、Linux glibc 兼容与依赖打包、Canvas 复用与框架接入、回归验收和 npm/GitHub 分发。用于该项目及同类原生 Canvas 移植维护，不用于普通网页绘图。"
+description: "维护 getImageData / lucky65_canvas 原生 Node.js Canvas 项目：Chrome 行为对齐、Rust/C++/Skia 构建、Windows 本机校准、Linux glibc 兼容与依赖打包、macOS Intel/Apple Silicon 原生移植、Canvas 复用与框架接入、回归验收和 npm/GitHub 分发。用于该项目及同类原生 Canvas 移植维护，不用于普通网页绘图。"
 ---
 
 # 原生 Canvas 项目工作流
@@ -22,6 +22,7 @@ description: "维护 getImageData / lucky65_canvas 原生 Node.js Canvas 项目�
 | 修复像素、参数、原型、异常、编码或 GC | [行为修复与回归](references/behavior-and-regression.md) | 对目标行为有探针/基线，受影响行为及必要回归通过 |
 | Windows 一条命令本机构建、Chrome 校准 | [Windows 构建与 CDP](references/windows-build.md) | 最终候选二进制通过当前机器实际 Chrome 对照，证据与哈希对应 |
 | Linux 移植、缺 `.so`、glibc 报错 | [Linux 构建与兼容](references/linux-build.md) | 最低 glibc 环境实际安装运行，依赖闭包与字体齐全 |
+| macOS 移植、CoreText、Intel/Apple Silicon | [macOS 构建](references/macos-build.md) | 两种原生架构真实构建及精确 npm 包安装测试，不混淆最低编译目标与实测系统 |
 | demo 慢、HTTP 服务、复用 Canvas、接入既有 DOM | [性能与集成](references/performance-and-integration.md) | 正确区分冷启动/绘图/IPC，状态隔离和原有接口语义保持 |
 | 打包、发布、GitHub 保存、发布状态核验 | [分发与发布](references/release.md) | 同一份精确 tgz 通过安装验收，线上版本及完整性实际核对 |
 | 找历史结论或解释方案演进 | [文档与证据索引](references/sources-and-history.md) | 标明结论的版本、机器、测试范围和当前是否仍成立 |

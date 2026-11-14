@@ -1,6 +1,6 @@
 # lucky65_canvas
 
-Windows 和 Linux 上的 Node.js 原生 Canvas 库。`0.3.0` 将本项目原有 Rust、C++/Skia、JS 接口完整编译为 Linux `.node`，两平台提供相同的 41 个顶层导出和 44 个 2D 上下文方法。
+Windows、Linux 和 macOS 上的 Node.js 原生 Canvas 库。各平台都使用本项目原有 Rust、C++/Skia、内嵌 JS 实现，提供相同的 41 个顶层导出和 44 个 2D 上下文方法。
 
 作者微信号：`LuckyUniverse65`
 
@@ -10,17 +10,19 @@ Windows 和 Linux 上的 Node.js 原生 Canvas 库。`0.3.0` 将本项目原有 
 npm install lucky65_canvas
 ```
 
-要求 Node.js 22+。`0.3.2` 起支持 Windows 10/11 x64 和 Linux x64/glibc 2.31+（Debian 11+、Ubuntu 20.04+）；暂不支持 Alpine/musl、ARM64、x86、macOS、旧版 Windows 或 Windows Server。
+要求 Node.js 22+。支持 Windows 10/11 x64、Linux x64/glibc 2.31+（Debian 11+、Ubuntu 20.04+）。`0.4.0` 新增 macOS 14+ 的 Intel x64 和 Apple Silicon arm64。暂不支持 Windows/Linux ARM64、Alpine/musl、x86、旧版 Windows 或 Windows Server。
 
 Debian 11 的 glibc 2.31 可直接使用本版，无需升级系统 glibc。`0.3.0`、`0.3.1` 的 Linux 二进制仍要求 glibc 2.35+，遇到旧版本检查错误时请升级到 `0.3.2` 或更高版本。
 
-两个平台的原生文件直接包含在 npm 包内，JS 接口和 Float16Array 兼容实现已嵌入二进制。没有 npm 运行时依赖，没有安装时编译脚本；不需要 Rust、Skia 源码或 Chrome。
+Windows x64、Linux x64、macOS x64/arm64 共四个原生文件直接包含在 npm 包内，JS 接口和 Float16Array 兼容实现已嵌入二进制。没有 npm 运行时依赖，没有安装时编译脚本；不需要 Rust、Skia 源码或 Chrome。
+
+macOS 使用 Skia CPU 和系统 CoreText 字体，不依赖 Homebrew、Fontconfig 或 Linux 的 `.so` 文件。根据 `process.arch` 自动选择 Intel/Apple Silicon 模块；Rosetta 下的 x64 Node 使用 x64 模块。macOS 14 是编译兼容目标，实际 CI 验收在 macOS 15 的两种架构执行；没有在 macOS 14 实机执行验收。系统字体和系统更新可能改变文字像素，不承诺与 macOS Chrome、Windows 或 Linux 的输出完全一致。
 
 `0.3.1` 起，Linux 包自带 Fontconfig、FreeType 动态依赖及所需的其他非 glibc 运行库，并包含 DejaVu 和 Noto CJK 简体中文兜底字体。无需再执行 apt 安装 `libfontconfig1` 或字体，也无需设置 `LD_LIBRARY_PATH`。Linux 使用 Skia CPU 绘图，不需要桌面、显示服务器或 GPU。
 
 请保留整个 npm 包：`linux-libs/` 和 `fonts/` 是运行所需文件，不能只复制 `.node`。系统仍需满足上述 glibc 和 Node.js 版本要求。
 
-`0.2.0` 的 Linux 版曾使用另一套绘图库，接口不完整；请升级到 `0.3.2`。此次完整移植保留原项目的能力和限制，不代表实现浏览器的所有标准。WebGL 仍是原有兼容接口，不是完整 GPU WebGL 渲染器。Linux 与 Windows/Chrome 不保证像素一致；字体和软件渲染实现会影响结果。
+`0.2.0` 的 Linux 版曾使用另一套绘图库，接口不完整；请升级到 `0.3.2` 或更新版本。完整移植保留原项目的能力和限制，不代表实现浏览器的所有标准。WebGL 仍是原有兼容接口，不是完整 GPU WebGL 渲染器。跨平台不保证像素一致；字体和软件渲染实现会影响结果。
 
 ## 使用
 

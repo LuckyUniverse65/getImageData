@@ -1,0 +1,50 @@
+name: Native macOS npm package validation
+on:
+  push:
+    branches: ['codex/macos-canvas-validation-*']
+    paths: ['.ci/lucky65_canvas-*.tgz*', '.github/workflows/macos-package-validation.yml']
+permissions:
+  contents: read
+env:
+  RELEASE_TARBALL: lucky65_canvas-0.4.0.tgz
+jobs:
+  package:
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['22.13.1', '24']
+        target:
+          - os: macos-15
+            arch: arm64
+          - os: macos-15-intel
+            arch: x64
+    runs-on: ${{ matrix.target.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Reassemble exact release tarball
+        run: |
+          cat .ci/$RELEASE_TARBALL.part-* > .ci/$RELEASE_TARBALL
+          sha256sum -c .ci/$RELEASE_TARBALL.sha256
+      - name: Install exact tarball and test original API
+        env:
+          CANVAS_DIAGNOSTICS: '1'
+        run: |
+          test "$(node -p process.arch)" = '${{ matrix.target.arch }}'
+          mkdir macos-consumer
+          cd macos-consumer
+          npm init -y
+          npm install ../.ci/$RELEASE_TARBALL --offline --ignore-scripts --omit=optional --no-audit --no-fund
+          chmod -R a-w node_modules/lucky65_canvas
+          cd ..
+          node --expose-gc scripts/test-native-api.js ./macos-consumer/node_modules/lucky65_canvas/index.js | tee package-result.json
+          node scripts/test-macos.js ./macos-consumer/node_modules/lucky65_canvas/index.js package-result.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-package-${{ matrix.target.arch }}-${{ matrix.node }}
+          path: package-result.json

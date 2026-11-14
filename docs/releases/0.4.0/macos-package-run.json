@@ -1,0 +1,11 @@
+{
+  "branch": "codex/macos-canvas-validation-0e0ab08a",
+  "version": "0.4.0",
+  "mode": "package",
+  "tarballSHA256": "f09df302b58210469e98db57e035a260357cfb889088d725ba5ccc596404faca",
+  "commit": "79de342e97a729bdabed64a3b5d3ecd5420a588c",
+  "id": 43597001618,
+  "status": "completed",
+  "conclusion": "success",
+  "html_url": "https://github.com/LuckyUniverse65/getImageData/actions/runs/43597001618"
+}
