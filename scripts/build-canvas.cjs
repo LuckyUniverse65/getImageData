@@ -20,6 +20,9 @@ function run(executable, args, options = {}) {
 function json(file, value) { fs.writeFileSync(file, JSON.stringify(value, null, 2) + '\n'); }
 function progress(message) { console.log('[canvas] ' + message); }
 async function main() {
+    if (process.argv.includes('--platform=darwin') && process.platform !== 'darwin') {
+        throw new Error('build:macos must run on a Mac with native x64 or arm64 tools.');
+    }
     if (Number(process.versions.node.split('.')[0]) < 22) throw new Error('Node.js 22 or newer is required');
     if (process.platform === 'darwin' && ['x64', 'arm64'].includes(process.arch)) {
         progress('Building macOS Canvas with Skia CPU and CoreText system fonts');
